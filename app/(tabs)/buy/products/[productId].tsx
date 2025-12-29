@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -9,7 +10,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= TYPES ================= */
 
@@ -40,7 +40,7 @@ function fetchProduct(productId: string): Promise<Product> {
         reviews: 1248,
         image:
           "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80",
-        colors: ["#ef4444", "black", "#2563eb"],
+        colors: ["#ef4444", "#000000", "#2563eb"],
         description:
           "The Yonex Astrox 99 Pro is built for aggressive badminton players. It delivers explosive smashes with excellent control.",
         specs: [
@@ -60,6 +60,7 @@ export default function ProductDetailScreen() {
   const { productId } = useLocalSearchParams<{ productId: string }>();
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<Product | null>(null);
@@ -70,8 +71,6 @@ export default function ProductDetailScreen() {
 
   useEffect(() => {
     if (!productId) return;
-
-    setLoading(true);
     fetchProduct(productId).then((res) => {
       setProduct(res);
       setSelectedColor(res.colors[0]);
@@ -81,25 +80,25 @@ export default function ProductDetailScreen() {
 
   if (loading || !product) {
     return (
-      <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark items-center justify-center">
-        <Text className="text-text-secondary">Loading product...</Text>
-      </SafeAreaView>
+      <ScreenWrapper>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-light-muted dark:text-dark-muted">
+            Loading product…
+          </Text>
+        </View>
+      </ScreenWrapper>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ================= TOP BAR ================= */}
-      <View className="flex-row items-center px-4 py-4">
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
+      <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-3 text-xl font-bold text-text-primary dark:text-white">
+        <Text className="text-xl font-bold text-light-text dark:text-dark-text">
           Buy
         </Text>
       </View>
@@ -119,16 +118,16 @@ export default function ProductDetailScreen() {
         </View>
 
         {/* TITLE */}
-        <Text className="px-4 pt-4 text-[30px] font-bold text-text-primary dark:text-white">
+        <Text className="px-4 pt-4 text-[30px] font-bold text-light-text dark:text-dark-text">
           {product.name}
         </Text>
 
         {/* PRICE + RATING */}
         <View className="flex-row justify-between items-center px-4 pt-2">
-          <Text className="text-3xl font-bold text-text-primary dark:text-white">
+          <Text className="text-3xl font-bold text-light-text dark:text-dark-text">
             ${product.price.toFixed(2)}
           </Text>
-          <Text className="text-sm text-text-secondary">
+          <Text className="text-sm text-light-muted dark:text-dark-muted">
             ⭐ {product.rating} ({product.reviews})
           </Text>
         </View>
@@ -147,44 +146,44 @@ export default function ProductDetailScreen() {
           ))}
         </View>
 
-        {/* ================= DETAILS (SAME AS TOURNAMENT) ================= */}
+        {/* ================= DETAILS ================= */}
         <View className="px-4 pt-6 gap-4">
           {/* DESCRIPTION */}
-          <View className="rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
+          <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
             <TouchableOpacity
               onPress={() => setShowDescription(!showDescription)}
               className="flex-row items-center justify-between"
             >
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
+              <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                 Description
               </Text>
               <Ionicons
                 name={showDescription ? "chevron-up" : "chevron-down"}
                 size={20}
-                color={isDark ? "#9ca3af" : "#6c757d"}
+                color={iconColor}
               />
             </TouchableOpacity>
 
             {showDescription && (
-              <Text className="pt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              <Text className="pt-3 text-sm leading-6 text-light-muted dark:text-dark-muted">
                 {product.description}
               </Text>
             )}
           </View>
 
           {/* SPECIFICATIONS */}
-          <View className="rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
+          <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
             <TouchableOpacity
               onPress={() => setShowSpecs(!showSpecs)}
               className="flex-row items-center justify-between"
             >
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
+              <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                 Specifications
               </Text>
               <Ionicons
                 name={showSpecs ? "chevron-up" : "chevron-down"}
                 size={20}
-                color={isDark ? "#9ca3af" : "#6c757d"}
+                color={iconColor}
               />
             </TouchableOpacity>
 
@@ -193,7 +192,7 @@ export default function ProductDetailScreen() {
                 {product.specs.map((s) => (
                   <Text
                     key={s}
-                    className="text-sm text-slate-600 dark:text-slate-400"
+                    className="text-sm text-light-muted dark:text-dark-muted"
                   >
                     • {s}
                   </Text>
@@ -204,22 +203,20 @@ export default function ProductDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* ================= CTA (SAME AS TOURNAMENT STYLE) ================= */}
-      <View className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark px-4 py-4 border-t border-slate-200 dark:border-slate-700">
+      {/* ================= CTA ================= */}
+      <View className="absolute bottom-0 left-0 right-0 bg-light-bg dark:bg-dark-bg px-4 py-4 border-t border-light-border dark:border-dark-border">
         <View className="flex-row gap-4">
-          {/* BUY NOW */}
-          <TouchableOpacity className="flex-1 h-14 rounded-xl bg-slate-200 dark:bg-slate-700 items-center justify-center">
-            <Text className="text-text-primary dark:text-white text-base font-bold">
+          <TouchableOpacity className="flex-1 h-14 rounded-xl bg-light-border dark:bg-dark-border items-center justify-center">
+            <Text className="text-light-text dark:text-dark-text text-base font-medium">
               Buy Now
             </Text>
           </TouchableOpacity>
 
-          {/* ADD TO CART */}
           <TouchableOpacity className="flex-1 h-14 rounded-xl bg-primary items-center justify-center">
-            <Text className="text-white text-base font-bold">Add to Cart</Text>
+            <Text className="text-black text-base font-bold">Add to Cart</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

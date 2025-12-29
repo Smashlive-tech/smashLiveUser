@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -9,47 +10,37 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TournamentDetailsScreen() {
   const isDark = useColorScheme() === "dark";
   const router = useRouter();
   const { tournamentId } = useLocalSearchParams();
 
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+
   const [showDescription, setShowDescription] = useState(true);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= TOP BAR ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-3 text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="flex-1 ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
 
         <View className="flex-row gap-4">
           <TouchableOpacity onPress={() => router.push("/notifications")}>
-            <MaterialIcons
-              name="notifications"
-              size={24}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <MaterialIcons name="notifications" size={24} color={iconColor} />
           </TouchableOpacity>
+
           <TouchableOpacity onPress={() => router.push("/play/bookings")}>
-            <MaterialIcons
-              name="calendar-month"
-              size={24}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <MaterialIcons name="calendar-month" size={24} color={iconColor} />
           </TouchableOpacity>
         </View>
       </View>
@@ -71,7 +62,7 @@ export default function TournamentDetailsScreen() {
         </View>
 
         {/* TITLE */}
-        <Text className="px-4 pt-4 text-[30px] font-bold text-text-primary dark:text-white">
+        <Text className="px-4 pt-4 text-[30px] font-bold text-light-text dark:text-dark-text">
           Annual City Tennis Open 2024
         </Text>
 
@@ -80,9 +71,9 @@ export default function TournamentDetailsScreen() {
           {["Tennis", "Singles & Doubles", "Intermediate Level"].map((chip) => (
             <View
               key={chip}
-              className="px-3 py-1.5 rounded-full bg-slate-200 dark:bg-slate-800"
+              className="px-3 py-1.5 rounded-full bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
             >
-              <Text className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              <Text className="text-sm font-medium text-light-muted dark:text-dark-muted">
                 {chip}
               </Text>
             </View>
@@ -91,110 +82,74 @@ export default function TournamentDetailsScreen() {
 
         {/* ================= DETAILS SECTIONS ================= */}
         <View className="px-4 pt-6 gap-4">
-          {/* DESCRIPTION CARD */}
-          <View className="rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
-            <TouchableOpacity
-              onPress={() => setShowDescription(!showDescription)}
-              className="flex-row items-center justify-between"
-            >
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
-                Description
-              </Text>
-              <Ionicons
-                name={showDescription ? "chevron-up" : "chevron-down"}
-                size={20}
-                color={isDark ? "#9ca3af" : "#6c757d"}
-              />
-            </TouchableOpacity>
+          {/* DESCRIPTION */}
+          <DetailCard
+            title="Description"
+            open={showDescription}
+            onToggle={() => setShowDescription(!showDescription)}
+          >
+            <Text className="pt-3 text-sm leading-6 text-light-muted dark:text-dark-muted">
+              A detailed overview explaining the tournament format, rules, prize
+              money, and what participants can expect during the event.
+            </Text>
+          </DetailCard>
 
-            {showDescription && (
-              <Text className="pt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                A detailed overview explaining the tournament format, rules,
-                prize money, and what participants can expect during the event.
-              </Text>
-            )}
-          </View>
-
-          {/* SCHEDULE CARD */}
-          <View className="rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
-            <TouchableOpacity
-              onPress={() => setShowSchedule(!showSchedule)}
-              className="flex-row items-center justify-between"
-            >
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
-                Schedule
-              </Text>
-              <Ionicons
-                name={showSchedule ? "chevron-up" : "chevron-down"}
-                size={20}
-                color={isDark ? "#9ca3af" : "#6c757d"}
-              />
-            </TouchableOpacity>
-
-            {showSchedule && (
-              <View className="pt-3 gap-2">
-                {[
-                  ["Registration Deadline", "July 30, 2024"],
-                  ["Tournament Start", "August 5, 2024"],
-                  ["Finals", "August 12, 2024"],
-                ].map(([label, value]) => (
-                  <View key={label} className="flex-row justify-between">
-                    <Text className="text-sm text-slate-600 dark:text-slate-400">
-                      {label}
-                    </Text>
-                    <Text className="text-sm font-medium text-text-primary dark:text-white">
-                      {value}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* LOCATION CARD */}
-          <View className="rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
-            <TouchableOpacity
-              onPress={() => setShowLocation(!showLocation)}
-              className="flex-row items-center justify-between"
-            >
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
-                Location
-              </Text>
-              <Ionicons
-                name={showLocation ? "chevron-up" : "chevron-down"}
-                size={20}
-                color={isDark ? "#9ca3af" : "#6c757d"}
-              />
-            </TouchableOpacity>
-
-            {showLocation && (
-              <View className="pt-3 gap-3">
-                <Text className="text-sm font-medium text-text-primary dark:text-white">
-                  City Sports Complex{"\n"}
-                  <Text className="font-normal text-slate-600 dark:text-slate-400">
-                    123 Athletic Ave, Sportsville
+          {/* SCHEDULE */}
+          <DetailCard
+            title="Schedule"
+            open={showSchedule}
+            onToggle={() => setShowSchedule(!showSchedule)}
+          >
+            <View className="pt-3 gap-2">
+              {[
+                ["Registration Deadline", "July 30, 2024"],
+                ["Tournament Start", "August 5, 2024"],
+                ["Finals", "August 12, 2024"],
+              ].map(([label, value]) => (
+                <View key={label} className="flex-row justify-between">
+                  <Text className="text-sm text-light-muted dark:text-dark-muted">
+                    {label}
                   </Text>
-                </Text>
+                  <Text className="text-sm font-medium text-light-text dark:text-dark-text">
+                    {value}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </DetailCard>
 
-                <Image
-                  source={{
-                    uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHmVCV_qxxzsrky6r9ZFPsMTq0oIUrKd-exTy1CiAUM8oqv87wdc7viKJECUMi8GKh9AAB_dj2qz8ONF__AUEVQIR2P9YoE6OGr2PRiYxHFpp4ShriNdhx2N_T4iaRgDzJuz3q_vscZ9OBjffhT98xjGKMnyskQWv4Lmmt5SFhgyniUti7plxkwe60hEx1YuM8yPPIQL8dIuNH0WPmQUSfttiq2U4S0UvnpxR9MvQ5LfmdL8mbVUb7hSwvnBQql7Xv9h4QjHi6dA",
-                  }}
-                  className="w-full h-40 rounded-lg"
-                  resizeMode="cover"
-                />
-              </View>
-            )}
-          </View>
+          {/* LOCATION */}
+          <DetailCard
+            title="Location"
+            open={showLocation}
+            onToggle={() => setShowLocation(!showLocation)}
+          >
+            <View className="pt-3 gap-3">
+              <Text className="text-sm font-medium text-light-text dark:text-dark-text">
+                City Sports Complex{"\n"}
+                <Text className="font-normal text-light-muted dark:text-dark-muted">
+                  123 Athletic Ave, Sportsville
+                </Text>
+              </Text>
+
+              <Image
+                source={{
+                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHmVCV_qxxzsrky6r9ZFPsMTq0oIUrKd-exTy1CiAUM8oqv87wdc7viKJECUMi8GKh9AAB_dj2qz8ONF__AUEVQIR2P9YoE6OGr2PRiYxHFpp4ShriNdhx2N_T4iaRgDzJuz3q_vscZ9OBjffhT98xjGKMnyskQWv4Lmmt5SFhgyniUti7plxkwe60hEx1YuM8yPPIQL8dIuNH0WPmQUSfttiq2U4S0UvnpxR9MvQ5LfmdL8mbVUb7hSwvnBQql7Xv9h4QjHi6dA",
+                }}
+                className="w-full h-40 rounded-lg"
+                resizeMode="cover"
+              />
+            </View>
+          </DetailCard>
         </View>
 
-        {/* ================= CTA INSIDE SCROLL ================= */}
+        {/* ================= CTA ================= */}
         <View className="px-4 pt-8">
           <View className="flex-row justify-between mb-4">
-            <Text className="text-base text-slate-600 dark:text-slate-400">
+            <Text className="text-base text-light-muted dark:text-dark-muted">
               Entry Fee
             </Text>
-            <Text className="text-xl font-bold text-text-primary dark:text-white">
+            <Text className="text-xl font-bold text-light-text dark:text-dark-text">
               $50.00
             </Text>
           </View>
@@ -203,10 +158,47 @@ export default function TournamentDetailsScreen() {
             className="h-14 rounded-xl bg-primary items-center justify-center mb-3"
             onPress={() => router.push("/play/tournaments/register")}
           >
-            <Text className="text-white text-base font-bold">Register Now</Text>
+            <Text className="text-black text-base font-bold">Register Now</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
+  );
+}
+
+/* ================= REUSABLE CARD ================= */
+
+function DetailCard({
+  title,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+
+  return (
+    <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+      <TouchableOpacity
+        onPress={onToggle}
+        className="flex-row items-center justify-between"
+      >
+        <Text className="text-base font-semibold text-light-text dark:text-dark-text">
+          {title}
+        </Text>
+        <Ionicons
+          name={open ? "chevron-up" : "chevron-down"}
+          size={20}
+          color={iconColor}
+        />
+      </TouchableOpacity>
+
+      {open && children}
+    </View>
   );
 }

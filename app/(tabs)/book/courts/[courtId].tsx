@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -12,7 +13,6 @@ import {
   useColorScheme,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -47,37 +47,40 @@ export default function CourtDetailScreen() {
   const { courtId } = useLocalSearchParams<{ courtId: string }>();
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [selectedCourt, setSelectedCourt] = useState("hard");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(t);
   }, []);
 
   /* ================= LOADING ================= */
+
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark items-center justify-center">
-        <ActivityIndicator size="large" color="#0d59f2" />
-        <Text className="mt-4 text-base text-text-secondary">
-          Loading court details...
-        </Text>
-      </SafeAreaView>
+      <ScreenWrapper>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#8AFF1A" />
+          <Text className="mt-4 text-base text-light-muted dark:text-dark-muted">
+            Loading court details…
+          </Text>
+        </View>
+      </ScreenWrapper>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ================= HEADER (UPDATED ONLY) ================= */}
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="ml-3 text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
           Book
         </Text>
       </View>
@@ -85,7 +88,7 @@ export default function CourtDetailScreen() {
       {/* ================= CONTENT ================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 140 }}
       >
         {/* IMAGE CAROUSEL */}
         <View className="py-3">
@@ -112,13 +115,13 @@ export default function CourtDetailScreen() {
 
         {/* TITLE */}
         <View className="px-4 pt-6">
-          <Text className="text-3xl font-bold text-text-primary dark:text-white">
+          <Text className="text-3xl font-bold text-light-text dark:text-dark-text">
             {COURT_DATA.name}
           </Text>
 
           <View className="flex-row items-center mt-2">
-            <Ionicons name="star" size={16} color="#facc15" />
-            <Text className="ml-2 text-sm text-text-secondary">
+            <Ionicons name="star" size={16} color="#FACC15" />
+            <Text className="ml-2 text-sm text-light-muted dark:text-dark-muted">
               {COURT_DATA.rating}
             </Text>
           </View>
@@ -126,11 +129,11 @@ export default function CourtDetailScreen() {
 
         {/* LOCATION */}
         <View className="flex-row items-center px-4 py-4 gap-3">
-          <View className="h-10 w-10 items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-800">
+          <View className="h-10 w-10 items-center justify-center rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
             <Ionicons name="location-outline" size={20} color={iconColor} />
           </View>
 
-          <Text className="flex-1 text-base text-text-primary dark:text-white">
+          <Text className="flex-1 text-base text-light-text dark:text-dark-text">
             {COURT_DATA.address}
           </Text>
 
@@ -141,18 +144,18 @@ export default function CourtDetailScreen() {
 
         {/* ABOUT */}
         <View className="px-4 py-4">
-          <Text className="text-xl font-bold text-text-primary dark:text-white mb-2">
+          <Text className="text-xl font-bold text-light-text dark:text-dark-text mb-2">
             About this venue
           </Text>
 
-          <Text className="text-base text-text-secondary leading-relaxed">
+          <Text className="text-base text-light-muted dark:text-dark-muted leading-relaxed">
             {COURT_DATA.description}
           </Text>
         </View>
 
         {/* COURT TYPE */}
         <View className="px-4 py-4">
-          <Text className="text-xl font-bold text-text-primary dark:text-white mb-4">
+          <Text className="text-xl font-bold text-light-text dark:text-dark-text mb-4">
             Select Court Type
           </Text>
 
@@ -166,26 +169,27 @@ export default function CourtDetailScreen() {
                   onPress={() => setSelectedCourt(court.id)}
                   className={`flex-1 p-4 rounded-xl border ${
                     active
-                      ? "border-primary bg-primary/20"
-                      : "border-slate-300 dark:border-slate-700"
+                      ? "border-primary bg-primary/10"
+                      : "border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
                   }`}
                 >
                   <Ionicons
                     name={court.icon as any}
                     size={28}
-                    color={active ? "#0d59f2" : iconColor}
+                    color={active ? "#8AFF1A" : iconColor}
                   />
+
                   <Text
-                    className={`mt-2 font-bold ${
+                    className={`mt-2 font-semibold ${
                       active
                         ? "text-primary"
-                        : "text-text-primary dark:text-white"
+                        : "text-light-text dark:text-dark-text"
                     }`}
                   >
                     {court.name}
                   </Text>
 
-                  <Text className="text-sm text-text-secondary">
+                  <Text className="text-sm text-light-muted dark:text-dark-muted">
                     {court.available} available
                   </Text>
                 </TouchableOpacity>
@@ -196,7 +200,7 @@ export default function CourtDetailScreen() {
       </ScrollView>
 
       {/* ================= FOOTER ================= */}
-      <View className="absolute bottom-0 left-0 right-0 px-4 py-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+      <View className="absolute bottom-0 left-0 right-0 px-4 py-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
         <TouchableOpacity
           onPress={() =>
             router.push({
@@ -206,9 +210,9 @@ export default function CourtDetailScreen() {
           }
           className="h-14 rounded-xl bg-primary items-center justify-center"
         >
-          <Text className="text-white text-lg font-bold">Book a Court</Text>
+          <Text className="text-black text-lg font-medium">Book a Court</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -9,7 +10,6 @@ import {
   useColorScheme,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= SLOT GENERATOR ================= */
 
@@ -20,7 +20,7 @@ function generateSlots() {
     { time: "11:00 AM", available: true },
     { time: "02:00 PM", available: true },
     { time: "03:00 PM", available: true },
-    { time: "04:00 PM", available: false }, // disabled
+    { time: "04:00 PM", available: false },
   ];
 }
 
@@ -29,7 +29,7 @@ function generateSlots() {
 export default function BookSlotScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -39,21 +39,20 @@ export default function BookSlotScreen() {
   );
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  /* ================= FETCH SLOTS ================= */
   useEffect(() => {
     setSelectedSlot(null);
     setSlots(generateSlots());
   }, [selectedDate]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
-      <View className="flex-row items-center gap-2 px-4 py-4">
+      <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Book
         </Text>
       </View>
@@ -71,23 +70,23 @@ export default function BookSlotScreen() {
             markedDates={{
               [selectedDate]: {
                 selected: true,
-                selectedColor: "#0d59f2",
+                selectedColor: "#8AFF1A",
               },
             }}
             theme={{
               calendarBackground: "transparent",
-              dayTextColor: isDark ? "#ffffff" : "#111827",
-              monthTextColor: isDark ? "#ffffff" : "#111827",
-              textDisabledColor: "#9ca3af",
-              arrowColor: "#0d59f2",
-              selectedDayBackgroundColor: "#0d59f2",
-              todayTextColor: "#0d59f2",
+              dayTextColor: isDark ? "#FFFFFF" : "#0F172A",
+              monthTextColor: isDark ? "#FFFFFF" : "#0F172A",
+              textDisabledColor: "#9CA3AF",
+              arrowColor: "#8AFF1A",
+              selectedDayBackgroundColor: "#8AFF1A",
+              todayTextColor: "#8AFF1A",
             }}
           />
         </View>
 
         {/* ================= SLOT HEADER ================= */}
-        <Text className="px-4 pt-6 pb-3 text-lg font-bold text-text-primary dark:text-white">
+        <Text className="px-4 pt-6 pb-3 text-lg font-bold text-light-text dark:text-dark-text">
           Available Times for {new Date(selectedDate).toDateString()}
         </Text>
 
@@ -102,21 +101,21 @@ export default function BookSlotScreen() {
                 disabled={!slot.available}
                 activeOpacity={0.85}
                 onPress={() => setSelectedSlot(slot.time)}
-                className={`h-11 px-5 rounded-xl items-center justify-center border-2 ${
+                className={`h-11 px-5 rounded-xl items-center justify-center border ${
                   !slot.available
-                    ? "bg-slate-300 dark:bg-slate-700 border-slate-300 dark:border-slate-700"
+                    ? "bg-light-border dark:bg-dark-border border-light-border dark:border-dark-border"
                     : isSelected
                       ? "bg-primary border-primary"
-                      : "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                      : "bg-light-card dark:bg-dark-card border-light-border dark:border-dark-border"
                 }`}
               >
                 <Text
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-medium ${
                     !slot.available
-                      ? "text-slate-600 dark:text-slate-400"
+                      ? "text-light-muted dark:text-dark-muted"
                       : isSelected
-                        ? "text-white"
-                        : "text-text-primary dark:text-white"
+                        ? "text-black"
+                        : "text-light-text dark:text-dark-text"
                   }`}
                 >
                   {slot.time}
@@ -128,7 +127,7 @@ export default function BookSlotScreen() {
       </ScrollView>
 
       {/* ================= STICKY FOOTER ================= */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+      <View className="absolute bottom-0 left-0 right-0 p-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
         <TouchableOpacity
           disabled={!selectedSlot}
           activeOpacity={0.85}
@@ -141,19 +140,21 @@ export default function BookSlotScreen() {
               },
             })
           }
-          className={`h-14 rounded-xl items-center justify-center shadow-lg ${
-            selectedSlot ? "bg-primary" : "bg-slate-300 dark:bg-slate-700"
+          className={`h-14 rounded-xl items-center justify-center ${
+            selectedSlot ? "bg-primary" : "bg-light-border dark:bg-dark-border"
           }`}
         >
           <Text
-            className={`text-base font-bold ${
-              selectedSlot ? "text-white" : "text-slate-500"
+            className={`text-base font-medium ${
+              selectedSlot
+                ? "text-black"
+                : "text-light-muted dark:text-dark-muted"
             }`}
           >
             Continue
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

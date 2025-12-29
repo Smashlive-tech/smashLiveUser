@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -13,9 +14,8 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-// Enable animation for Android expand/collapse
+// Enable animation for Android
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -26,7 +26,6 @@ if (
 export default function HelpSupportScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
 
   const faqs = [
@@ -34,148 +33,163 @@ export default function HelpSupportScreen() {
       id: 1,
       question: "How do I create an event?",
       answer:
-        "To create an event, navigate to the 'Events' tab and tap the '+' icon. Follow the on-screen instructions to fill in your event details, set ticket prices, and publish your event.",
+        "Navigate to the Events tab and tap the '+' icon. Fill in event details, pricing, and publish.",
     },
     {
       id: 2,
       question: "Managing ticket sales?",
-      answer:
-        "You can track your ticket sales in real-time from the event dashboard. View sales data, revenue, and attendee information all in one place.",
+      answer: "Track sales and revenue from the event dashboard in real time.",
     },
     {
       id: 3,
       question: "How to check in attendees?",
       answer:
-        "Use the built-in scanner in the app to scan QR codes on tickets. You can also manually search for attendees by name or email to check them in.",
+        "Scan QR codes using the built-in scanner or search attendees manually.",
     },
     {
       id: 4,
       question: "Payment and payout information?",
       answer:
-        "Payouts are processed 3–5 business days after your event concludes. You can set up and manage your payout details in the Settings → Payout section.",
+        "Payouts are processed 3–5 business days after the event concludes.",
     },
   ];
 
-  const handleToggle = (id: number) => {
+  const toggleFAQ = (id: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setOpenFAQ(openFAQ === id ? null : id);
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ================= HEADER (MATCHES CONNECT) ================= */}
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <Ionicons
             name="arrow-back"
             size={22}
-            color={isDark ? "#9ca3af" : "#6c757d"}
+            color={isDark ? "#9CA3AF" : "#6B7280"}
           />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Help & Support
         </Text>
       </View>
 
-      {/* ================= CONTENT ================= */}
       <ScrollView
-        className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
       >
         {/* ================= FAQ ================= */}
-        <View className="mt-2 mb-8">
-          <Text className="text-lg font-semibold text-text-primary dark:text-white mb-4">
-            Frequently Asked Questions
-          </Text>
+        <Section title="Frequently Asked Questions" />
 
-          <View className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-            {faqs.map((faq) => (
-              <View
-                key={faq.id}
-                className="border-b border-slate-200 dark:border-slate-700 last:border-b-0"
+        <View className="rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card overflow-hidden">
+          {faqs.map((faq) => (
+            <View
+              key={faq.id}
+              className="border-b border-light-border dark:border-dark-border last:border-b-0"
+            >
+              <TouchableOpacity
+                onPress={() => toggleFAQ(faq.id)}
+                activeOpacity={0.85}
+                className="flex-row justify-between items-center px-4 py-4"
               >
-                <TouchableOpacity
-                  onPress={() => handleToggle(faq.id)}
-                  activeOpacity={0.85}
-                  className="flex-row justify-between items-center px-4 py-4"
-                >
-                  <Text className="text-base font-medium text-text-primary dark:text-white flex-1 pr-4">
-                    {faq.question}
-                  </Text>
-                  <MaterialIcons
-                    name={openFAQ === faq.id ? "expand-less" : "expand-more"}
-                    size={26}
-                    color={isDark ? "#9ca3af" : "#6b7280"}
-                  />
-                </TouchableOpacity>
+                <Text className="flex-1 pr-4 text-base font-medium text-light-text dark:text-dark-text">
+                  {faq.question}
+                </Text>
 
-                {openFAQ === faq.id && (
-                  <View className="px-4 pb-4">
-                    <Text className="text-sm text-text-secondary leading-6">
-                      {faq.answer}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
+                <MaterialIcons
+                  name={openFAQ === faq.id ? "expand-less" : "expand-more"}
+                  size={26}
+                  color={isDark ? "#9CA3AF" : "#6B7280"}
+                />
+              </TouchableOpacity>
+
+              {openFAQ === faq.id && (
+                <View className="px-4 pb-4">
+                  <Text className="text-sm leading-6 text-light-muted dark:text-dark-muted">
+                    {faq.answer}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ))}
         </View>
 
         {/* ================= CONTACT SUPPORT ================= */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-text-primary dark:text-white mb-4">
-            Contact Support
-          </Text>
+        <Section title="Contact Support" />
 
-          <View className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-            {/* Email */}
-            <TouchableOpacity
-              onPress={() => Linking.openURL("mailto:support@smashlive.com")}
-              className="flex-row items-center justify-between px-4 py-5 border-b border-slate-200 dark:border-slate-700"
-              activeOpacity={0.85}
-            >
-              <View className="flex-row items-center gap-4">
-                <View className="h-11 w-11 rounded-full bg-primary/20 items-center justify-center">
-                  <MaterialIcons name="mail" size={22} color="#0d59f2" />
-                </View>
-                <Text className="text-base font-medium text-text-primary dark:text-white">
-                  Email Support
-                </Text>
-              </View>
-              <MaterialIcons
-                name="chevron-right"
-                size={26}
-                color={isDark ? "#9ca3af" : "#6b7280"}
-              />
-            </TouchableOpacity>
+        <View className="rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card overflow-hidden">
+          {/* Email */}
+          <SupportRow
+            icon="mail"
+            label="Email Support"
+            onPress={() => Linking.openURL("mailto:support@smashlive.com")}
+          />
 
-            {/* Live Chat */}
-            <TouchableOpacity
-              onPress={() =>
-                Alert.alert("Live Chat", "Connecting you to support…")
-              }
-              className="flex-row items-center justify-between px-4 py-5"
-              activeOpacity={0.85}
-            >
-              <View className="flex-row items-center gap-4">
-                <View className="h-11 w-11 rounded-full bg-primary/20 items-center justify-center">
-                  <MaterialIcons name="chat-bubble" size={20} color="#0d59f2" />
-                </View>
-                <Text className="text-base font-medium text-text-primary dark:text-white">
-                  Live Chat
-                </Text>
-              </View>
-              <MaterialIcons
-                name="chevron-right"
-                size={26}
-                color={isDark ? "#9ca3af" : "#6b7280"}
-              />
-            </TouchableOpacity>
-          </View>
+          {/* Live Chat */}
+          <SupportRow
+            icon="chat-bubble"
+            label="Live Chat"
+            onPress={() =>
+              Alert.alert("Live Chat", "Connecting you to support…")
+            }
+            last
+          />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
+  );
+}
+
+/* ================= REUSABLE ================= */
+
+function Section({ title }: { title: string }) {
+  return (
+    <View className="mt-4 mb-3">
+      <Text className="text-lg font-semibold text-light-text dark:text-dark-text">
+        {title}
+      </Text>
+    </View>
+  );
+}
+
+function SupportRow({
+  icon,
+  label,
+  onPress,
+  last,
+}: {
+  icon: any;
+  label: string;
+  onPress: () => void;
+  last?: boolean;
+}) {
+  const isDark = useColorScheme() === "dark";
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      className={`flex-row items-center justify-between px-4 py-5 ${
+        !last ? "border-b border-light-border dark:border-dark-border" : ""
+      }`}
+    >
+      <View className="flex-row items-center gap-4">
+        <View className="h-11 w-11 rounded-full bg-primary/20 items-center justify-center">
+          <MaterialIcons name={icon} size={22} color="#8AFF1A" />
+        </View>
+
+        <Text className="text-base font-medium text-light-text dark:text-dark-text">
+          {label}
+        </Text>
+      </View>
+
+      <MaterialIcons
+        name="chevron-right"
+        size={26}
+        color={isDark ? "#9CA3AF" : "#6B7280"}
+      />
+    </TouchableOpacity>
   );
 }

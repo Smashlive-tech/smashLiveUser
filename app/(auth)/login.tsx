@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -33,12 +33,10 @@ export default function LoginScreen() {
       valid = false;
     } else {
       const isNumber = /^[0-9]+$/.test(email);
-      if (isNumber) {
-        if (email.length !== 10) {
-          temp.email = "Enter valid 10 digit phone number";
-          valid = false;
-        }
-      } else {
+      if (isNumber && email.length !== 10) {
+        temp.email = "Enter valid 10 digit phone number";
+        valid = false;
+      } else if (!isNumber) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
           temp.email = "Enter valid email address";
@@ -54,14 +52,12 @@ export default function LoginScreen() {
 
     setErrors(temp);
     if (!valid) return;
+
     router.replace("/(tabs)/home");
   };
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background-light dark:bg-background-dark"
-    >
+    <ScreenWrapper>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
@@ -72,32 +68,33 @@ export default function LoginScreen() {
           contentContainerStyle={{ paddingBottom: 40 }}
           className="flex-1 px-6 pt-14"
         >
-          {/* Sign In Header */}
+          {/* Header */}
           <View className="items-center mb-10">
-            <Text className="text-3xl font-bold text-gray-900 dark:text-white">
+            <Text className="text-3xl font-bold text-light-text dark:text-dark-text">
               Welcome Back 👋
             </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-base mt-2">
+            <Text className="text-light-muted dark:text-dark-muted text-base mt-2">
               Sign in to continue
             </Text>
           </View>
 
-          {/* Email Field */}
+          {/* Email */}
           <View className="mb-3">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ml-1">
+            <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
               Email or Phone
             </Text>
+
             <View
               className={`flex-row items-center h-14 rounded-2xl border ${
                 errors.email
                   ? "border-red-500"
-                  : "border-gray-300 dark:border-[#314368]"
-              } bg-white dark:bg-[#182234] px-4 shadow-sm`}
+                  : "border-light-border dark:border-dark-border"
+              } bg-light-card dark:bg-dark-card px-4`}
             >
               <MaterialCommunityIcons
                 name="email-outline"
                 size={22}
-                color="#9ca3af"
+                color="#9CA3AF"
               />
               <TextInput
                 value={email}
@@ -106,34 +103,36 @@ export default function LoginScreen() {
                   setErrors({ ...errors, email: "" });
                 }}
                 placeholder="Enter your email"
-                placeholderTextColor="#9ca3af"
-                className="flex-1 pl-3 text-base text-gray-900 dark:text-white"
+                placeholderTextColor="#9CA3AF"
+                className="flex-1 pl-3 text-base text-light-text dark:text-dark-text"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 returnKeyType="next"
               />
             </View>
+
             {errors.email ? (
               <Text className="text-red-500 text-sm mt-1">{errors.email}</Text>
             ) : null}
           </View>
 
-          {/* Password Field */}
+          {/* Password */}
           <View className="mb-2">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ml-1">
+            <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
               Password
             </Text>
+
             <View
               className={`flex-row items-center h-14 rounded-2xl border ${
                 errors.password
                   ? "border-red-500"
-                  : "border-gray-300 dark:border-[#314368]"
-              } bg-white dark:bg-[#182234] px-4 shadow-sm`}
+                  : "border-light-border dark:border-dark-border"
+              } bg-light-card dark:bg-dark-card px-4`}
             >
               <MaterialCommunityIcons
                 name="lock-outline"
                 size={22}
-                color="#9ca3af"
+                color="#9CA3AF"
               />
               <TextInput
                 value={password}
@@ -142,9 +141,9 @@ export default function LoginScreen() {
                   setErrors({ ...errors, password: "" });
                 }}
                 placeholder="Enter your password"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!isPasswordVisible}
-                className="flex-1 pl-3 text-base text-gray-900 dark:text-white"
+                className="flex-1 pl-3 text-base text-light-text dark:text-dark-text"
                 returnKeyType="done"
               />
               <TouchableOpacity
@@ -153,10 +152,11 @@ export default function LoginScreen() {
                 <MaterialCommunityIcons
                   name={isPasswordVisible ? "eye" : "eye-off"}
                   size={22}
-                  color="#9ca3af"
+                  color="#9CA3AF"
                 />
               </TouchableOpacity>
             </View>
+
             {errors.password ? (
               <Text className="text-red-500 text-sm mt-1">
                 {errors.password}
@@ -164,7 +164,7 @@ export default function LoginScreen() {
             ) : null}
           </View>
 
-          {/* Forgot Password */}
+          {/* Forgot */}
           <View className="flex-row justify-end mb-5">
             <TouchableOpacity
               onPress={() => router.push("/(auth)/forgotPassword/email")}
@@ -175,37 +175,36 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Buttons */}
+          {/* Primary Button */}
           <TouchableOpacity
             onPress={validate}
-            className="flex h-14 w-full items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3"
+            className="h-14 w-full items-center justify-center rounded-2xl bg-primary mb-3"
           >
-            <Text className="text-white font-bold text-base">Sign In</Text>
+            <Text className="text-black font-bold text-base">Sign In</Text>
           </TouchableOpacity>
 
+          {/* Secondary */}
           <TouchableOpacity
             onPress={() => router.push("/(auth)/otp_login/mobile")}
-            className="flex h-14 w-full items-center justify-center rounded-2xl border border-gray-300 dark:border-[#314368] bg-transparent mb-5"
+            className="h-14 w-full items-center justify-center rounded-2xl border border-light-border dark:border-dark-border mb-5"
           >
-            <Text className="text-gray-800 dark:text-white font-bold text-base">
+            <Text className="text-light-text dark:text-dark-text font-bold text-base">
               Login with OTP
             </Text>
           </TouchableOpacity>
 
           {/* Bottom */}
-          <View className="mb-4">
-            <Text className="text-center text-sm text-gray-600 dark:text-gray-400">
-              New here?{" "}
-              <Text
-                className="font-bold text-primary"
-                onPress={() => router.push("/(auth)/signup")}
-              >
-                Create Account
-              </Text>
+          <Text className="text-center text-sm text-light-muted dark:text-dark-muted">
+            New here?{" "}
+            <Text
+              className="font-bold text-primary"
+              onPress={() => router.push("/(auth)/signup")}
+            >
+              Create Account
             </Text>
-          </View>
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

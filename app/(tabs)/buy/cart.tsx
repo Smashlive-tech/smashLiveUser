@@ -1,7 +1,9 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -9,7 +11,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= DATA ================= */
 
@@ -36,20 +37,18 @@ const INITIAL_CART = [
 
 export default function CartScreen() {
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<typeof INITIAL_CART>([]);
 
-  /* ================= FAKE API ================= */
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setCart(INITIAL_CART); // change to [] to test empty state
+    const t = setTimeout(() => {
+      setCart(INITIAL_CART); // set [] to test empty state
       setLoading(false);
     }, 1200);
-
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, []);
 
   function updateQty(id: string, delta: number) {
@@ -69,18 +68,14 @@ export default function CartScreen() {
   const total = subtotal + shipping;
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
-      <View className="flex-row items-center gap-2 px-4 py-4">
+      <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Cart
         </Text>
       </View>
@@ -92,7 +87,7 @@ export default function CartScreen() {
           [1, 2].map((i) => (
             <View
               key={i}
-              className="mb-4 h-24 rounded-xl bg-slate-200 dark:bg-slate-700"
+              className="mb-4 h-24 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
             />
           ))}
 
@@ -101,7 +96,7 @@ export default function CartScreen() {
           cart.map((item) => (
             <View
               key={item.id}
-              className="flex-row items-center gap-4 mb-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 p-3"
+              className="flex-row items-center gap-4 mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border"
             >
               <Image
                 source={{ uri: item.image }}
@@ -109,9 +104,10 @@ export default function CartScreen() {
               />
 
               <View className="flex-1">
-                <Text className="font-semibold text-text-primary dark:text-white">
+                <Text className="font-semibold text-light-text dark:text-dark-text">
                   {item.name}
                 </Text>
+
                 <Text className="text-sm font-medium text-primary mt-1">
                   ${item.price.toFixed(2)}
                 </Text>
@@ -119,14 +115,14 @@ export default function CartScreen() {
                 <View className="flex-row items-center gap-3 mt-3">
                   <TouchableOpacity
                     onPress={() => updateQty(item.id, -1)}
-                    className="h-7 w-7 rounded-full bg-slate-200 dark:bg-slate-700 items-center justify-center"
+                    className="h-7 w-7 rounded-full bg-light-border dark:bg-dark-border items-center justify-center"
                   >
-                    <Text className="text-lg text-text-primary dark:text-white">
+                    <Text className="text-lg text-light-text dark:text-dark-text">
                       −
                     </Text>
                   </TouchableOpacity>
 
-                  <Text className="w-6 text-center text-base font-medium text-text-primary dark:text-white">
+                  <Text className="w-6 text-center text-base font-medium text-light-text dark:text-dark-text">
                     {item.qty}
                   </Text>
 
@@ -134,17 +130,13 @@ export default function CartScreen() {
                     onPress={() => updateQty(item.id, 1)}
                     className="h-7 w-7 rounded-full bg-primary items-center justify-center"
                   >
-                    <Text className="text-lg text-white">+</Text>
+                    <Text className="text-lg text-black">+</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               <TouchableOpacity onPress={() => removeItem(item.id)}>
-                <Ionicons
-                  name="trash-outline"
-                  size={20}
-                  color={isDark ? "#9ca3af" : "#6c757d"}
-                />
+                <Ionicons name="trash-outline" size={20} color={iconColor} />
               </TouchableOpacity>
             </View>
           ))}
@@ -152,15 +144,11 @@ export default function CartScreen() {
         {/* ---------- EMPTY STATE ---------- */}
         {!loading && cart.length === 0 && (
           <View className="items-center justify-center mt-24 px-6">
-            <Ionicons
-              name="cart-outline"
-              size={56}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
-            <Text className="mt-4 text-lg font-semibold text-text-primary dark:text-white">
+            <Ionicons name="cart-outline" size={56} color={iconColor} />
+            <Text className="mt-4 text-lg font-semibold text-light-text dark:text-dark-text">
               Your cart is empty
             </Text>
-            <Text className="mt-1 text-sm text-text-secondary text-center">
+            <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted text-center">
               Looks like you haven’t added anything yet.
             </Text>
 
@@ -168,7 +156,7 @@ export default function CartScreen() {
               onPress={() => router.push("/buy")}
               className="mt-6 h-12 px-6 rounded-lg bg-primary items-center justify-center"
             >
-              <Text className="text-white font-bold text-base">
+              <Text className="text-black font-medium text-base">
                 Continue Shopping
               </Text>
             </TouchableOpacity>
@@ -178,39 +166,46 @@ export default function CartScreen() {
 
       {/* ================= FOOTER ================= */}
       {!loading && cart.length > 0 && (
-        <View className="border-t border-slate-200 dark:border-slate-700 bg-background-light dark:bg-background-dark px-4 py-4">
+        <View className="border-t border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg px-4 py-4">
           <View className="flex-row justify-between mb-2">
-            <Text className="text-sm text-text-secondary">Subtotal</Text>
-            <Text className="font-medium text-text-primary dark:text-white">
+            <Text className="text-sm text-light-muted dark:text-dark-muted">
+              Subtotal
+            </Text>
+            <Text className="font-medium text-light-text dark:text-dark-text">
               ${subtotal.toFixed(2)}
             </Text>
           </View>
 
           <View className="flex-row justify-between mb-2">
-            <Text className="text-sm text-text-secondary">Shipping</Text>
-            <Text className="font-medium text-text-primary dark:text-white">
+            <Text className="text-sm text-light-muted dark:text-dark-muted">
+              Shipping
+            </Text>
+            <Text className="font-medium text-light-text dark:text-dark-text">
               ${shipping.toFixed(2)}
             </Text>
           </View>
 
-          <View className="border-t border-dashed border-slate-300 dark:border-slate-600 my-3" />
+          <View className="h-px bg-light-border dark:bg-dark-border my-3" />
 
           <View className="flex-row justify-between mb-4">
-            <Text className="font-semibold text-text-primary dark:text-white">
+            <Text className="font-semibold text-light-text dark:text-dark-text">
               Total
             </Text>
-            <Text className="font-semibold text-text-primary dark:text-white">
+            <Text className="font-semibold text-light-text dark:text-dark-text">
               ${total.toFixed(2)}
             </Text>
           </View>
 
-          <TouchableOpacity className="h-12 rounded-lg bg-primary items-center justify-center">
-            <Text className="text-white font-bold text-base">
+          <TouchableOpacity
+            onPress={() => Alert.alert("Going to checkout")}
+            className="h-12 rounded-lg bg-primary items-center justify-center"
+          >
+            <Text className="text-black font-medium text-base">
               Proceed to Checkout
             </Text>
           </TouchableOpacity>
         </View>
       )}
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -10,7 +11,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= DATA ================= */
 
@@ -42,7 +42,7 @@ export default function PlayTournamentSearchScreen() {
   const router = useRouter();
   const { query } = useLocalSearchParams<{ query?: string }>();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(query ?? "");
@@ -82,41 +82,31 @@ export default function PlayTournamentSearchScreen() {
   }, [search, sortType]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-3 text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="flex-1 ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
 
         <View className="flex-row gap-4">
           <TouchableOpacity onPress={() => router.push("/notifications")}>
-            <MaterialIcons
-              name="notifications"
-              size={24}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <MaterialIcons name="notifications" size={24} color={iconColor} />
           </TouchableOpacity>
+
           <TouchableOpacity onPress={() => router.push("/play/bookings")}>
-            <MaterialIcons
-              name="calendar-month"
-              size={24}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <MaterialIcons name="calendar-month" size={24} color={iconColor} />
           </TouchableOpacity>
         </View>
       </View>
+
       {/* ================= SEARCH ================= */}
       <View className="px-4 pb-2">
-        <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
+        <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
           <Ionicons name="search" size={20} color={iconColor} />
           <TextInput
             value={search}
@@ -132,10 +122,11 @@ export default function PlayTournamentSearchScreen() {
                 });
               }
             }}
-            className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+            className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
           />
         </View>
       </View>
+
       {/* ================= LIST ================= */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-4 pt-2 pb-8">
@@ -143,7 +134,7 @@ export default function PlayTournamentSearchScreen() {
             [1, 2].map((i) => (
               <View
                 key={i}
-                className="mb-4 h-60 rounded-xl bg-slate-200 dark:bg-slate-700"
+                className="mb-4 h-60 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
               />
             ))}
 
@@ -151,7 +142,7 @@ export default function PlayTournamentSearchScreen() {
             filtered.map((item) => (
               <View
                 key={item.id}
-                className="mb-4 rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700"
+                className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border"
               >
                 <Image
                   source={{ uri: item.image }}
@@ -163,10 +154,10 @@ export default function PlayTournamentSearchScreen() {
                     <Text className="text-primary text-sm font-medium">
                       {item.sport}
                     </Text>
-                    <Text className="font-bold text-text-primary dark:text-white">
+                    <Text className="font-bold text-light-text dark:text-dark-text">
                       {item.title}
                     </Text>
-                    <Text className="text-sm text-text-secondary">
+                    <Text className="text-sm text-light-muted dark:text-dark-muted">
                       {item.date}
                     </Text>
                   </View>
@@ -175,7 +166,7 @@ export default function PlayTournamentSearchScreen() {
                     onPress={() => router.push(`/play/tournaments/${item.id}`)}
                     className="h-10 px-4 rounded-lg bg-primary items-center justify-center"
                   >
-                    <Text className="text-white text-sm font-medium">
+                    <Text className="text-black text-sm font-medium">
                       Details
                     </Text>
                   </TouchableOpacity>
@@ -184,12 +175,12 @@ export default function PlayTournamentSearchScreen() {
             ))}
 
           {!loading && filtered.length === 0 && (
-            <Text className="text-center text-text-secondary mt-10">
+            <Text className="text-center text-light-muted dark:text-dark-muted mt-10">
               No tournaments found
             </Text>
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

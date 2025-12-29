@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
@@ -10,9 +11,8 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-/* ================= MOCK BOOKINGS ================= */
+/* ================= TYPES ================= */
 
 type BookingStatus = "upcoming" | "past";
 
@@ -24,6 +24,8 @@ type Booking = {
   status: BookingStatus;
   image: string;
 };
+
+/* ================= MOCK DATA ================= */
 
 const BOOKINGS: Booking[] = [
   {
@@ -44,14 +46,15 @@ const BOOKINGS: Booking[] = [
   },
 ];
 
+/* ================= SCREEN ================= */
+
 export default function MyBookingsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
   const [search, setSearch] = useState("");
-
-  /* ================= FILTER LOGIC ================= */
 
   const filteredBookings = useMemo(() => {
     return BOOKINGS.filter((b) => {
@@ -59,111 +62,101 @@ export default function MyBookingsScreen() {
       const matchesSearch =
         b.venue.toLowerCase().includes(search.toLowerCase()) ||
         b.sport.toLowerCase().includes(search.toLowerCase());
-
       return matchesTab && matchesSearch;
     });
   }, [activeTab, search]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ================= HEADER ================= */}
-      <View className="flex-row items-center gap-2 px-4 py-4">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
-        </TouchableOpacity>
-
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
-          Book
-        </Text>
-      </View>
-
-      {/* ================= SEARCH ================= */}
-      <View className="px-4 pb-3">
-        <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
-          <Ionicons
-            name="search"
-            size={20}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search bookings..."
-            placeholderTextColor={isDark ? "#9ca3af" : "#6c757d"}
-            className="flex-1 ml-2 text-base text-text-primary dark:text-white"
-          />
-        </View>
-      </View>
-
-      {/* ================= TABS ================= */}
-      <View className="px-4">
-        <View className="flex-row border-b border-slate-200 dark:border-slate-700">
-          {(["upcoming", "past"] as BookingStatus[]).map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              className={`flex-1 items-center py-3 border-b-2 ${
-                activeTab === tab ? "border-primary" : "border-transparent"
-              }`}
-            >
-              <Text
-                className={`font-bold text-sm capitalize ${
-                  activeTab === tab
-                    ? "text-primary"
-                    : "text-slate-500 dark:text-slate-400"
-                }`}
-              >
-                {tab}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      {/* ================= BOOKINGS ================= */}
+    <ScreenWrapper>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        className="flex-1 px-4 pt-4"
+        contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {filteredBookings.length > 0 ? (
-          filteredBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} />
-          ))
-        ) : (
-          <EmptyBookings />
-        )}
+        {/* ================= HEADER ================= */}
+        <View className="flex-row items-center gap-3 px-4 py-4">
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color={iconColor} />
+          </TouchableOpacity>
+
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
+            My Bookings
+          </Text>
+        </View>
+
+        {/* ================= SEARCH ================= */}
+        <View className="px-4 pb-3">
+          <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
+            <Ionicons name="search" size={20} color={iconColor} />
+            <TextInput
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Search bookings"
+              placeholderTextColor={iconColor}
+              className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
+            />
+          </View>
+        </View>
+
+        {/* ================= TABS ================= */}
+        <View className="px-4">
+          <View className="flex-row border-b border-light-border dark:border-dark-border">
+            {(["upcoming", "past"] as BookingStatus[]).map((tab) => {
+              const active = activeTab === tab;
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  onPress={() => setActiveTab(tab)}
+                  className={`flex-1 items-center py-3 border-b-2 ${
+                    active ? "border-primary" : "border-transparent"
+                  }`}
+                >
+                  <Text
+                    className={`text-sm font-medium capitalize ${
+                      active
+                        ? "text-primary"
+                        : "text-light-muted dark:text-dark-muted"
+                    }`}
+                  >
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* ================= BOOKINGS ================= */}
+        <View className="px-4 pt-4">
+          {filteredBookings.length > 0 ? (
+            filteredBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} />
+            ))
+          ) : (
+            <EmptyBookings onPress={() => router.push("/book/courts/search")} />
+          )}
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
-/* ================= CARD WITH IMAGE ================= */
+/* ================= CARD ================= */
 
 function BookingCard({ booking }: { booking: Booking }) {
   return (
-    <View className="mb-5 rounded-2xl bg-slate-100 dark:bg-slate-800/50 p-4 shadow-sm border border-slate-200 dark:border-slate-700 flex-row gap-4">
-      {/* Image */}
-      <Image
-        source={{ uri: booking.image }}
-        className="w-24 h-24 rounded-xl"
-        resizeMode="cover"
-      />
+    <View className="mb-5 rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border flex-row gap-4">
+      <Image source={{ uri: booking.image }} className="w-24 h-24 rounded-xl" />
 
-      {/* Details */}
       <View className="flex-1 justify-center">
-        <Text className="text-base font-bold text-text-primary dark:text-white">
+        <Text className="text-base font-semibold text-light-text dark:text-dark-text">
           {booking.venue}
         </Text>
 
-        <Text className="text-sm text-text-secondary mt-1">
+        <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
           {booking.datetime}
         </Text>
 
-        <Text className="text-sm font-medium text-text-secondary mt-1">
+        <Text className="text-sm font-medium text-light-muted dark:text-dark-muted mt-1">
           {booking.sport}
         </Text>
       </View>
@@ -173,22 +166,25 @@ function BookingCard({ booking }: { booking: Booking }) {
 
 /* ================= EMPTY STATE ================= */
 
-function EmptyBookings() {
+function EmptyBookings({ onPress }: { onPress: () => void }) {
   return (
     <View className="items-center justify-center mt-20 px-6">
-      <View className="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
-        <Ionicons name="calendar-outline" size={32} color="#6c757d" />
+      <View className="h-16 w-16 rounded-full bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border items-center justify-center">
+        <Ionicons name="calendar-outline" size={32} color="#6B7280" />
       </View>
 
-      <Text className="mt-4 text-lg font-bold text-text-primary dark:text-white">
+      <Text className="mt-4 text-lg font-bold text-light-text dark:text-dark-text">
         No Bookings Yet
       </Text>
-      <Text className="mt-1 text-sm text-text-secondary text-center">
+      <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted text-center">
         Your upcoming and past bookings will appear here.
       </Text>
 
-      <TouchableOpacity className="mt-6 h-12 px-6 rounded-lg bg-primary items-center justify-center">
-        <Text className="text-white font-bold text-base">Book a Court</Text>
+      <TouchableOpacity
+        onPress={onPress}
+        className="mt-6 h-12 px-6 rounded-lg bg-primary items-center justify-center"
+      >
+        <Text className="text-black font-medium text-base">Book a Court</Text>
       </TouchableOpacity>
     </View>
   );

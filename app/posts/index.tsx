@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -9,7 +10,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= MOCK API ================= */
 
@@ -52,39 +52,35 @@ export default function UserPostFeedScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState<typeof MOCK_USER_POSTS>([]);
 
-  /* ================= FETCH USER POSTS ================= */
+  /* ================= FETCH ================= */
   useEffect(() => {
     setTimeout(() => {
-      // simulate: GET /users/:userId/posts
       const userPosts = MOCK_USER_POSTS.filter((p) => p.userId === userId);
       setPosts(userPosts);
       setIsLoading(false);
     }, 1000);
   }, [userId]);
 
-  /* ================= ORDER POSTS ================= */
+  /* ================= ORDER ================= */
   const orderedPosts = useMemo(() => {
-    if (!posts.length) return [];
-
     const selected = posts.find((p) => p.id === postId);
     const rest = posts.filter((p) => p.id !== postId);
-
     return selected ? [selected, ...rest] : posts;
   }, [posts, postId]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <Ionicons
             name="arrow-back"
             size={22}
-            color={isDark ? "#9ca3af" : "#6c757d"}
+            color={isDark ? "#9CA3AF" : "#6B7280"}
           />
         </TouchableOpacity>
 
-        <Text className="text-xl font-bold text-text-primary dark:text-white">
+        <Text className="text-xl font-bold text-light-text dark:text-dark-text">
           Posts
         </Text>
       </View>
@@ -96,7 +92,7 @@ export default function UserPostFeedScreen() {
             [1, 2].map((i) => (
               <View
                 key={i}
-                className="mb-4 rounded-xl bg-slate-200 dark:bg-slate-800 p-4"
+                className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-4 opacity-60"
               >
                 <View className="h-4 w-32 bg-slate-300 dark:bg-slate-700 rounded mb-3" />
                 <View className="h-40 bg-slate-300 dark:bg-slate-700 rounded" />
@@ -109,9 +105,9 @@ export default function UserPostFeedScreen() {
               <Ionicons
                 name="image-outline"
                 size={48}
-                color={isDark ? "#6b7280" : "#9ca3af"}
+                color={isDark ? "#6B7280" : "#9CA3AF"}
               />
-              <Text className="text-text-secondary mt-3">
+              <Text className="text-light-muted dark:text-dark-muted mt-3">
                 No posts available
               </Text>
             </View>
@@ -122,7 +118,8 @@ export default function UserPostFeedScreen() {
             orderedPosts.map((post) => (
               <View
                 key={post.id}
-                className="mb-5 rounded-xl bg-slate-100 dark:bg-slate-800 p-4"
+                className="mb-5 rounded-xl bg-light-card dark:bg-dark-card
+                           border border-light-border dark:border-dark-border p-4"
               >
                 {/* USER */}
                 <View className="flex-row items-center gap-3 mb-3">
@@ -131,17 +128,17 @@ export default function UserPostFeedScreen() {
                     className="w-11 h-11 rounded-full"
                   />
                   <View className="flex-1">
-                    <Text className="font-bold text-text-primary dark:text-white">
+                    <Text className="font-bold text-light-text dark:text-dark-text">
                       {post.name}
                     </Text>
-                    <Text className="text-sm text-text-secondary">
+                    <Text className="text-sm text-light-muted dark:text-dark-muted">
                       {post.username} · {post.time}
                     </Text>
                   </View>
                 </View>
 
                 {/* TEXT */}
-                <Text className="text-base text-text-secondary mb-3">
+                <Text className="text-base text-light-muted dark:text-dark-muted mb-3">
                   {post.text}
                 </Text>
 
@@ -160,9 +157,9 @@ export default function UserPostFeedScreen() {
                       <Ionicons
                         name="heart-outline"
                         size={20}
-                        color={isDark ? "#9ca3af" : "#6c757d"}
+                        color={isDark ? "#9CA3AF" : "#6B7280"}
                       />
-                      <Text className="text-sm text-text-secondary">
+                      <Text className="text-sm text-light-muted dark:text-dark-muted">
                         {post.likes}
                       </Text>
                     </View>
@@ -171,9 +168,9 @@ export default function UserPostFeedScreen() {
                       <Ionicons
                         name="chatbubble-outline"
                         size={20}
-                        color={isDark ? "#9ca3af" : "#6c757d"}
+                        color={isDark ? "#9CA3AF" : "#6B7280"}
                       />
-                      <Text className="text-sm text-text-secondary">
+                      <Text className="text-sm text-light-muted dark:text-dark-muted">
                         {post.comments}
                       </Text>
                     </View>
@@ -182,13 +179,13 @@ export default function UserPostFeedScreen() {
                   <Ionicons
                     name="share-social-outline"
                     size={20}
-                    color={isDark ? "#9ca3af" : "#6c757d"}
+                    color={isDark ? "#9CA3AF" : "#6B7280"}
                   />
                 </View>
               </View>
             ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

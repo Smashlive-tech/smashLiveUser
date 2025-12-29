@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -9,11 +10,10 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const LOGGED_IN_USER_ID = "u123";
 
-/* ================= MOCK API DATA ================= */
+/* ================= MOCK API ================= */
 
 const MOCK_POSTS = [
   {
@@ -47,24 +47,25 @@ export default function ProfileScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const { userId } = useLocalSearchParams();
+
   const profileUserId = LOGGED_IN_USER_ID;
   const isMyProfile = profileUserId === LOGGED_IN_USER_ID;
+
   const [activeTab, setActiveTab] = useState<"POSTS" | "STATS">("POSTS");
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState<typeof MOCK_POSTS>([]);
   const [stats, setStats] = useState<typeof MOCK_STATS>([]);
 
-  /* ================= FETCH ================= */
   useEffect(() => {
     setTimeout(() => {
-      setPosts(MOCK_POSTS); // change to [] to test empty
-      setStats(MOCK_STATS); // change to [] to test empty
+      setPosts(MOCK_POSTS);
+      setStats(MOCK_STATS);
       setIsLoading(false);
     }, 1200);
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         {!isMyProfile && (
@@ -72,12 +73,12 @@ export default function ProfileScreen() {
             <Ionicons
               name="arrow-back"
               size={22}
-              color={isDark ? "#9ca3af" : "#6c757d"}
+              color={isDark ? "#9CA3AF" : "#6B7280"}
             />
           </TouchableOpacity>
         )}
 
-        <Text className="flex-1 text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="flex-1 text-2xl font-bold text-light-text dark:text-dark-text">
           Profile
         </Text>
 
@@ -86,14 +87,14 @@ export default function ProfileScreen() {
             <Ionicons
               name="settings-outline"
               size={22}
-              color={isDark ? "#9ca3af" : "#6c757d"}
+              color={isDark ? "#9CA3AF" : "#6B7280"}
             />
           </TouchableOpacity>
         )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ================= TOP SECTION ================= */}
+        {/* ================= TOP ================= */}
         <View className="flex-row px-4 pt-6 items-center">
           <Image
             source={{
@@ -109,10 +110,10 @@ export default function ProfileScreen() {
               { label: "Following", value: "450" },
             ].map((item) => (
               <View key={item.label} className="items-center">
-                <Text className="text-lg font-bold text-text-primary dark:text-white">
+                <Text className="text-lg font-bold text-light-text dark:text-dark-text">
                   {item.value}
                 </Text>
-                <Text className="text-sm text-text-secondary">
+                <Text className="text-sm text-light-muted dark:text-dark-muted">
                   {item.label}
                 </Text>
               </View>
@@ -120,24 +121,24 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* ================= NAME & BIO ================= */}
+        {/* ================= BIO ================= */}
         <View className="px-4 mt-4">
-          <Text className="text-base font-bold text-text-primary dark:text-white">
+          <Text className="text-base font-bold text-light-text dark:text-dark-text">
             Alex Taylor
           </Text>
-          <Text className="text-sm text-text-secondary mt-1">
+          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
             Tennis enthusiast · Weekend warrior · Looking for a hitting partner
           </Text>
         </View>
 
-        {/* ================= ACTION BUTTON ================= */}
+        {/* ================= ACTION ================= */}
         <View className="flex-row gap-3 px-4 mt-5">
           {isMyProfile ? (
             <TouchableOpacity
               onPress={() => router.push("/profile/edit-profile")}
               className="flex-1 h-11 rounded-lg bg-primary items-center justify-center"
             >
-              <Text className="text-white font-semibold text-sm">
+              <Text className="text-black font-semibold text-sm">
                 Edit Profile
               </Text>
             </TouchableOpacity>
@@ -146,8 +147,8 @@ export default function ProfileScreen() {
               <TouchableOpacity className="flex-1 h-11 rounded-lg bg-primary items-center justify-center">
                 <Text className="text-white font-semibold text-sm">Follow</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex-1 h-11 rounded-lg bg-slate-200 dark:bg-slate-800 items-center justify-center">
-                <Text className="text-text-primary dark:text-white font-semibold text-sm">
+              <TouchableOpacity className="flex-1 h-11 rounded-lg bg-light-card dark:bg-dark-card items-center justify-center">
+                <Text className="text-light-text dark:text-dark-text font-semibold text-sm">
                   Message
                 </Text>
               </TouchableOpacity>
@@ -156,7 +157,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ================= TABS ================= */}
-        <View className="mt-8 border-b border-slate-200 dark:border-slate-800 px-4">
+        <View className="mt-8 border-b border-light-border dark:border-dark-border px-4">
           <View className="flex-row gap-8">
             {[
               { key: "POSTS", label: "Posts" },
@@ -173,7 +174,7 @@ export default function ProfileScreen() {
                   className={`text-sm font-semibold ${
                     activeTab === tab.key
                       ? "text-primary"
-                      : "text-text-secondary"
+                      : "text-light-muted dark:text-dark-muted"
                   }`}
                 >
                   {tab.label}
@@ -183,7 +184,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* ================= POSTS TAB ================= */}
+        {/* ================= POSTS ================= */}
         {activeTab === "POSTS" && (
           <View className="px-4 mt-5 flex-row flex-wrap">
             {isLoading &&
@@ -192,17 +193,6 @@ export default function ProfileScreen() {
                   <View className="w-full h-full rounded-lg bg-slate-200 dark:bg-slate-700" />
                 </View>
               ))}
-
-            {!isLoading && posts.length === 0 && (
-              <View className="w-full items-center mt-12">
-                <Ionicons
-                  name="image-outline"
-                  size={40}
-                  color={isDark ? "#6b7280" : "#9ca3af"}
-                />
-                <Text className="text-text-secondary mt-2">No posts yet</Text>
-              </View>
-            )}
 
             {!isLoading &&
               posts.map((post) => (
@@ -228,40 +218,21 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* ================= STATS TAB ================= */}
+        {/* ================= STATS ================= */}
         {activeTab === "STATS" && (
           <View className="px-4 mt-6">
-            {isLoading &&
-              Array.from({ length: 2 }).map((_, i) => (
-                <View
-                  key={i}
-                  className="h-20 rounded-xl bg-slate-200 dark:bg-slate-700 mb-4"
-                />
-              ))}
-
-            {!isLoading && stats.length === 0 && (
-              <View className="items-center mt-12">
-                <Ionicons
-                  name="stats-chart-outline"
-                  size={40}
-                  color={isDark ? "#6b7280" : "#9ca3af"}
-                />
-                <Text className="text-text-secondary mt-2">
-                  No stats available yet
-                </Text>
-              </View>
-            )}
-
             {!isLoading &&
               stats.map((item) => (
                 <View
                   key={item.id}
-                  className="rounded-xl bg-white dark:bg-slate-800 p-4 shadow-sm mb-4"
+                  className="rounded-xl bg-light-card dark:bg-dark-card
+                             border border-light-border dark:border-dark-border
+                             p-4 mb-4"
                 >
-                  <Text className="font-semibold text-text-primary dark:text-white">
+                  <Text className="font-semibold text-light-text dark:text-dark-text">
                     {item.title}
                   </Text>
-                  <Text className="text-sm text-text-secondary mt-2">
+                  <Text className="text-sm text-light-muted dark:text-dark-muted mt-2">
                     {item.description}
                   </Text>
                 </View>
@@ -269,6 +240,6 @@ export default function ProfileScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

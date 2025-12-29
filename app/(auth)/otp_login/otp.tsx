@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -10,17 +11,17 @@ import {
   useColorScheme,
 } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OtpCodeScreen() {
   const router = useRouter();
+  const isDark = useColorScheme() === "dark";
 
   const [otpError, setOtpError] = useState("");
   const [timer, setTimer] = useState(30);
 
-  // TIMER EFFECT
+  /* TIMER */
   useEffect(() => {
-    let interval = setInterval(() => {
+    const interval = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
@@ -39,37 +40,37 @@ export default function OtpCodeScreen() {
       return;
     }
     setOtpError("");
-
-    // success
     router.replace("/(tabs)/home");
   };
 
   const resendOtp = () => {
-    setTimer(30); // restart timer
+    setTimer(30);
     setOtpError("");
   };
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === "dark";
+
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background-light dark:bg-background-dark"
-    >
+    <ScreenWrapper>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-4 pb-0">
-          <View className="flex-row items-center justify-center p-4 pb-8">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 px-4"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {/* Header */}
+          <View className="items-center py-6 pb-8">
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Enter the 6 digit code
             </Text>
           </View>
 
+          {/* OTP INPUT */}
           <View className="items-center">
             <OtpInput
               numberOfDigits={6}
-              autoFocus={true}
+              autoFocus
               onTextChange={() => setOtpError("")}
               onFilled={handleVerify}
               theme={{
@@ -82,16 +83,20 @@ export default function OtpCodeScreen() {
                   height: 55,
                   borderRadius: 10,
                   borderWidth: 1,
-                  borderColor: otpError ? "#ef4444" : "#d1d5db",
-                  backgroundColor: "transparent",
+                  borderColor: otpError
+                    ? "#EF4444"
+                    : isDark
+                      ? "#262626"
+                      : "#E5E7EB",
+                  backgroundColor: isDark ? "#151515" : "#FFFFFF",
                 },
                 pinCodeTextStyle: {
-                  color: isDarkMode ? "#fff" : "#000",
+                  color: isDark ? "#FFFFFF" : "#0F172A",
                   fontSize: 18,
                   fontWeight: "600",
                 },
                 focusStickStyle: {
-                  backgroundColor: "#0d59f2",
+                  backgroundColor: "#8AFF1A",
                 },
               }}
             />
@@ -103,29 +108,30 @@ export default function OtpCodeScreen() {
             </Text>
           ) : null}
 
-          {/* Verify button */}
-          <View className="py-3 pb-4 mt-6">
+          {/* VERIFY BUTTON */}
+          <View className="mt-6">
             <TouchableOpacity
               onPress={() => handleVerify("")}
-              className="flex h-14 w-full items-center justify-center rounded-xl bg-primary"
+              className="h-14 w-full items-center justify-center rounded-xl bg-primary"
             >
-              <Text className="text-white font-bold text-base">Verify</Text>
+              <Text className="text-black font-bold text-base">Verify</Text>
             </TouchableOpacity>
           </View>
 
+          {/* RESEND */}
           {timer > 0 ? (
-            <Text className="text-center text-gray-500 dark:text-gray-400 mt-2">
+            <Text className="text-center text-light-muted dark:text-dark-muted mt-4">
               Resend OTP in {timer}s
             </Text>
           ) : (
             <TouchableOpacity onPress={resendOtp}>
-              <Text className="text-center text-primary font-bold mt-2">
+              <Text className="text-center text-primary font-bold mt-4">
                 Resend OTP
               </Text>
             </TouchableOpacity>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

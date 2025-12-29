@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -7,23 +8,22 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterTypeScreen() {
   const router = useRouter();
   const { tournamentId } = useLocalSearchParams();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
@@ -34,10 +34,10 @@ export default function RegisterTypeScreen() {
       >
         {/* ================= TITLE ================= */}
         <View className="px-4 pt-2 pb-6">
-          <Text className="text-[22px] font-bold text-text-primary dark:text-white">
+          <Text className="text-[22px] font-bold text-light-text dark:text-dark-text">
             Choose Registration Type
           </Text>
-          <Text className="mt-1 text-sm text-text-secondary leading-5">
+          <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted leading-5">
             Select how you want to participate in this tournament
           </Text>
         </View>
@@ -71,7 +71,7 @@ export default function RegisterTypeScreen() {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -89,35 +89,34 @@ function RegisterCard({
   onPress: () => void;
 }) {
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={onPress}
-      className="rounded-xl border p-4 mb-4 flex-row gap-4 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+      className="rounded-xl border border-light-border dark:border-dark-border p-4 mb-4 flex-row gap-4 bg-light-card dark:bg-dark-card"
     >
       {/* ICON */}
-      <View className="h-12 w-12 rounded-lg items-center justify-center bg-slate-200 dark:bg-slate-700">
-        <Ionicons
-          name={icon}
-          size={24}
-          color={isDark ? "#9ca3af" : "#6c757d"}
-        />
+      <View className="h-12 w-12 rounded-lg items-center justify-center bg-primary/10">
+        <Ionicons name={icon} size={24} color={iconColor} />
       </View>
 
       {/* TEXT */}
       <View className="flex-1 justify-center">
-        <Text className="text-base font-bold text-text-primary dark:text-white">
+        <Text className="text-base font-bold text-light-text dark:text-dark-text">
           {title}
         </Text>
-        <Text className="text-sm text-text-secondary mt-1">{subtitle}</Text>
+        <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+          {subtitle}
+        </Text>
       </View>
 
       {/* ARROW */}
       <Ionicons
         name="chevron-forward"
         size={20}
-        color="#9ca3af"
+        color={iconColor}
         style={{ alignSelf: "center" }}
       />
     </TouchableOpacity>

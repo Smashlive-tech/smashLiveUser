@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= DATA ================= */
 
@@ -60,7 +60,7 @@ const QUICK_ACTIONS = [
 export default function PlayScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -71,11 +71,14 @@ export default function PlayScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <ScreenWrapper>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         {/* ================= HEADER ================= */}
         <View className="flex-row items-center justify-between px-4 py-4">
-          <Text className="text-2xl font-bold text-text-primary dark:text-white">
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
             Play
           </Text>
 
@@ -83,13 +86,11 @@ export default function PlayScreen() {
             {["notifications", "calendar-month"].map((icon) => (
               <TouchableOpacity
                 key={icon}
-                onPress={() => {
-                  if (icon === "notifications") {
-                    router.push("/notifications");
-                  } else if (icon === "calendar-month") {
-                    router.push("/play/bookings");
-                  }
-                }}
+                onPress={() =>
+                  icon === "notifications"
+                    ? router.push("/notifications")
+                    : router.push("/play/bookings")
+                }
               >
                 <MaterialIcons name={icon as any} size={24} color={iconColor} />
               </TouchableOpacity>
@@ -99,7 +100,7 @@ export default function PlayScreen() {
 
         {/* ================= SEARCH ================= */}
         <View className="px-4">
-          <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
+          <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
             <Ionicons name="search" size={20} color={iconColor} />
             <TextInput
               value={search}
@@ -107,15 +108,14 @@ export default function PlayScreen() {
               placeholder="Search tournaments"
               placeholderTextColor={iconColor}
               returnKeyType="search"
-              onSubmitEditing={() => {
-                if (search.trim()) {
-                  router.push({
-                    pathname: "/play/tournaments/search",
-                    params: { query: search.trim() },
-                  });
-                }
-              }}
-              className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+              onSubmitEditing={() =>
+                search.trim() &&
+                router.push({
+                  pathname: "/play/tournaments/search",
+                  params: { query: search.trim() },
+                })
+              }
+              className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
             />
           </View>
         </View>
@@ -140,7 +140,7 @@ export default function PlayScreen() {
             <TouchableOpacity
               key={item.id}
               onPress={() => router.push(`/play/tournaments/${item.id}`)}
-              className="flex-row mb-4 rounded-xl bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700"
+              className="flex-row mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border"
             >
               <Image
                 source={{ uri: item.image }}
@@ -150,10 +150,10 @@ export default function PlayScreen() {
                 <Text className="text-primary text-sm font-medium">
                   {item.sport}
                 </Text>
-                <Text className="text-base font-semibold text-text-primary dark:text-white">
+                <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                   {item.title}
                 </Text>
-                <Text className="text-sm text-text-secondary mt-1">
+                <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
                   {item.date}
                 </Text>
               </View>
@@ -164,16 +164,16 @@ export default function PlayScreen() {
         {/* ================= EXPLORE ================= */}
         <Section title="Explore" />
 
-        <View className="flex-row px-4 pb-10">
+        <View className="flex-row px-4">
           {QUICK_ACTIONS.map((item) => (
             <TouchableOpacity
               key={item.id}
               className="w-1/2 pr-2"
               onPress={() => router.push("/play/tournaments/search")}
             >
-              <View className="aspect-square rounded-xl bg-white bg-slate-100 dark:bg-slate-800/50 items-center justify-center">
+              <View className="aspect-square rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border items-center justify-center">
                 <Ionicons name={item.icon as any} size={36} color={iconColor} />
-                <Text className="mt-2 text-base font-medium text-text-primary dark:text-white">
+                <Text className="mt-2 text-base font-medium text-light-text dark:text-dark-text">
                   {item.title}
                 </Text>
               </View>
@@ -181,7 +181,7 @@ export default function PlayScreen() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -190,7 +190,7 @@ export default function PlayScreen() {
 function Section({ title }: { title: string }) {
   return (
     <View className="px-4 pt-6 pb-3">
-      <Text className="text-[22px] font-bold text-text-primary dark:text-white">
+      <Text className="text-[22px] font-bold text-light-text dark:text-dark-text">
         {title}
       </Text>
     </View>
@@ -223,10 +223,12 @@ function HorizontalList({
           <Text className="mt-2 text-sm font-medium text-primary">
             {item.sport}
           </Text>
-          <Text className="text-base font-semibold text-text-primary dark:text-white">
+          <Text className="text-base font-semibold text-light-text dark:text-dark-text">
             {item.title}
           </Text>
-          <Text className="text-sm text-text-secondary">{item.date}</Text>
+          <Text className="text-sm text-light-muted dark:text-dark-muted">
+            {item.date}
+          </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>

@@ -9,11 +9,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#0d59f2",
-        "background-light": "#f5f6f8",
-        "background-dark": "#101622",
-        "text-primary": "#212529",
-        "text-secondary": "#6c757d",
+        primary: "#8AFF1A",
+
+        light: {
+          bg: "#FFFFFF",
+          card: "#F8FAFC",
+          text: "#0F172A",
+          muted: "#475569",
+          border: "#E5E7EB",
+        },
+
+        dark: {
+          bg: "#0B0B0B",
+          card: "#151515",
+          text: "#FFFFFF",
+          muted: "#9CA3AF",
+          border: "#262626",
+        },
       },
     },
   },

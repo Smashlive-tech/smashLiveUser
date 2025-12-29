@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -8,7 +9,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= MOCK DATA ================= */
 
@@ -39,25 +39,22 @@ const PAYMENT_METHODS = [
 export default function PaymentScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [selectedMethod, setSelectedMethod] = useState("scash");
 
   const total = BOOKING_DATA.subtotal + BOOKING_DATA.fees;
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
-      <View className="flex-row items-center gap-2 px-4 py-4">
+      <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
-          Book
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
+          Payment
         </Text>
       </View>
 
@@ -68,12 +65,12 @@ export default function PaymentScreen() {
         className="px-4"
       >
         {/* ================= TITLE ================= */}
-        <Text className="text-2xl font-bold text-text-primary dark:text-white mt-2 mb-4">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text mt-2 mb-4">
           Confirm & Pay
         </Text>
 
         {/* ================= BOOKING SUMMARY ================= */}
-        <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800">
+        <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
           <SummaryRow label="Court" value={BOOKING_DATA.court} />
           <SummaryRow label="Date & Time" value={BOOKING_DATA.datetime} />
 
@@ -91,7 +88,7 @@ export default function PaymentScreen() {
         </View>
 
         {/* ================= PAYMENT METHODS ================= */}
-        <Text className="text-lg font-bold text-text-primary dark:text-white mt-8 mb-3">
+        <Text className="text-lg font-bold text-light-text dark:text-dark-text mt-8 mb-3">
           Select Payment Method
         </Text>
 
@@ -107,7 +104,7 @@ export default function PaymentScreen() {
                 className={`flex-row items-center justify-between rounded-2xl p-4 border ${
                   selected
                     ? "border-primary bg-primary/10"
-                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                    : "border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
                 }`}
               >
                 <View className="flex-row items-center gap-4">
@@ -115,23 +112,21 @@ export default function PaymentScreen() {
                     className={`h-11 w-11 rounded-full items-center justify-center ${
                       selected
                         ? "bg-primary/20"
-                        : "bg-slate-200 dark:bg-slate-800"
+                        : "bg-light-border dark:bg-dark-border"
                     }`}
                   >
                     <Ionicons
                       name={method.icon as any}
                       size={22}
-                      color={
-                        selected ? "#0d59f2" : isDark ? "#9ca3af" : "#6c757d"
-                      }
+                      color={selected ? "#8AFF1A" : iconColor}
                     />
                   </View>
 
                   <View>
-                    <Text className="text-base font-semibold text-text-primary dark:text-white">
+                    <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                       {method.label}
                     </Text>
-                    <Text className="text-sm text-text-secondary">
+                    <Text className="text-sm text-light-muted dark:text-dark-muted">
                       {method.subtitle}
                     </Text>
                   </View>
@@ -139,58 +134,52 @@ export default function PaymentScreen() {
 
                 <View
                   className={`h-6 w-6 rounded-full border-2 items-center justify-center ${
-                    selected ? "border-primary bg-primary" : "border-slate-400"
+                    selected
+                      ? "border-primary bg-primary"
+                      : "border-light-muted dark:border-dark-muted"
                   }`}
                 >
                   {selected && (
-                    <Ionicons name="checkmark" size={14} color="#ffffff" />
+                    <Ionicons name="checkmark" size={14} color="#000000" />
                   )}
                 </View>
               </TouchableOpacity>
             );
           })}
 
-          {/* Add new card */}
+          {/* ================= ADD NEW CARD ================= */}
           <TouchableOpacity
             activeOpacity={0.85}
-            className="flex-row items-center justify-between rounded-2xl p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+            className="flex-row items-center justify-between rounded-2xl p-4 border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
           >
             <View className="flex-row items-center gap-4">
-              <View className="h-11 w-11 rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
-                <Ionicons
-                  name="add-outline"
-                  size={22}
-                  color={isDark ? "#9ca3af" : "#6c757d"}
-                />
+              <View className="h-11 w-11 rounded-full bg-light-border dark:bg-dark-border items-center justify-center">
+                <Ionicons name="add-outline" size={22} color={iconColor} />
               </View>
 
-              <Text className="text-base font-semibold text-text-primary dark:text-white">
+              <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                 Add new card
               </Text>
             </View>
 
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <Ionicons name="chevron-forward" size={20} color={iconColor} />
           </TouchableOpacity>
         </View>
       </ScrollView>
 
       {/* ================= FOOTER ================= */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+      <View className="absolute bottom-0 left-0 right-0 p-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => router.push("/book/courts/paymentSuccess")}
           className="h-14 rounded-xl bg-primary items-center justify-center"
         >
-          <Text className="text-white text-base font-bold">
+          <Text className="text-black text-base font-medium">
             Pay ${total.toFixed(2)}
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -210,8 +199,8 @@ function SummaryRow({
       <Text
         className={
           bold
-            ? "text-base font-bold text-text-primary dark:text-white"
-            : "text-sm text-text-secondary"
+            ? "text-base font-bold text-light-text dark:text-dark-text"
+            : "text-sm text-light-muted dark:text-dark-muted"
         }
       >
         {label}
@@ -219,8 +208,8 @@ function SummaryRow({
       <Text
         className={
           bold
-            ? "text-base font-bold text-text-primary dark:text-white"
-            : "text-sm font-medium text-text-primary dark:text-white"
+            ? "text-base font-bold text-light-text dark:text-dark-text"
+            : "text-sm font-medium text-light-text dark:text-dark-text"
         }
       >
         {value}
@@ -230,5 +219,5 @@ function SummaryRow({
 }
 
 function Divider() {
-  return <View className="h-px bg-slate-200 dark:bg-slate-700 my-3" />;
+  return <View className="h-px bg-light-border dark:bg-dark-border my-3" />;
 }

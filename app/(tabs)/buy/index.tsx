@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -12,7 +13,6 @@ import {
   useColorScheme,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -87,15 +87,15 @@ const RECOMMENDED = [
 export default function BuyScreen() {
   const isDark = useColorScheme() === "dark";
   const router = useRouter();
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const [search, setSearch] = React.useState("");
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= HEADER ================= */}
         <View className="flex-row items-center justify-between px-4 py-4">
-          <Text className="text-2xl font-bold text-text-primary dark:text-white">
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
             Buy
           </Text>
 
@@ -112,7 +112,7 @@ export default function BuyScreen() {
 
         {/* ================= SEARCH ================= */}
         <View className="px-4">
-          <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
+          <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
             <Ionicons name="search" size={20} color={iconColor} />
             <TextInput
               value={search}
@@ -127,7 +127,7 @@ export default function BuyScreen() {
               }}
               placeholder="Search for gear, brands..."
               placeholderTextColor={iconColor}
-              className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+              className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
             />
           </View>
         </View>
@@ -174,12 +174,7 @@ export default function BuyScreen() {
           {FEATURED_PRODUCTS.map((item) => (
             <TouchableOpacity
               key={item.id}
-              onPress={() =>
-                router.push({
-                  pathname: "/buy/products/[productId]",
-                  params: { productId: item.id },
-                })
-              }
+              onPress={() => router.push(`/buy/products/${item.id}`)}
             >
               <ProductCard
                 image={item.image}
@@ -197,23 +192,18 @@ export default function BuyScreen() {
           {RECOMMENDED.map((item) => (
             <TouchableOpacity
               key={item.id}
-              onPress={() =>
-                router.push({
-                  pathname: "/buy/products/[productId]",
-                  params: { productId: item.id },
-                })
-              }
-              className="flex-row mb-4 rounded-xl bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700"
+              onPress={() => router.push(`/buy/products/${item.id}`)}
+              className="flex-row mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border"
             >
               <Image
                 source={{ uri: item.image }}
                 className="w-24 h-24 rounded-lg"
               />
               <View className="flex-1 ml-3 justify-center">
-                <Text className="text-base font-semibold text-text-primary dark:text-white">
+                <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                   {item.name}
                 </Text>
-                <Text className="text-sm text-text-secondary mt-1">
+                <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
                   {item.brand}
                 </Text>
               </View>
@@ -231,7 +221,7 @@ export default function BuyScreen() {
           <CategoryCard title="Accessories" icon="barbell-outline" />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -239,8 +229,8 @@ export default function BuyScreen() {
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <View className="flex-row justify-between items-center px-4 pt-6 pb-3">
-      <Text className="text-[22px] font-bold text-text-primary dark:text-white">
+    <View className="px-4 pt-6 pb-3">
+      <Text className="text-[22px] font-bold text-light-text dark:text-dark-text">
         {title}
       </Text>
     </View>
@@ -262,10 +252,12 @@ function ProductCard({
         source={{ uri: image }}
         className="w-full aspect-square rounded-xl"
       />
-      <Text className="mt-2 text-base font-medium text-text-primary dark:text-white">
+      <Text className="mt-2 text-base font-medium text-light-text dark:text-dark-text">
         {name}
       </Text>
-      <Text className="text-sm text-text-secondary">{brand}</Text>
+      <Text className="text-sm text-light-muted dark:text-dark-muted">
+        {brand}
+      </Text>
     </View>
   );
 }
@@ -277,23 +269,20 @@ function CategoryCard({
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
 }) {
-  const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   return (
     <TouchableOpacity
       className="
-      w-[48%] aspect-square mb-4 rounded-xl
-      bg-white
-      dark:bg-slate-800/60
-      border border-blue-100
-      dark:border-slate-700
-      items-center justify-center
-    "
+        w-[48%] aspect-square mb-4 rounded-xl
+        bg-light-card dark:bg-dark-card
+        border border-light-border dark:border-dark-border
+        items-center justify-center
+      "
     >
       <Ionicons name={icon} size={36} color={iconColor} />
-      <Text className="mt-2 text-base font-medium text-text-primary dark:text-white">
+      <Text className="mt-2 text-base font-medium text-light-text dark:text-dark-text">
         {title}
       </Text>
     </TouchableOpacity>

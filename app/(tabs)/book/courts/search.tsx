@@ -1,5 +1,6 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router"; // ✅ UPDATED
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Image,
@@ -10,7 +11,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= DATA ================= */
 
@@ -48,12 +48,11 @@ const VENUES = [
 
 export default function VenueListScreen() {
   const router = useRouter();
-  const { query } = useLocalSearchParams<{ query?: string }>(); // ✅ ADDED
+  const { query } = useLocalSearchParams<{ query?: string }>();
 
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
-  // ✅ search works from Book screen AND typing here
   const [search, setSearch] = useState(query ?? "");
 
   const filteredVenues = useMemo(() => {
@@ -66,7 +65,7 @@ export default function VenueListScreen() {
   }, [search]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center justify-between px-4 py-4">
         <View className="flex-row items-center gap-3">
@@ -74,22 +73,19 @@ export default function VenueListScreen() {
             <Ionicons name="arrow-back" size={24} color={iconColor} />
           </TouchableOpacity>
 
-          <Text className="text-2xl font-bold text-text-primary dark:text-white">
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
             Venues
           </Text>
         </View>
 
-        <TouchableOpacity
-          onPress={() => router.push("/book/bookings")}
-          className="flex-row items-center h-10 px-3 rounded-full"
-        >
+        <TouchableOpacity onPress={() => router.push("/book/bookings")}>
           <Ionicons name="calendar-outline" size={22} color={iconColor} />
         </TouchableOpacity>
       </View>
 
       {/* ================= SEARCH ================= */}
       <View className="px-4 py-2">
-        <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
+        <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
           <Ionicons name="search" size={20} color={iconColor} />
           <TextInput
             value={search}
@@ -97,7 +93,7 @@ export default function VenueListScreen() {
             placeholder="Search venues, sports, location"
             placeholderTextColor={iconColor}
             returnKeyType="search"
-            className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+            className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
           />
         </View>
       </View>
@@ -108,13 +104,13 @@ export default function VenueListScreen() {
           {filteredVenues.map((venue) => (
             <View
               key={venue.id}
-              className="mb-4 rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700"
+              className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border"
             >
               <TouchableOpacity
                 onPress={() =>
                   router.push({
                     pathname: "/book/courts/[courtId]",
-                    params: { courtId: 1 },
+                    params: { courtId: venue.id },
                   })
                 }
               >
@@ -124,19 +120,19 @@ export default function VenueListScreen() {
                 />
               </TouchableOpacity>
 
-              <View className="flex-row justify-between">
+              <View className="flex-row justify-between items-center">
                 <View className="flex-1 pr-3">
-                  <Text className="font-bold text-text-primary dark:text-white">
+                  <Text className="font-bold text-light-text dark:text-dark-text">
                     {venue.name}
                   </Text>
 
-                  <Text className="text-sm text-text-secondary mt-1">
+                  <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
                     {venue.location}
                   </Text>
 
                   <View className="flex-row items-center mt-1">
-                    <Ionicons name="star" size={14} color="#f59e0b" />
-                    <Text className="ml-1 text-sm text-text-secondary">
+                    <Ionicons name="star" size={14} color="#FACC15" />
+                    <Text className="ml-1 text-sm text-light-muted dark:text-dark-muted">
                       {venue.rating}
                     </Text>
                   </View>
@@ -147,11 +143,11 @@ export default function VenueListScreen() {
                   onPress={() =>
                     router.push({
                       pathname: "/book/courts/[courtId]",
-                      params: { courtId: 1 },
+                      params: { courtId: venue.id },
                     })
                   }
                 >
-                  <Text className="text-white text-sm font-medium">
+                  <Text className="text-black text-sm font-medium">
                     Book Now
                   </Text>
                 </TouchableOpacity>
@@ -160,6 +156,6 @@ export default function VenueListScreen() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

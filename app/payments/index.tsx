@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -11,14 +12,12 @@ import {
   useColorScheme,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PaymentsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
 
   const [activeTab, setActiveTab] = useState("Refunds");
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -29,9 +28,8 @@ export default function PaymentsScreen() {
   const [isEndPickerVisible, setEndPickerVisible] = useState(false);
 
   const tabs = ["Refunds", "Payouts"];
-  const filters = ["Date Range", "Tournament"];
 
-  const [transactions, setTransactions] = useState([
+  const [transactions] = useState([
     {
       id: 1,
       amount: "+$50.00",
@@ -58,43 +56,27 @@ export default function PaymentsScreen() {
     },
   ]);
 
-  /* ===== Simulate API ===== */
   useEffect(() => {
     setTimeout(() => setLoading(false), 1200);
   }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Paid":
-        return {
-          bg: "bg-green-100 dark:bg-green-900/50",
-          text: "text-green-700 dark:text-green-300",
-        };
-      case "Pending":
-        return {
-          bg: "bg-yellow-100 dark:bg-yellow-900/50",
-          text: "text-yellow-700 dark:text-yellow-300",
-        };
-      default:
-        return {
-          bg: "bg-gray-100 dark:bg-gray-700/50",
-          text: "text-gray-700 dark:text-gray-300",
-        };
+    if (status === "Paid") {
+      return {
+        bg: "bg-primary/15",
+        text: "text-primary",
+      };
     }
-  };
-
-  const applyLastDays = (days: number) => {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(now.getDate() - (days - 1));
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(now);
-    end.setHours(23, 59, 59, 999);
-
-    setStartDate(start);
-    setEndDate(end);
-    setSelectedFilter(null);
+    if (status === "Pending") {
+      return {
+        bg: "bg-yellow-500/15",
+        text: "text-yellow-600 dark:text-yellow-400",
+      };
+    }
+    return {
+      bg: "bg-slate-200 dark:bg-slate-700",
+      text: "text-light-muted dark:text-dark-muted",
+    };
   };
 
   const handleConfirmStart = (date: Date) => {
@@ -116,60 +98,40 @@ export default function PaymentsScreen() {
     }
     setEndDate(date);
     setEndPickerVisible(false);
-    setSelectedFilter(null);
   };
 
-  const filteredTransactions = transactions.filter((item) => {
-    if (
-      selectedTournament !== "All" &&
-      item.tournament !== selectedTournament
-    ) {
-      return false;
-    }
-
-    if (startDate && endDate) {
-      const txnDate = new Date(item.date);
-      if (isNaN(txnDate.getTime())) return true;
-
-      return (
-        txnDate >= new Date(startDate.setHours(0, 0, 0, 0)) &&
-        txnDate <= new Date(endDate.setHours(23, 59, 59, 999))
-      );
-    }
-    return true;
-  });
-
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ===== HEADER ===== */}
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <Ionicons
             name="arrow-back"
             size={22}
-            color={isDark ? "#9ca3af" : "#6c757d"}
+            color={isDark ? "#9CA3AF" : "#6B7280"}
           />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Payments
         </Text>
       </View>
 
-      {/* ===== TABS ===== */}
-      <View className="flex-row border-b border-gray-200 dark:border-gray-700 px-4">
+      {/* ================= TABS ================= */}
+      <View className="flex-row border-b border-light-border dark:border-dark-border px-4">
         {tabs.map((tab) => (
           <TouchableOpacity
             key={tab}
             onPress={() => setActiveTab(tab)}
-            className={`flex-1 items-center justify-center border-b-[3px] ${
-              activeTab === tab ? "border-blue-600" : "border-transparent"
-            } py-3`}
+            className={`flex-1 items-center py-3 border-b-2 ${
+              activeTab === tab ? "border-primary" : "border-transparent"
+            }`}
           >
             <Text
               className={`text-sm font-semibold ${
                 activeTab === tab
-                  ? "text-gray-900 dark:text-blue-500"
-                  : "text-gray-500 dark:text-gray-400"
+                  ? "text-primary"
+                  : "text-light-muted dark:text-dark-muted"
               }`}
             >
               {tab}
@@ -178,69 +140,57 @@ export default function PaymentsScreen() {
         ))}
       </View>
 
-      {/* ===== TRANSACTIONS ===== */}
+      {/* ================= TRANSACTIONS ================= */}
       <ScrollView
         className="flex-1 px-4 mt-4"
         showsVerticalScrollIndicator={false}
       >
-        {/* ===== SKELETON LOADING ===== */}
+        {/* ===== SKELETON ===== */}
         {loading &&
           [1, 2, 3, 4].map((i) => (
             <View
               key={i}
-              className="flex-row items-center gap-4 bg-gray-200/70 dark:bg-gray-700/60 
-                         p-4 rounded-xl mb-3"
+              className="flex-row items-center gap-4
+                         bg-light-card dark:bg-dark-card
+                         p-4 rounded-xl mb-3 opacity-60"
             >
-              <View className="h-12 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
+              <View className="h-12 w-12 rounded-full bg-slate-300 dark:bg-slate-700" />
               <View className="flex-1 gap-2">
-                <View className="h-4 w-24 rounded bg-gray-300 dark:bg-gray-600" />
-                <View className="h-3 w-40 rounded bg-gray-300 dark:bg-gray-600" />
-                <View className="h-3 w-28 rounded bg-gray-300 dark:bg-gray-600" />
+                <View className="h-4 w-24 rounded bg-slate-300 dark:bg-slate-700" />
+                <View className="h-3 w-40 rounded bg-slate-300 dark:bg-slate-700" />
+                <View className="h-3 w-28 rounded bg-slate-300 dark:bg-slate-700" />
               </View>
-              <View className="h-6 w-14 rounded-full bg-gray-300 dark:bg-gray-600" />
             </View>
           ))}
 
         {/* ===== DATA ===== */}
         {!loading &&
-          filteredTransactions.map((item) => {
+          transactions.map((item) => {
             const colors = getStatusColor(item.status);
             return (
               <View
                 key={item.id}
-                className="flex-row items-center gap-4 bg-white dark:bg-[#1A2233] 
-                           p-4 rounded-xl shadow-sm mb-3"
+                className="flex-row items-center gap-4
+                           bg-light-card dark:bg-dark-card
+                           border border-light-border dark:border-dark-border
+                           p-4 rounded-xl mb-3"
               >
-                <View
-                  className={`h-12 w-12 items-center justify-center rounded-full ${
-                    item.status === "Paid"
-                      ? "bg-green-100 dark:bg-green-900/50"
-                      : "bg-yellow-100 dark:bg-yellow-900/50"
-                  }`}
-                >
+                <View className="h-12 w-12 rounded-full bg-primary/15 items-center justify-center">
                   <MaterialIcons
                     name={item.status === "Paid" ? "north-east" : "schedule"}
                     size={22}
-                    color={
-                      item.status === "Paid"
-                        ? isDark
-                          ? "#4ade80"
-                          : "#16a34a"
-                        : isDark
-                          ? "#facc15"
-                          : "#ca8a04"
-                    }
+                    color="#8AFF1A"
                   />
                 </View>
 
                 <View className="flex-1">
-                  <Text className="font-bold text-text-primary dark:text-white">
+                  <Text className="font-bold text-light-text dark:text-dark-text">
                     {item.amount}
                   </Text>
-                  <Text className="text-sm text-text-secondary">
+                  <Text className="text-sm text-light-muted dark:text-dark-muted">
                     {item.desc}
                   </Text>
-                  <Text className="text-xs text-text-secondary">
+                  <Text className="text-xs text-light-muted dark:text-dark-muted">
                     {item.date}
                   </Text>
                 </View>
@@ -255,7 +205,7 @@ export default function PaymentsScreen() {
           })}
       </ScrollView>
 
-      {/* ===== DATE PICKERS ===== */}
+      {/* ================= DATE PICKERS ================= */}
       <DateTimePickerModal
         isVisible={isStartPickerVisible}
         mode="date"
@@ -272,6 +222,6 @@ export default function PaymentsScreen() {
         minimumDate={startDate ?? undefined}
         themeVariant={isDark ? "dark" : "light"}
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

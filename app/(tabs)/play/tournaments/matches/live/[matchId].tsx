@@ -1,7 +1,7 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, View, useColorScheme } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * LIVE MATCH SCREEN
@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function LiveMatchScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   /**
    * 🔹 API TODO
@@ -25,7 +25,7 @@ export default function LiveMatchScreen() {
    */
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <Ionicons
@@ -35,7 +35,7 @@ export default function LiveMatchScreen() {
           onPress={() => router.back()}
         />
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
@@ -53,8 +53,8 @@ export default function LiveMatchScreen() {
         </View>
 
         {/* ================= SCORE CARD ================= */}
-        <View className="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
-          <Text className="text-sm text-text-secondary mb-4 text-center">
+        <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+          <Text className="text-sm text-light-muted dark:text-dark-muted mb-4 text-center">
             City Tennis Championship • Semi Final
           </Text>
 
@@ -64,7 +64,7 @@ export default function LiveMatchScreen() {
               image="https://images.unsplash.com/photo-1517649763962-0c623066013b"
             />
 
-            <Text className="text-4xl font-bold text-text-primary dark:text-white">
+            <Text className="text-4xl font-bold text-light-text dark:text-dark-text">
               2 : 1
             </Text>
 
@@ -75,8 +75,8 @@ export default function LiveMatchScreen() {
           </View>
         </View>
 
-        {/* ================= LIVE MATCH INFO (IMPROVED) ================= */}
-        <View className="mt-5 rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
+        {/* ================= LIVE MATCH INFO ================= */}
+        <View className="mt-5 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
           <InfoRow icon="layers-outline" label="Current Set" value="3" />
           <Divider />
           <InfoRow
@@ -88,7 +88,7 @@ export default function LiveMatchScreen() {
           <InfoRow icon="time-outline" label="Match Time" value="48 mins" />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -100,7 +100,7 @@ function TeamBlock({ name, image }: { name: string; image: string }) {
       <Image source={{ uri: image }} className="w-16 h-16 rounded-full mb-2" />
       <Text
         numberOfLines={1}
-        className="text-sm font-semibold text-text-primary dark:text-white"
+        className="text-sm font-semibold text-light-text dark:text-dark-text"
       >
         {name}
       </Text>
@@ -120,18 +120,21 @@ function InfoRow({
   value: string;
 }) {
   const isDark = useColorScheme() === "dark";
+
   return (
     <View className="flex-row items-center justify-between py-2">
       <View className="flex-row items-center gap-2">
         <Ionicons
           name={icon}
           size={18}
-          color={isDark ? "#9ca3af" : "#6c757d"}
+          color={isDark ? "#9CA3AF" : "#6B7280"}
         />
-        <Text className="text-sm text-text-secondary">{label}</Text>
+        <Text className="text-sm text-light-muted dark:text-dark-muted">
+          {label}
+        </Text>
       </View>
 
-      <Text className="text-sm font-semibold text-text-primary dark:text-white">
+      <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
         {value}
       </Text>
     </View>
@@ -141,5 +144,5 @@ function InfoRow({
 /* ================= DIVIDER ================= */
 
 function Divider() {
-  return <View className="h-px bg-slate-200 dark:bg-slate-700 my-1" />;
+  return <View className="h-px bg-light-border dark:bg-dark-border my-1" />;
 }

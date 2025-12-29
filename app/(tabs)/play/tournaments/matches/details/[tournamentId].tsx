@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -8,7 +9,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= TYPES ================= */
 
@@ -96,7 +96,7 @@ export default function MatchDetailsScreen() {
   const router = useRouter();
   const { tid } = useLocalSearchParams<{ tid: string }>();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   /**
    * 🔹 API TODO
@@ -104,24 +104,24 @@ export default function MatchDetailsScreen() {
    */
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
 
       {/* ================= TITLE ================= */}
       <View className="px-6 pb-2">
-        <Text className="text-xl font-bold text-text-primary dark:text-white">
+        <Text className="text-xl font-bold text-light-text dark:text-dark-text">
           Match Schedule
         </Text>
-        <Text className="text-sm text-text-secondary mt-1">
+        <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
           City Tennis Championship
         </Text>
       </View>
@@ -135,7 +135,7 @@ export default function MatchDetailsScreen() {
           <MatchCard key={match.id} match={match} />
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -156,29 +156,35 @@ function MatchCard({ match }: { match: Match }) {
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={handlePress}
-      className="mb-4 rounded-2xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700"
+      className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border"
     >
       {/* ROUND + COURT */}
       <View className="flex-row justify-between">
-        <Text className="text-sm font-semibold text-text-primary dark:text-white">
+        <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
           {match.round}
         </Text>
-        <Text className="text-sm text-text-secondary">{match.court}</Text>
+        <Text className="text-sm text-light-muted dark:text-dark-muted">
+          {match.court}
+        </Text>
       </View>
 
       {/* ADDRESS */}
-      <Text className="mt-1 text-sm text-text-secondary">{match.venue}</Text>
+      <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted">
+        {match.venue}
+      </Text>
 
       {/* TEAMS */}
       <View className="flex-row items-center justify-between py-4">
         <TeamBlock team={match.teamA} winner={match.winner === "A"} />
-        <Text className="text-sm text-text-secondary font-medium">VS</Text>
+        <Text className="text-sm font-medium text-light-muted dark:text-dark-muted">
+          VS
+        </Text>
         <TeamBlock team={match.teamB} winner={match.winner === "B"} />
       </View>
 
       {/* DATE + STATUS */}
       <View className="flex-row justify-between items-center">
-        <Text className="text-sm text-text-secondary">
+        <Text className="text-sm text-light-muted dark:text-dark-muted">
           {match.date} • {match.time}
         </Text>
 
@@ -191,15 +197,15 @@ function MatchCard({ match }: { match: Match }) {
         )}
 
         {match.status === "upcoming" && (
-          <View className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700">
-            <Text className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <View className="px-2 py-0.5 rounded-full bg-light-border dark:bg-dark-border">
+            <Text className="text-xs font-semibold text-light-muted dark:text-dark-muted">
               UPCOMING
             </Text>
           </View>
         )}
 
         {match.status === "past" && (
-          <View className="px-2 py-0.5 rounded-full bg-primary/10">
+          <View className="px-2 py-0.5 rounded-full bg-primary/15">
             <Text className="text-xs font-semibold text-primary">
               COMPLETED
             </Text>
@@ -230,7 +236,7 @@ function TeamBlock({
       <Text
         numberOfLines={1}
         className={`text-sm font-semibold ${
-          winner ? "text-primary" : "text-text-primary dark:text-white"
+          winner ? "text-primary" : "text-light-text dark:text-dark-text"
         }`}
       >
         {team.name}

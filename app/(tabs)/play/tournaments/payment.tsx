@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -8,24 +9,23 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PaymentSummaryScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const TOTAL = 52.25;
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
@@ -36,19 +36,19 @@ export default function PaymentSummaryScreen() {
       >
         {/* ================= TITLE ================= */}
         <View className="px-4 pt-4 pb-2">
-          <Text className="text-[28px] font-bold text-center text-text-primary dark:text-white">
+          <Text className="text-[28px] font-bold text-center text-light-text dark:text-dark-text">
             Payment Summary
           </Text>
         </View>
 
         {/* ================= SUMMARY CARD ================= */}
         <View className="px-4 pt-4">
-          <View className="rounded-xl bg-white dark:bg-slate-900/40 p-4 border border-slate-200 dark:border-slate-700">
+          <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
             <PriceRow label="Tournament Registration Fee" value="$45.00" />
             <PriceRow label="Processing Fee" value="$2.50" />
             <PriceRow label="Taxes & Surcharges" value="$4.75" />
 
-            <View className="my-3 h-px bg-slate-200 dark:bg-slate-700" />
+            <View className="my-3 h-px bg-light-border dark:bg-dark-border" />
 
             <PriceRow
               label="Total Amount"
@@ -60,15 +60,17 @@ export default function PaymentSummaryScreen() {
 
         {/* ================= PAYMENT METHOD ================= */}
         <View className="px-4 pt-6">
-          <View className="rounded-xl bg-white dark:bg-slate-900/40 p-4 border border-slate-200 dark:border-slate-700 flex-row items-center justify-between">
+          <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border flex-row items-center justify-between">
             <View className="flex-row items-center gap-4">
-              <View className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 items-center justify-center">
+              <View className="h-10 w-10 rounded-lg bg-primary/10 items-center justify-center">
                 <Ionicons name="wallet-outline" size={20} color={iconColor} />
               </View>
 
               <View>
-                <Text className="text-sm text-text-secondary">Pay using</Text>
-                <Text className="text-base font-medium text-text-primary dark:text-white">
+                <Text className="text-sm text-light-muted dark:text-dark-muted">
+                  Pay using
+                </Text>
+                <Text className="text-base font-medium text-light-text dark:text-dark-text">
                   Wallet / Card
                 </Text>
               </View>
@@ -82,17 +84,17 @@ export default function PaymentSummaryScreen() {
       </ScrollView>
 
       {/* ================= STICKY CTA ================= */}
-      <View className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 py-4">
+      <View className="absolute bottom-0 left-0 right-0 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border px-4 py-4">
         <TouchableOpacity
           onPress={() => Alert.alert("Payment Success")}
           className="h-14 rounded-xl bg-primary items-center justify-center"
         >
-          <Text className="text-white text-base font-bold">
+          <Text className="text-black text-base font-bold">
             Confirm & Pay ${TOTAL.toFixed(2)}
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -112,8 +114,8 @@ function PriceRow({
       <Text
         className={`text-base ${
           bold
-            ? "font-bold text-text-primary dark:text-white"
-            : "text-text-secondary"
+            ? "font-bold text-light-text dark:text-dark-text"
+            : "text-light-muted dark:text-dark-muted"
         }`}
       >
         {label}
@@ -122,8 +124,8 @@ function PriceRow({
       <Text
         className={`text-base ${
           bold
-            ? "font-bold text-text-primary dark:text-white"
-            : "font-medium text-text-primary dark:text-white"
+            ? "font-bold text-light-text dark:text-dark-text"
+            : "font-medium text-light-text dark:text-dark-text"
         }`}
       >
         {value}

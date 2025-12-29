@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -9,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ForgotEmailScreen() {
   const router = useRouter();
@@ -29,30 +29,30 @@ export default function ForgotEmailScreen() {
     }
 
     setError("");
-
-    // you can call send reset email API here
-
     router.push("/(auth)/forgotPassword/password");
   };
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background-light dark:bg-background-dark"
-    >
+    <ScreenWrapper>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-4 pb-0">
-          <View className="flex-row items-center justify-center p-4 pb-6">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 px-4"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {/* Header */}
+          <View className="items-center py-6 pb-6">
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Forgot Password
             </Text>
           </View>
 
+          {/* Email Input */}
           <View className="pt-4 mb-4">
-            <Text className="text-base font-medium pb-2 text-gray-800 dark:text-gray-200">
+            <Text className="text-base font-medium pb-2 text-light-text dark:text-dark-text">
               Email Address
             </Text>
 
@@ -63,11 +63,14 @@ export default function ForgotEmailScreen() {
                 setError("");
               }}
               placeholder="Enter your email"
+              placeholderTextColor="#9CA3AF"
               className={`h-14 w-full rounded-xl border ${
                 error
                   ? "border-red-500"
-                  : "border-gray-300 dark:border-gray-700"
-              } bg-background-light dark:bg-background-dark p-[15px] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500`}
+                  : "border-light-border dark:border-dark-border"
+              } bg-light-card dark:bg-dark-card p-[15px] text-base text-light-text dark:text-dark-text`}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
 
             {error ? (
@@ -75,16 +78,15 @@ export default function ForgotEmailScreen() {
             ) : null}
           </View>
 
-          <View className="py-3 pb-4">
-            <TouchableOpacity
-              onPress={handleNext}
-              className="flex h-14 w-full items-center justify-center rounded-xl bg-primary"
-            >
-              <Text className="text-white font-bold text-base">Next</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Next Button */}
+          <TouchableOpacity
+            onPress={handleNext}
+            className="h-14 w-full items-center justify-center rounded-xl bg-primary mt-4"
+          >
+            <Text className="text-black font-bold text-base">Next</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

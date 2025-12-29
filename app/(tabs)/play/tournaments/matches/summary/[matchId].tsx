@@ -1,7 +1,7 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, View, useColorScheme } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * MATCH SUMMARY SCREEN
@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function MatchSummaryScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   /**
    * 🔹 API TODO
@@ -23,7 +23,7 @@ export default function MatchSummaryScreen() {
    */
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <Ionicons
@@ -33,7 +33,7 @@ export default function MatchSummaryScreen() {
           onPress={() => router.back()}
         />
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
@@ -44,15 +44,15 @@ export default function MatchSummaryScreen() {
         className="px-4"
       >
         {/* ================= MATCH STATUS ================= */}
-        <View className="self-center mt-2 mb-5 px-3 py-1 rounded-full bg-primary/10">
+        <View className="self-center mt-2 mb-5 px-3 py-1 rounded-full bg-primary/15">
           <Text className="text-primary text-sm font-semibold">
             Match Completed
           </Text>
         </View>
 
         {/* ================= SCORE CARD ================= */}
-        <View className="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
-          <Text className="text-sm text-text-secondary mb-4 text-center">
+        <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+          <Text className="text-sm text-light-muted dark:text-dark-muted mb-4 text-center">
             City Tennis Championship • Semi Final
           </Text>
 
@@ -63,7 +63,7 @@ export default function MatchSummaryScreen() {
               winner
             />
 
-            <Text className="text-4xl font-bold text-text-primary dark:text-white">
+            <Text className="text-4xl font-bold text-light-text dark:text-dark-text">
               3 : 1
             </Text>
 
@@ -74,8 +74,8 @@ export default function MatchSummaryScreen() {
           </View>
         </View>
 
-        {/* ================= MATCH DETAILS (IMPROVED) ================= */}
-        <View className="mt-5 rounded-xl bg-white dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700">
+        {/* ================= MATCH DETAILS ================= */}
+        <View className="mt-5 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
           <InfoRow
             icon="trophy-outline"
             label="Winner"
@@ -92,7 +92,7 @@ export default function MatchSummaryScreen() {
           <InfoRow icon="layers-outline" label="Final Set" value="4" />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -118,7 +118,7 @@ function TeamBlock({
       <Text
         numberOfLines={1}
         className={`text-sm font-semibold ${
-          winner ? "text-primary" : "text-text-primary dark:text-white"
+          winner ? "text-primary" : "text-light-text dark:text-dark-text"
         }`}
       >
         {name}
@@ -152,14 +152,16 @@ function InfoRow({
         <Ionicons
           name={icon}
           size={18}
-          color={highlight ? "#0d59f2" : isDark ? "#9ca3af" : "#6c757d"}
+          color={highlight ? "#8AFF1A" : isDark ? "#9CA3AF" : "#6B7280"}
         />
-        <Text className="text-sm text-text-secondary">{label}</Text>
+        <Text className="text-sm text-light-muted dark:text-dark-muted">
+          {label}
+        </Text>
       </View>
 
       <Text
         className={`text-sm font-semibold ${
-          highlight ? "text-primary" : "text-text-primary dark:text-white"
+          highlight ? "text-primary" : "text-light-text dark:text-dark-text"
         }`}
       >
         {value}
@@ -171,5 +173,5 @@ function InfoRow({
 /* ================= DIVIDER ================= */
 
 function Divider() {
-  return <View className="h-px bg-slate-200 dark:bg-slate-700 my-1" />;
+  return <View className="h-px bg-light-border dark:bg-dark-border my-1" />;
 }

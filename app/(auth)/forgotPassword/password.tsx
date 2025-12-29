@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NewPasswordScreen() {
   const router = useRouter();
@@ -41,29 +41,30 @@ export default function NewPasswordScreen() {
     if (!valid) return;
 
     // call API to update password
-
     router.push("/(auth)/login");
   };
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background-light dark:bg-background-dark"
-    >
+    <ScreenWrapper>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-4 pb-0">
-          <View className="flex-row items-center justify-center p-4 pb-6">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 px-4"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {/* Header */}
+          <View className="items-center py-6 pb-6">
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Reset Password
             </Text>
           </View>
 
           {/* New Password */}
           <View className="mb-4">
-            <Text className="text-base font-medium pb-2 text-gray-800 dark:text-gray-200">
+            <Text className="text-base font-medium pb-2 text-light-text dark:text-dark-text">
               New Password
             </Text>
 
@@ -75,12 +76,13 @@ export default function NewPasswordScreen() {
                   setErrorPassword("");
                 }}
                 placeholder="Enter new password"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!isPasswordVisible}
                 className={`h-14 w-full rounded-xl border ${
                   errorPassword
                     ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-700"
-                } bg-background-light dark:bg-background-dark p-[15px] pr-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500`}
+                    : "border-light-border dark:border-dark-border"
+                } bg-light-card dark:bg-dark-card p-[15px] pr-12 text-base text-light-text dark:text-dark-text`}
               />
 
               <TouchableOpacity
@@ -91,7 +93,7 @@ export default function NewPasswordScreen() {
                 <MaterialCommunityIcons
                   name={isPasswordVisible ? "eye" : "eye-off"}
                   size={22}
-                  color="#6b7280"
+                  color="#9CA3AF"
                 />
               </TouchableOpacity>
             </View>
@@ -102,8 +104,8 @@ export default function NewPasswordScreen() {
           </View>
 
           {/* Confirm Password */}
-          <View className="mb-4">
-            <Text className="text-base font-medium pb-2 text-gray-800 dark:text-gray-200">
+          <View className="mb-6">
+            <Text className="text-base font-medium pb-2 text-light-text dark:text-dark-text">
               Confirm Password
             </Text>
 
@@ -115,12 +117,13 @@ export default function NewPasswordScreen() {
                   setErrorConfirm("");
                 }}
                 placeholder="Confirm new password"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!isConfirmPasswordVisible}
                 className={`h-14 w-full rounded-xl border ${
                   errorConfirm
                     ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-700"
-                } bg-background-light dark:bg-background-dark p-[15px] pr-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500`}
+                    : "border-light-border dark:border-dark-border"
+                } bg-light-card dark:bg-dark-card p-[15px] pr-12 text-base text-light-text dark:text-dark-text`}
               />
 
               <TouchableOpacity
@@ -133,7 +136,7 @@ export default function NewPasswordScreen() {
                 <MaterialCommunityIcons
                   name={isConfirmPasswordVisible ? "eye" : "eye-off"}
                   size={22}
-                  color="#6b7280"
+                  color="#9CA3AF"
                 />
               </TouchableOpacity>
             </View>
@@ -143,17 +146,15 @@ export default function NewPasswordScreen() {
             ) : null}
           </View>
 
-          {/* Save button */}
-          <View className="py-3 pb-4">
-            <TouchableOpacity
-              onPress={handleSave}
-              className="flex h-14 w-full items-center justify-center rounded-xl bg-primary"
-            >
-              <Text className="text-white font-bold text-base">Save</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Save Button */}
+          <TouchableOpacity
+            onPress={handleSave}
+            className="h-14 w-full items-center justify-center rounded-xl bg-primary"
+          >
+            <Text className="text-black font-bold text-base">Save</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

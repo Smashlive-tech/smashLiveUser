@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
@@ -10,7 +11,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= TYPES ================= */
 
@@ -63,7 +63,7 @@ const BOOKINGS: Booking[] = [
 export default function MyTournamentBookingsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
   const [search, setSearch] = useState("");
@@ -81,35 +81,35 @@ export default function MyTournamentBookingsScreen() {
   }, [activeTab, search]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* HEADER */}
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
       </View>
 
-      {/* SEARCH */}
+      {/* ================= SEARCH ================= */}
       <View className="px-4 pb-3">
-        <View className="flex-row items-center h-12 rounded-lg bg-slate-200 dark:bg-slate-800 px-4">
+        <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
           <Ionicons name="search" size={20} color={iconColor} />
           <TextInput
             value={search}
             onChangeText={setSearch}
             placeholder="Search tournaments"
             placeholderTextColor={iconColor}
-            className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+            className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
           />
         </View>
       </View>
 
-      {/* TABS */}
+      {/* ================= TABS ================= */}
       <View className="px-4">
-        <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+        <View className="flex-row border-b border-light-border dark:border-dark-border">
           {(["upcoming", "live", "past"] as BookingStatus[]).map((tab) => (
             <TouchableOpacity
               key={tab}
@@ -122,7 +122,7 @@ export default function MyTournamentBookingsScreen() {
                 className={`font-bold text-sm capitalize ${
                   activeTab === tab
                     ? "text-primary"
-                    : "text-slate-500 dark:text-slate-400"
+                    : "text-light-muted dark:text-dark-muted"
                 }`}
               >
                 {tab}
@@ -132,7 +132,7 @@ export default function MyTournamentBookingsScreen() {
         </View>
       </View>
 
-      {/* LIST */}
+      {/* ================= LIST ================= */}
       <ScrollView className="flex-1 px-4 pt-4">
         {filteredBookings.length > 0 ? (
           filteredBookings.map((booking) => (
@@ -142,7 +142,7 @@ export default function MyTournamentBookingsScreen() {
           <EmptyState activeTab={activeTab} />
         )}
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -152,8 +152,7 @@ function BookingCard({ booking }: { booking: Booking }) {
   const router = useRouter();
 
   return (
-    <View className="mb-4 rounded-xl bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-700">
-      {/* CONTENT */}
+    <View className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border">
       <View className="flex-row gap-4">
         <Image
           source={{ uri: booking.image }}
@@ -161,13 +160,13 @@ function BookingCard({ booking }: { booking: Booking }) {
         />
 
         <View className="flex-1 justify-center">
-          <Text className="text-base font-bold text-text-primary dark:text-white">
+          <Text className="text-base font-bold text-light-text dark:text-dark-text">
             {booking.title}
           </Text>
-          <Text className="text-sm text-text-secondary mt-1">
+          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
             {booking.venue}
           </Text>
-          <Text className="text-sm text-text-secondary mt-1">
+          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
             {booking.datetime}
           </Text>
           <Text className="text-xs font-medium text-primary mt-1">
@@ -176,9 +175,8 @@ function BookingCard({ booking }: { booking: Booking }) {
         </View>
       </View>
 
-      {/* ACTIONS */}
+      {/* ================= ACTIONS ================= */}
       <View className="mt-4">
-        {/* UPCOMING */}
         {booking.status === "upcoming" && (
           <TouchableOpacity
             onPress={() =>
@@ -186,13 +184,12 @@ function BookingCard({ booking }: { booking: Booking }) {
             }
             className="h-10 rounded-lg bg-primary items-center justify-center"
           >
-            <Text className="text-white font-semibold text-sm">
+            <Text className="text-black font-semibold text-sm">
               View Details
             </Text>
           </TouchableOpacity>
         )}
 
-        {/* LIVE */}
         {booking.status === "live" && (
           <View className="flex-row gap-3">
             <TouchableOpacity
@@ -201,7 +198,7 @@ function BookingCard({ booking }: { booking: Booking }) {
               }
               className="flex-1 h-10 rounded-lg bg-primary items-center justify-center"
             >
-              <Text className="text-white font-semibold text-sm">
+              <Text className="text-black  font-semibold text-sm">
                 View Score
               </Text>
             </TouchableOpacity>
@@ -210,16 +207,15 @@ function BookingCard({ booking }: { booking: Booking }) {
               onPress={() =>
                 router.push(`/play/tournaments/matches/details/${booking.id}`)
               }
-              className="flex-1 h-10 rounded-lg border border-slate-300 dark:border-slate-600 items-center justify-center"
+              className="flex-1 h-10 rounded-lg border border-light-border dark:border-dark-border items-center justify-center"
             >
-              <Text className="text-text-primary dark:text-white font-semibold text-sm">
+              <Text className="text-light-text dark:text-dark-text font-semibold text-sm">
                 View Details
               </Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {/* PAST */}
         {booking.status === "past" && (
           <TouchableOpacity
             onPress={() =>
@@ -227,7 +223,7 @@ function BookingCard({ booking }: { booking: Booking }) {
             }
             className="h-10 rounded-lg bg-primary items-center justify-center"
           >
-            <Text className="text-white font-semibold text-sm">
+            <Text className="text-black  font-semibold text-sm">
               View Summary
             </Text>
           </TouchableOpacity>
@@ -244,15 +240,15 @@ function EmptyState({ activeTab }: { activeTab: BookingStatus }) {
 
   return (
     <View className="items-center justify-center mt-24 px-6">
-      <View className="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
-        <Ionicons name="calendar-outline" size={32} color="#6c757d" />
+      <View className="h-16 w-16 rounded-full bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border items-center justify-center">
+        <Ionicons name="calendar-outline" size={32} color="#6B7280" />
       </View>
 
-      <Text className="mt-4 text-lg font-bold text-text-primary dark:text-white">
+      <Text className="mt-4 text-lg font-bold text-light-text dark:text-dark-text">
         No {activeTab} tournaments
       </Text>
 
-      <Text className="mt-1 text-sm text-text-secondary text-center">
+      <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted text-center">
         Your {activeTab} tournament bookings will appear here.
       </Text>
 

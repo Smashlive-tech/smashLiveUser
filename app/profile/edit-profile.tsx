@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -14,13 +15,12 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
 
-  /* ================= PROFILE STATE ================= */
+  /* ================= STATE ================= */
   const [profilePic, setProfilePic] = useState(
     "https://lh3.googleusercontent.com/aida-public/AB6AXuAcPal7e2uimTdT480kyNt_HOBPeB0sX_KAHU61BgTBW9hFDv4ZlaB7m7zoVIrdIClVZTKpWUvlEXOl4t-gW2T29k7ueHBXpxJPGGaAzB9XEuFCOYQ88Q6gzYOAFRrI5qOVSosAkP_bw9c2Cb7HGR6wHRtpyI_O88ThSHI_YYuQHRq-XMQJikMWwpKlGwGfVYdhC4rgQsQ8d8ybuyh6gDAXFTr6Ez776140TOIHu9iwDvSihh-lHF4Z-BQKtyiBsfLA7qMOhoOLDiOe"
   );
@@ -29,10 +29,8 @@ export default function EditProfileScreen() {
   const [bio, setBio] = useState(
     "Tennis enthusiast · Weekend warrior · Looking for a hitting partner"
   );
-
   const [email, setEmail] = useState("alex.martinez@smashlive.com");
   const [phone, setPhone] = useState("(555) 123-4567");
-  const [organization, setOrganization] = useState("SMASH LIVE Events");
 
   /* ================= IMAGE PICKER ================= */
   const pickImage = async () => {
@@ -56,26 +54,23 @@ export default function EditProfileScreen() {
 
   /* ================= SAVE ================= */
   const handleSave = () => {
-    // 🔹 API call later
-    Alert.alert(
-      "Profile Updated",
-      "Your changes have been saved successfully!"
-    );
+    Alert.alert("Profile Updated", "Your changes have been saved");
     router.back();
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#101622]">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <Ionicons
             name="arrow-back"
             size={22}
-            color={isDark ? "#9ca3af" : "#6c757d"}
+            color={isDark ? "#9CA3AF" : "#6B7280"}
           />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Edit Profile
         </Text>
       </View>
@@ -86,112 +81,122 @@ export default function EditProfileScreen() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
         >
-          {/* ================= PROFILE PHOTO ================= */}
-          <View className="items-center pt-8 pb-8">
+          {/* ================= PROFILE IMAGE ================= */}
+          <View className="items-center pt-8 pb-10">
             <TouchableOpacity onPress={pickImage} activeOpacity={0.85}>
               <Image
                 source={{ uri: profilePic }}
                 className="h-32 w-32 rounded-full"
               />
-              <View className="absolute bottom-0 right-0 bg-[#0d59f2] rounded-full p-2">
-                <MaterialIcons name="photo-camera" size={18} color="#fff" />
+
+              <View className="absolute bottom-1 right-1 bg-primary rounded-full p-2">
+                <MaterialIcons name="photo-camera" size={18} color="#000" />
               </View>
             </TouchableOpacity>
           </View>
 
-          {/* ================= PUBLIC INFO ================= */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold text-text-primary dark:text-white">
-              Profile Information
-            </Text>
-          </View>
+          {/* ================= PROFILE INFO ================= */}
+          <Section title="Profile Information" />
 
-          {/* Full Name */}
-          <View className="mb-5">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-2">
-              Display Name
-            </Text>
-            <TextInput
-              value={fullName}
-              onChangeText={setFullName}
-              className="h-14 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-4 text-base text-gray-900 dark:text-gray-100"
-            />
-          </View>
+          <Field
+            label="Display Name"
+            value={fullName}
+            onChangeText={setFullName}
+          />
 
-          {/* Bio */}
-          <View className="mb-1">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-2">
-              Bio (Visible to others)
-            </Text>
-            <TextInput
-              value={bio}
-              onChangeText={setBio}
-              multiline
-              maxLength={150}
-              placeholder="Tell people about yourself…"
-              placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
-              className="min-h-[100px] rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-4 py-3 text-base text-gray-900 dark:text-gray-100"
-            />
-            <Text className="text-xs text-gray-500 mt-1 text-right">
-              {bio.length}/150
-            </Text>
-          </View>
+          <Field
+            label="Bio"
+            value={bio}
+            onChangeText={setBio}
+            multiline
+            maxLength={150}
+            footer={`${bio.length}/150`}
+          />
 
-          {/* ================= PRIVATE INFO ================= */}
-          <View className="mb-4 mt-8">
-            <Text className="text-lg font-semibold text-text-primary dark:text-white">
-              Contact Information
-            </Text>
-          </View>
+          {/* ================= CONTACT ================= */}
+          <Section title="Contact Information" />
 
-          {/* Email */}
-          <View className="mb-5">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-2">
-              Email
-            </Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              className="h-14 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-4 text-base text-gray-900 dark:text-gray-100"
-            />
-          </View>
+          <Field
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
 
-          {/* Phone */}
-          <View className="mb-5">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-2">
-              Phone Number
-            </Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              className="h-14 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-4 text-base text-gray-900 dark:text-gray-100"
-            />
-          </View>
+          <Field
+            label="Phone Number"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
         </ScrollView>
 
         {/* ================= ACTIONS ================= */}
-        <View className="px-5 py-4 border-t border-gray-200 dark:border-gray-800">
+        <View className="px-4 py-4 border-t border-light-border dark:border-dark-border bg-transparent">
           <TouchableOpacity
             onPress={handleSave}
-            className="h-14 rounded-xl bg-[#0d59f2] items-center justify-center mb-3"
+            className="h-14 rounded-xl bg-primary items-center justify-center mb-3"
           >
-            <Text className="text-white font-bold text-base">Save Changes</Text>
+            <Text className="text-black font-bold text-base">Save Changes</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.back()}
-            className="h-14 rounded-xl bg-gray-100 dark:bg-gray-800 items-center justify-center"
+            className="h-14 rounded-xl bg-light-card dark:bg-dark-card items-center justify-center"
           >
-            <Text className="text-gray-700 dark:text-gray-300 font-bold text-base">
+            <Text className="text-light-text dark:text-dark-text font-bold text-base">
               Cancel
             </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
+  );
+}
+
+/* ================= REUSABLE ================= */
+
+function Section({ title }: { title: string }) {
+  return (
+    <View className="mt-6 mb-3">
+      <Text className="text-lg font-semibold text-light-text dark:text-dark-text">
+        {title}
+      </Text>
+    </View>
+  );
+}
+
+function Field({
+  label,
+  footer,
+  ...props
+}: {
+  label: string;
+  footer?: string;
+  [key: string]: any;
+}) {
+  return (
+    <View className="mb-5">
+      <Text className="text-sm font-medium text-light-muted dark:text-dark-muted mb-2">
+        {label}
+      </Text>
+
+      <TextInput
+        {...props}
+        placeholderTextColor="#9CA3AF"
+        className="rounded-xl border border-light-border dark:border-dark-border
+                   bg-light-card dark:bg-dark-card
+                   px-4 py-3 text-base
+                   text-light-text dark:text-dark-text"
+      />
+
+      {footer && (
+        <Text className="text-xs text-light-muted dark:text-dark-muted mt-1 text-right">
+          {footer}
+        </Text>
+      )}
+    </View>
   );
 }

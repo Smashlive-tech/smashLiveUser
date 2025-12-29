@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -11,7 +12,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= DATA ================= */
 
@@ -20,47 +20,39 @@ const PRODUCTS = [
     id: "1",
     name: "Vaporfly 3",
     price: 260,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
   },
   {
     id: "2",
     name: "Alphafly 3",
     price: 285,
-    image:
-      "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
   },
   {
     id: "3",
     name: "Pegasus 41",
     price: 140,
-    image:
-      "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111",
   },
   {
     id: "4",
     name: "Invincible 3",
     price: 180,
-    image:
-      "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772",
   },
   {
     id: "5",
     name: "Zoom Fly 5",
     price: 170,
-    image:
-      "https://images.unsplash.com/photo-1528701800489-20be3c54a28a?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1528701800489-20be3c54a28a",
   },
   {
     id: "6",
     name: "InfinityRN 4",
     price: 160,
-    image:
-      "https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1543508282-6319a3e2621f",
   },
 ];
-
-/* ================= TYPES ================= */
 
 type SortType = "NONE" | "PRICE_LOW" | "PRICE_HIGH";
 type PriceFilter = "UNDER_150" | "BETWEEN_150_200" | "ABOVE_200";
@@ -71,31 +63,24 @@ export default function SearchResultsScreen() {
   const { query } = useLocalSearchParams<{ query: string }>();
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const [loading, setLoading] = useState(true);
   const [sortType, setSortType] = useState<SortType>("NONE");
-
   const [priceFilters, setPriceFilters] = useState<PriceFilter[]>([]);
   const [tempFilters, setTempFilters] = useState<PriceFilter[]>([]);
-
   const [showSort, setShowSort] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
-  /* ================= FAKE API ================= */
-
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(t);
   }, [query]);
-
-  /* ================= FILTER + SORT ================= */
 
   const data = useMemo(() => {
     let list = [...PRODUCTS];
 
-    if (priceFilters.length > 0) {
+    if (priceFilters.length) {
       list = list.filter(
         (p) =>
           (priceFilters.includes("UNDER_150") && p.price < 150) ||
@@ -113,18 +98,14 @@ export default function SearchResultsScreen() {
   }, [sortType, priceFilters]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center justify-between px-4 py-4">
-        <View className="flex-row items-center gap-2">
+        <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={isDark ? "#9ca3af" : "#6c757d"}
-            />
+            <Ionicons name="arrow-back" size={24} color={iconColor} />
           </TouchableOpacity>
-          <Text className="text-2xl font-bold text-text-primary dark:text-white">
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
             Buy
           </Text>
         </View>
@@ -141,13 +122,13 @@ export default function SearchResultsScreen() {
 
       {/* ================= SEARCH ================= */}
       <View className="px-4 py-3">
-        <View className="flex-row items-center h-12 rounded-xl bg-white dark:bg-slate-800 px-4 border border-slate-200 dark:border-slate-700">
+        <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
           <Ionicons name="search" size={20} color={iconColor} />
           <TextInput
             defaultValue={query}
             placeholder="Search in products"
             placeholderTextColor={iconColor}
-            className="flex-1 ml-2 text-base text-text-primary dark:text-white"
+            className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
           />
         </View>
       </View>
@@ -155,13 +136,13 @@ export default function SearchResultsScreen() {
       {/* ================= CHIPS ================= */}
       <View className="flex-row gap-3 px-4 pb-3">
         <ActionChip
-          icon="swap-vert"
           label="Sort By"
+          icon="swap-vert"
           onPress={() => setShowSort(true)}
         />
         <ActionChip
-          icon="tune"
           label={`Filters${priceFilters.length ? ` (${priceFilters.length})` : ""}`}
+          icon="tune"
           onPress={() => {
             setTempFilters(priceFilters);
             setShowFilter(true);
@@ -181,13 +162,8 @@ export default function SearchResultsScreen() {
           columnWrapperStyle={{ gap: 16 }}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/buy/products/[productId]",
-                  params: { productId: item.id },
-                })
-              }
-              className="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-4"
+              onPress={() => router.push(`/buy/products/${item.id}`)}
+              className="flex-1 bg-light-card dark:bg-dark-card rounded-xl border border-light-border dark:border-dark-border overflow-hidden mb-4"
             >
               <Image
                 source={{ uri: item.image }}
@@ -196,17 +172,17 @@ export default function SearchResultsScreen() {
               <View className="p-3">
                 <Text
                   numberOfLines={1}
-                  className="text-base font-medium text-text-primary dark:text-white"
+                  className="text-base font-medium text-light-text dark:text-dark-text"
                 >
                   {item.name}
                 </Text>
-                <Text className="text-sm text-text-secondary">
+                <Text className="text-sm text-light-muted dark:text-dark-muted">
                   ${item.price}
                 </Text>
               </View>
               <View className="px-3 pb-3">
                 <View className="h-10 rounded-lg bg-primary items-center justify-center">
-                  <Text className="text-white font-bold text-sm">
+                  <Text className="text-black font-bold text-sm">
                     Add to Cart
                   </Text>
                 </View>
@@ -236,7 +212,7 @@ export default function SearchResultsScreen() {
 
       {/* ================= FILTER ================= */}
       <BottomSheet visible={showFilter} onClose={() => setShowFilter(false)}>
-        <Text className="text-lg font-bold mb-4 text-text-primary dark:text-white">
+        <Text className="text-lg font-bold mb-4 text-light-text dark:text-dark-text">
           Price
         </Text>
 
@@ -264,20 +240,19 @@ export default function SearchResultsScreen() {
               setShowFilter(false);
             }}
           >
-            <Text className="text-slate-500">Clear</Text>
+            <Text className="text-light-muted dark:text-dark-muted">Clear</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             onPress={() => {
               setPriceFilters(tempFilters);
               setShowFilter(false);
             }}
           >
-            <Text className="text-primary font-bold">Apply</Text>
+            <Text className="text-primary font-medium">Apply</Text>
           </TouchableOpacity>
         </View>
       </BottomSheet>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -290,13 +265,16 @@ function toggle<T>(arr: T[], setArr: (v: T[]) => void, item: T) {
 /* ================= UI COMPONENTS ================= */
 
 function ActionChip({ label, icon, onPress }: any) {
+  const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center gap-2 h-10 px-4 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+      className="flex-row items-center gap-2 h-10 px-4 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
     >
-      <MaterialIcons name={icon} size={18} color="#6c757d" />
-      <Text className="text-sm font-medium text-text-primary dark:text-white">
+      <MaterialIcons name={icon} size={18} color={iconColor} />
+      <Text className="text-sm font-medium text-light-text dark:text-dark-text">
         {label}
       </Text>
     </TouchableOpacity>
@@ -309,9 +287,9 @@ function Checkbox({ label, checked, onPress }: any) {
       <Ionicons
         name={checked ? "checkbox" : "square-outline"}
         size={22}
-        color={checked ? "#0d59f2" : "#6c757d"}
+        color={checked ? "#8AFF1A" : "#6B7280"}
       />
-      <Text className="ml-3 text-base text-text-primary dark:text-white">
+      <Text className="ml-3 text-base text-light-text dark:text-dark-text">
         {label}
       </Text>
     </TouchableOpacity>
@@ -325,7 +303,7 @@ function BottomSheet({ visible, children, onClose }: any) {
         onPress={onClose}
         className="flex-1 bg-black/40 justify-end"
       >
-        <View className="bg-white dark:bg-slate-900 rounded-t-2xl p-4">
+        <View className="bg-light-bg dark:bg-dark-bg rounded-t-2xl p-4">
           {children}
         </View>
       </TouchableOpacity>
@@ -336,7 +314,7 @@ function BottomSheet({ visible, children, onClose }: any) {
 function SheetOption({ label, onPress }: any) {
   return (
     <TouchableOpacity onPress={onPress} className="py-4">
-      <Text className="text-base font-medium text-text-primary dark:text-white">
+      <Text className="text-base font-medium text-light-text dark:text-dark-text">
         {label}
       </Text>
     </TouchableOpacity>
@@ -346,10 +324,10 @@ function SheetOption({ label, onPress }: any) {
 function SkeletonGrid() {
   return (
     <View className="px-4">
-      {[1, 2, 3, 4].map((i) => (
+      {[1, 2].map((i) => (
         <View key={i} className="flex-row gap-4 mb-4">
-          <View className="flex-1 h-64 rounded-xl bg-slate-200 dark:bg-slate-700" />
-          <View className="flex-1 h-64 rounded-xl bg-slate-200 dark:bg-slate-700" />
+          <View className="flex-1 h-64 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border" />
+          <View className="flex-1 h-64 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border" />
         </View>
       ))}
     </View>

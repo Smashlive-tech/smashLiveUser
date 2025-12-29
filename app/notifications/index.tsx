@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -7,7 +8,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= MOCK DATA =================
    🔹 Replace this with API response later
@@ -37,19 +37,17 @@ export default function NotificationScreen() {
   const isDark = useColorScheme() === "dark";
   const router = useRouter();
 
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* ================= HEADER (GLOBAL CONSISTENT) ================= */}
+    <ScreenWrapper>
+      {/* ================= HEADER ================= */}
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons
-            name="arrow-back"
-            size={22}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="arrow-back" size={22} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Notifications
         </Text>
       </View>
@@ -61,33 +59,35 @@ export default function NotificationScreen() {
             <TouchableOpacity
               key={item.id}
               activeOpacity={0.85}
-              className="mb-3 flex-row rounded-xl bg-white dark:bg-slate-800
-                         border border-slate-200 dark:border-slate-700 p-4"
+              className="mb-3 flex-row rounded-xl
+                         bg-light-card dark:bg-dark-card
+                         border border-light-border dark:border-dark-border
+                         p-4"
             >
-              {/* LEFT ICON (ONLY ONE) */}
+              {/* LEFT ICON */}
               <View
                 className="h-10 w-10 rounded-full items-center justify-center
-                           bg-slate-100 dark:bg-slate-700 mr-3"
+                           bg-primary/15 mr-3"
               >
                 <Ionicons
                   name="notifications-outline"
                   size={18}
-                  color={isDark ? "#cbd5e1" : "#475569"}
+                  color="#8AFF1A"
                 />
               </View>
 
               {/* CONTENT */}
               <View className="flex-1">
                 <View className="flex-row justify-between items-start mb-1">
-                  <Text className="text-base font-semibold text-text-primary dark:text-white">
+                  <Text className="text-base font-semibold text-light-text dark:text-dark-text">
                     {item.title}
                   </Text>
-                  <Text className="text-xs text-text-secondary ml-2">
+                  <Text className="text-xs text-light-muted dark:text-dark-muted ml-2">
                     {item.time}
                   </Text>
                 </View>
 
-                <Text className="text-sm text-text-secondary leading-5">
+                <Text className="text-sm text-light-muted dark:text-dark-muted leading-5">
                   {item.message}
                 </Text>
               </View>
@@ -95,6 +95,6 @@ export default function NotificationScreen() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

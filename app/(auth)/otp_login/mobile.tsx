@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,7 +12,6 @@ import {
   View,
 } from "react-native";
 import CountryPicker, { Country } from "react-native-country-picker-modal";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PhoneScreen() {
   const router = useRouter();
@@ -35,14 +35,11 @@ export default function PhoneScreen() {
       setError("Enter valid 10 digit phone");
       return;
     }
+
     setError("");
+
     try {
-      // here you will call real backend API:
-      // await axios.post("/auth/send-otp", { phone: "+" + callingCode + phone });
-
-      // simulate success:
       Alert.alert("OTP Sent", `OTP has been sent to +${callingCode} ${phone}`);
-
       router.push("/(auth)/otp_login/otp");
     } catch (error) {
       Alert.alert("Error", "Server error, cannot send OTP");
@@ -50,24 +47,26 @@ export default function PhoneScreen() {
   };
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background-light dark:bg-background-dark"
-    >
+    <ScreenWrapper>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-4 pb-0">
-          <View className="flex-row items-center justify-center p-4 pb-8">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          {/* Header */}
+          <View className="items-center py-6 pb-8">
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Login with OTP
             </Text>
           </View>
 
-          {/* PHONE INPUT */}
+          {/* Phone Input */}
           <View className="mb-4">
-            <Text className="text-base font-medium pb-2 text-gray-800 dark:text-gray-200">
+            <Text className="text-base font-medium pb-2 text-light-text dark:text-dark-text">
               Mobile Number
             </Text>
 
@@ -75,8 +74,8 @@ export default function PhoneScreen() {
               className={`flex-row items-center h-14 rounded-xl border px-3 ${
                 error
                   ? "border-red-500"
-                  : "border-gray-300 dark:border-gray-700"
-              } bg-background-light dark:bg-background-dark`}
+                  : "border-light-border dark:border-dark-border"
+              } bg-light-card dark:bg-dark-card`}
             >
               <CountryPicker
                 countryCode={countryCode}
@@ -91,7 +90,7 @@ export default function PhoneScreen() {
                 }}
               />
 
-              <Text className="text-gray-900 dark:text-white ml-2 mr-2">
+              <Text className="ml-2 mr-2 text-light-text dark:text-dark-text">
                 +{callingCode}
               </Text>
 
@@ -104,7 +103,8 @@ export default function PhoneScreen() {
                   setError("");
                 }}
                 placeholder="Enter mobile number"
-                className="flex-1 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholderTextColor="#9CA3AF"
+                className="flex-1 text-base text-light-text dark:text-dark-text"
               />
             </View>
 
@@ -113,17 +113,15 @@ export default function PhoneScreen() {
             ) : null}
           </View>
 
-          {/* NEXT BUTTON */}
-          <View className="py-3 pb-4">
-            <TouchableOpacity
-              onPress={handleNext}
-              className="flex h-14 w-full items-center justify-center rounded-xl bg-primary"
-            >
-              <Text className="text-white font-bold text-base">Send OTP</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Send OTP Button */}
+          <TouchableOpacity
+            onPress={handleNext}
+            className="h-14 w-full items-center justify-center rounded-xl bg-primary mt-4"
+          >
+            <Text className="text-black font-bold text-base">Send OTP</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

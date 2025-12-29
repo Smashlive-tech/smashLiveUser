@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -7,7 +8,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 /* ================= MOCK DATA ================= */
 
@@ -25,21 +25,18 @@ const SUCCESS_DATA = {
 export default function BookingSuccessScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <ScreenWrapper>
       {/* ================= HEADER ================= */}
-      <View className="flex-row items-center gap-2 px-4 py-4">
-        <TouchableOpacity onPress={() => router.replace("/(tabs)")}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+      <View className="flex-row items-center gap-3 px-4 py-4">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
-        <Text className="text-2xl font-bold text-text-primary dark:text-white">
-          Book
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
+          Success
         </Text>
       </View>
 
@@ -50,38 +47,34 @@ export default function BookingSuccessScreen() {
         className="px-4"
       >
         {/* ================= SUCCESS ICON ================= */}
-        <View className="items-center mt-6 mb-4">
+        <View className="items-center mt-8 mb-4">
           <View className="h-20 w-20 rounded-full bg-primary/20 items-center justify-center">
-            <Ionicons name="checkmark" size={42} color="#0d59f2" />
+            <Ionicons name="checkmark" size={42} color="#8AFF1A" />
           </View>
         </View>
 
         {/* ================= TITLE ================= */}
-        <Text className="text-3xl font-bold text-text-primary dark:text-white text-center">
+        <Text className="text-3xl font-bold text-light-text dark:text-dark-text text-center">
           Booking Confirmed!
         </Text>
 
-        <Text className="mt-2 text-base text-text-secondary text-center">
+        <Text className="mt-2 text-base text-light-muted dark:text-dark-muted text-center">
           Your court is reserved. A confirmation has been sent to your email.
         </Text>
 
         {/* ================= BOOKING ID ================= */}
-        <View className="mt-6 flex-row items-center justify-between rounded-xl bg-slate-200 dark:bg-slate-800/60 px-4 py-3">
-          <Text className="text-sm font-medium text-text-secondary">
+        <View className="mt-6 flex-row items-center justify-between rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4 py-3">
+          <Text className="text-sm font-medium text-light-muted dark:text-dark-muted">
             Booking ID: {SUCCESS_DATA.bookingId}
           </Text>
 
-          <Ionicons
-            name="copy-outline"
-            size={18}
-            color={isDark ? "#9ca3af" : "#6c757d"}
-          />
+          <Ionicons name="copy-outline" size={18} color={iconColor} />
         </View>
 
         {/* ================= SUMMARY CARD ================= */}
-        <View className="mt-6 rounded-2xl bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800">
+        <View className="mt-6 rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
           {/* -------- BOOKING DETAILS -------- */}
-          <Text className="text-sm font-bold text-text-primary dark:text-white mb-4">
+          <Text className="text-sm font-bold text-light-text dark:text-dark-text mb-4">
             Booking Details
           </Text>
 
@@ -103,10 +96,10 @@ export default function BookingSuccessScreen() {
             value={SUCCESS_DATA.datetime}
           />
 
-          <View className="h-px bg-slate-200 dark:bg-slate-700 my-4" />
+          <Divider />
 
           {/* -------- PAYMENT SUMMARY -------- */}
-          <Text className="text-sm font-bold text-text-primary dark:text-white mb-4">
+          <Text className="text-sm font-bold text-light-text dark:text-dark-text mb-4">
             Payment Summary
           </Text>
 
@@ -125,13 +118,13 @@ export default function BookingSuccessScreen() {
       </ScrollView>
 
       {/* ================= FOOTER ACTIONS ================= */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+      <View className="absolute bottom-0 left-0 right-0 p-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => router.replace("/book/bookings")}
           className="h-12 rounded-xl bg-primary items-center justify-center mb-3"
         >
-          <Text className="text-white font-bold text-base">
+          <Text className="text-black font-medium text-base">
             View My Bookings
           </Text>
         </TouchableOpacity>
@@ -141,16 +134,16 @@ export default function BookingSuccessScreen() {
           onPress={() => router.replace("/book")}
           className="h-12 rounded-xl items-center justify-center"
         >
-          <Text className="text-primary font-bold text-base">
+          <Text className="text-primary font-medium text-base">
             Return to Book
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
-/* ================= COMPONENT ================= */
+/* ================= COMPONENTS ================= */
 
 function InfoRow({
   icon,
@@ -164,15 +157,21 @@ function InfoRow({
   return (
     <View className="flex-row items-center gap-4 mb-4">
       <View className="h-10 w-10 rounded-lg bg-primary/20 items-center justify-center">
-        <Ionicons name={icon} size={20} color="#0d59f2" />
+        <Ionicons name={icon} size={20} color="#8AFF1A" />
       </View>
 
       <View className="flex-1">
-        <Text className="text-xs text-text-secondary">{label}</Text>
-        <Text className="text-base font-medium text-text-primary dark:text-white">
+        <Text className="text-xs text-light-muted dark:text-dark-muted">
+          {label}
+        </Text>
+        <Text className="text-base font-medium text-light-text dark:text-dark-text">
           {value}
         </Text>
       </View>
     </View>
   );
+}
+
+function Divider() {
+  return <View className="h-px bg-light-border dark:bg-dark-border my-4" />;
 }

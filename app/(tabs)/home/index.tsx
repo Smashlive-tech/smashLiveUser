@@ -1,3 +1,4 @@
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -10,7 +11,6 @@ import {
   useColorScheme,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -19,6 +19,7 @@ const USER = {
   name: "Sai",
   profilePic: "https://i.pravatar.cc/100?img=12",
 };
+
 const FEATURED_TOURNAMENTS = [
   {
     id: "1",
@@ -46,18 +47,22 @@ const STORE_ITEMS = [
 export default function HomeScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9ca3af" : "#6c757d";
+
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <ScreenWrapper>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         {/* ================= HEADER ================= */}
         <View className="flex-row justify-between items-center px-4 py-4">
           <View>
-            <Text className="text-2xl font-bold text-text-primary dark:text-white">
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Hi, Sai 👋
             </Text>
-            <Text className="text-base text-text-secondary">
+            <Text className="text-sm text-light-muted dark:text-dark-muted">
               Hyderabad, India
             </Text>
           </View>
@@ -65,17 +70,16 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={() => router.push("/profile/[userId]")}>
             <Image
               source={{ uri: USER.profilePic }}
-              className="h-8 w-8 rounded-full"
+              className="h-9 w-9 rounded-full"
             />
           </TouchableOpacity>
         </View>
 
         {/* ================= TOURNAMENT STATUS ================= */}
         <View className="px-4 mt-4">
-          <View className="relative bg-white dark:bg-slate-800 rounded-xl pt-6 pb-4 px-4 border border-slate-200 dark:border-slate-700">
-            {/* BORDER TITLE */}
-            <View className="absolute -top-3 left-4 px-2">
-              <Text className="text-sm font-bold text-text-primary dark:text-white">
+          <View className="relative rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card pt-6 pb-4 px-4">
+            <View className="absolute -top-3 left-4 px-2 bg-light-card dark:bg-dark-card">
+              <Text className="text-sm font-bold text-light-text dark:text-dark-text">
                 Tournaments
               </Text>
             </View>
@@ -87,7 +91,7 @@ export default function HomeScreen() {
                   onPress={() => router.push("/play/bookings")}
                   className="items-center flex-1"
                 >
-                  <View className="h-12 w-12 rounded-full bg-primary/10 items-center justify-center mb-2">
+                  <View className="h-12 w-12 rounded-full bg-primary/15 items-center justify-center mb-2">
                     <Ionicons
                       name={
                         item === "Past"
@@ -97,18 +101,10 @@ export default function HomeScreen() {
                             : "calendar-outline"
                       }
                       size={22}
-                      color={
-                        item === "Past"
-                          ? "#fbbf24"
-                          : item === "Live"
-                            ? "#4ade80"
-                            : isDark
-                              ? "#3b82f6"
-                              : "#0d59f2"
-                      }
+                      color="#8AFF1A"
                     />
                   </View>
-                  <Text className="text-sm font-medium text-text-primary dark:text-white">
+                  <Text className="text-sm font-medium text-light-text dark:text-dark-text">
                     {item}
                   </Text>
                 </TouchableOpacity>
@@ -140,8 +136,8 @@ export default function HomeScreen() {
 
         {/* ================= STORE ================= */}
         <View className="px-4 mt-8">
-          <View className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
-            <Text className="text-base font-bold text-text-primary dark:text-white mb-4">
+          <View className="rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card p-4">
+            <Text className="text-base font-bold text-light-text dark:text-dark-text mb-4">
               Store
             </Text>
 
@@ -152,14 +148,14 @@ export default function HomeScreen() {
                   onPress={() => router.push("/buy")}
                   className="items-center w-[22%]"
                 >
-                  <View className="h-14 w-14 rounded-full bg-slate-100 dark:bg-slate-700 items-center justify-center">
+                  <View className="h-14 w-14 rounded-full bg-primary/10 items-center justify-center">
                     <Ionicons
                       name={item.icon as any}
                       size={24}
                       color={iconColor}
                     />
                   </View>
-                  <Text className="mt-2 text-xs font-medium text-text-primary dark:text-white">
+                  <Text className="mt-2 text-xs font-medium text-light-text dark:text-dark-text">
                     {item.label}
                   </Text>
                 </TouchableOpacity>
@@ -171,7 +167,7 @@ export default function HomeScreen() {
         {/* ================= FEATURED TOURNAMENTS ================= */}
         <View className="mt-10">
           <View className="px-4 mb-3">
-            <Text className="text-base font-bold text-text-primary dark:text-white">
+            <Text className="text-base font-bold text-light-text dark:text-dark-text">
               Featured Tournaments
             </Text>
           </View>
@@ -196,7 +192,6 @@ export default function HomeScreen() {
                     resizeMode="cover"
                   />
 
-                  {/* Overlay */}
                   <View className="absolute inset-0 bg-black/40 justify-end p-5">
                     <Text className="text-white text-2xl font-bold">
                       {item.title}
@@ -210,14 +205,12 @@ export default function HomeScreen() {
             )}
           />
         </View>
-
-        <View className="h-12" />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
-/* ================= COMPONENTS ================= */
+/* ================= COMPONENT ================= */
 
 function HomeActionCard({
   title,
@@ -231,15 +224,16 @@ function HomeActionCard({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-1 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 justify-end"
+      className="flex-1 rounded-2xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card p-4 justify-end"
     >
-      {/* Diagonal Accent */}
-      <View className="absolute bottom-0 right-0 w-16 h-16 bg-primary/10 rounded-tl-2xl" />
+      <View className="absolute bottom-0 right-0 w-16 h-16 bg-primary/15 rounded-tl-2xl" />
 
-      <Text className="text-lg font-bold text-text-primary dark:text-white">
+      <Text className="text-lg font-bold text-light-text dark:text-dark-text">
         {title}
       </Text>
-      <Text className="text-sm text-text-secondary mt-1">{subtitle}</Text>
+      <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+        {subtitle}
+      </Text>
     </TouchableOpacity>
   );
 }
