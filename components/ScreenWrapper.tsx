@@ -1,5 +1,4 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "expo-status-bar";
 import React, { ReactNode } from "react";
 import { useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,13 +11,13 @@ export default function ScreenWrapper({ children }: ScreenWrapperProps) {
   const isDark = useColorScheme() === "dark";
 
   return (
-    <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-      {/* STATUS BAR FIX */}
-      <StatusBar
-        style={isDark ? "light" : "dark"}
-        backgroundColor={isDark ? "#1E1E1E" : "#F9FAFB"}
-      />
-
+    <SafeAreaView
+      edges={["top"]}
+      style={{
+        flex: 1,
+        backgroundColor: isDark ? "#1E1E1E" : "#F9FAFB",
+      }}
+    >
       <LinearGradient
         colors={
           isDark
