@@ -1,9 +1,10 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -14,12 +15,17 @@ import {
 
 /* ================= DATA ================= */
 
-const FEATURED_TOURNAMENTS = [
+const CATEGORIES = ["Tennis", "Badminton", "Running", "Basketball"] as const;
+
+type SortType = "NONE" | "UPCOMING_FIRST" | "LATEST_FIRST";
+type SportFilter = (typeof CATEGORIES)[number];
+
+const TOURNAMENTS = [
   {
     id: "1",
     sport: "Tennis",
     title: "Summer Slam Tennis Open",
-    date: "August 15, 2024",
+    date: "August 15 2024",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCiPxfRzuWoS4Zp3lWJQN3yhYV4lcp30q4UQ3hXoYeDX_OSt6iDEc1bjIkJSccS5FgZnSvWXxnXsdUx-TwOfLNi7HNBJPIin_BA1N8nI7xt7PTa2tSMr6XbvyncsZhOlUB1n0uAXP7PP00AjbpjDEiKhQ2FJubCna_NjggosCxdswGP7Axok2OCZA4P-eW5eTmvH4uM1vP3A6Edj0jkwFL0_HMfHT92DXGYht1C65P2ydr5hp_foXrwonbYjTQuPvYt_8Ng3a92Eg",
   },
@@ -27,79 +33,91 @@ const FEATURED_TOURNAMENTS = [
     id: "2",
     sport: "Running",
     title: "City Marathon Challenge",
-    date: "September 5, 2024",
+    date: "September 5 2024",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDNxy8EJkm54LAylEpi0YeCN7v09W6gy7WSQUtahB42mtqihu5hXTpn7L8p2cy_fnjTLUwVF6OW7IQIIndXT_8FiG8LXTBtspGRTAgju0qb4tlz5Ih3wRT2OINtzbjjCsJ1_1BnFpUoocHHELA3W_ZhH1hyofKIApKsOMpzW087SSrBLdGhCRLe3SQQXLPfVcYts8KW7yNmfRBk6bcB5hl7rX8ZdNYtAr2yeLzISSIpjk3fxVtjIAuqULtSwuoqOsWvYjhHZ_EYqg",
   },
 ];
 
-const TOP_PICKS = [
-  {
-    id: "3",
-    sport: "Badminton",
-    title: "Elite Badminton Cup",
-    date: "October 10, 2024",
-    image: "https://images.unsplash.com/photo-1600054800747-5cbf4a7a8c4b",
-  },
-  {
-    id: "4",
-    sport: "Basketball",
-    title: "City Hoops Championship",
-    date: "November 2, 2024",
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-  },
-];
-
-const QUICK_ACTIONS = [
-  { id: "tournaments", title: "All Tournaments", icon: "trophy-outline" },
-  { id: "nearby", title: "Nearby Events", icon: "location-outline" },
-];
-
 /* ================= SCREEN ================= */
 
-export default function PlayScreen() {
+export default function PlayTournamentSearchScreen() {
   const router = useRouter();
+  const { query } = useLocalSearchParams<{ query?: string }>();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(query ?? "");
+  const [sortType, setSortType] = useState<SortType>("NONE");
+
+  const [sportFilters, setSportFilters] = useState<SportFilter[]>([]);
+  const [tempFilters, setTempFilters] = useState<SportFilter[]>([]);
+
+  const [showSort, setShowSort] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 800);
+    const t = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(t);
   }, []);
 
+  /* ================= FILTERED DATA ================= */
+
+  const filtered = useMemo(() => {
+    let data = [...TOURNAMENTS];
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      data = data.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) || t.sport.toLowerCase().includes(q)
+      );
+    }
+
+    if (sportFilters.length) {
+      data = data.filter((t) => sportFilters.includes(t.sport as SportFilter));
+    }
+
+    if (sortType === "UPCOMING_FIRST") {
+      data.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+    }
+
+    if (sortType === "LATEST_FIRST") {
+      data.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    }
+
+    return data;
+  }, [search, sortType, sportFilters]);
+
   return (
     <ScreenWrapper>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32 }}
-      >
-        {/* ================= HEADER ================= */}
-        <View className="flex-row items-center justify-between px-4 py-4">
-          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
-            Play
-          </Text>
+      {/* ================= HEADER ================= */}
+      <View className="flex-row items-center px-4 py-4">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
+        </TouchableOpacity>
 
-          <View className="flex-row gap-3">
-            {["notifications", "calendar-month"].map((icon) => (
-              <TouchableOpacity
-                key={icon}
-                onPress={() =>
-                  icon === "notifications"
-                    ? router.push("/notifications")
-                    : router.push("/play/bookings")
-                }
-              >
-                <MaterialIcons name={icon as any} size={24} color={iconColor} />
-              </TouchableOpacity>
-            ))}
-          </View>
+        <Text className="flex-1 ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
+          Play
+        </Text>
+
+        <View className="flex-row gap-4">
+          <TouchableOpacity onPress={() => router.push("/notifications")}>
+            <MaterialIcons name="notifications" size={24} color={iconColor} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/play/bookings")}>
+            <MaterialIcons name="calendar-month" size={24} color={iconColor} />
+          </TouchableOpacity>
         </View>
-
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ================= SEARCH ================= */}
-        <View className="px-4">
+        <View className="px-4 pb-2">
           <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
             <Ionicons name="search" size={20} color={iconColor} />
             <TextInput
@@ -107,143 +125,202 @@ export default function PlayScreen() {
               onChangeText={setSearch}
               placeholder="Search tournaments"
               placeholderTextColor={iconColor}
-              returnKeyType="search"
-              onSubmitEditing={() =>
-                search.trim() &&
-                router.push({
-                  pathname: "/play/tournaments/search",
-                  params: { query: search.trim() },
-                })
-              }
               className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
             />
           </View>
         </View>
 
-        {/* ================= FEATURED ================= */}
-        <Section title="Featured Tournaments" />
-
-        {loading ? (
-          <HorizontalSkeleton />
-        ) : (
-          <HorizontalList
-            data={FEATURED_TOURNAMENTS}
-            onPress={(id) => router.push(`/play/tournaments/${id}`)}
+        {/* ================= CHIPS ================= */}
+        <View className="flex-row gap-3 px-4 pb-3">
+          <ActionChip
+            label="Sort By"
+            icon="swap-vert"
+            onPress={() => setShowSort(true)}
           />
-        )}
-
-        {/* ================= TOP PICKS ================= */}
-        <Section title="Top Tournament Picks" />
-
-        <View className="px-4">
-          {TOP_PICKS.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => router.push(`/play/tournaments/${item.id}`)}
-              className="flex-row mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border"
-            >
-              <Image
-                source={{ uri: item.image }}
-                className="w-20 h-20 rounded-lg"
-              />
-              <View className="flex-1 ml-3 justify-center">
-                <Text className="text-primary text-sm font-medium">
-                  {item.sport}
-                </Text>
-                <Text className="text-base font-semibold text-light-text dark:text-dark-text">
-                  {item.title}
-                </Text>
-                <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                  {item.date}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          <ActionChip
+            label={`Filters${sportFilters.length ? ` (${sportFilters.length})` : ""}`}
+            icon="tune"
+            onPress={() => {
+              setTempFilters(sportFilters);
+              setShowFilter(true);
+            }}
+          />
         </View>
 
-        {/* ================= EXPLORE ================= */}
-        <Section title="Explore" />
+        {/* ================= LIST ================= */}
 
-        <View className="flex-row px-4">
-          {QUICK_ACTIONS.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              className="w-1/2 pr-2"
-              onPress={() => router.push("/play/tournaments/search")}
-            >
-              <View className="aspect-square rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border items-center justify-center">
-                <Ionicons name={item.icon as any} size={36} color={iconColor} />
-                <Text className="mt-2 text-base font-medium text-light-text dark:text-dark-text">
-                  {item.title}
-                </Text>
+        <View className="px-4 pt-2 pb-8">
+          {loading &&
+            [1, 2].map((i) => (
+              <View
+                key={i}
+                className="mb-4 h-60 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
+              />
+            ))}
+
+          {!loading &&
+            filtered.map((item) => (
+              <View
+                key={item.id}
+                className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border"
+              >
+                <Image
+                  source={{ uri: item.image }}
+                  className="w-full h-44 rounded-lg mb-4"
+                />
+
+                <View className="flex-row justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text className="font-bold text-light-text dark:text-dark-text">
+                      {item.title}
+                    </Text>
+                    <Text className="text-sm text-light-muted dark:text-dark-muted">
+                      {item.date}
+                    </Text>
+                    <Text className="text-primary text-sm font-medium">
+                      {item.sport}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => router.push(`/play/tournaments/${item.id}`)}
+                    className="h-10 px-4 rounded-lg bg-primary items-center justify-center"
+                  >
+                    <Text className="text-black text-sm font-bold">
+                      Details
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </TouchableOpacity>
-          ))}
+            ))}
+
+          {!loading && filtered.length === 0 && (
+            <Text className="text-center text-light-muted dark:text-dark-muted mt-10">
+              No tournaments found
+            </Text>
+          )}
         </View>
       </ScrollView>
+
+      {/* ================= SORT ================= */}
+      <BottomSheet visible={showSort} onClose={() => setShowSort(false)}>
+        <SheetOption
+          label="Upcoming First"
+          onPress={() => {
+            setSortType("UPCOMING_FIRST");
+            setShowSort(false);
+          }}
+        />
+        <SheetOption
+          label="Latest First"
+          onPress={() => {
+            setSortType("LATEST_FIRST");
+            setShowSort(false);
+          }}
+        />
+      </BottomSheet>
+
+      {/* ================= FILTER ================= */}
+      <BottomSheet visible={showFilter} onClose={() => setShowFilter(false)}>
+        <Text className="text-lg font-bold mb-4 text-light-text dark:text-dark-text">
+          Sports
+        </Text>
+
+        {CATEGORIES.map((sport) => (
+          <Checkbox
+            key={sport}
+            label={sport}
+            checked={tempFilters.includes(sport)}
+            onPress={() => toggle(tempFilters, setTempFilters, sport)}
+          />
+        ))}
+
+        <View className="flex-row justify-between mt-6">
+          <TouchableOpacity
+            onPress={() => {
+              setTempFilters([]);
+              setSportFilters([]);
+              setShowFilter(false);
+            }}
+          >
+            <Text className="text-light-muted dark:text-dark-muted">Clear</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setSportFilters(tempFilters);
+              setShowFilter(false);
+            }}
+          >
+            <Text className="text-primary font-medium">Apply</Text>
+          </TouchableOpacity>
+        </View>
+      </BottomSheet>
     </ScreenWrapper>
   );
 }
 
 /* ================= HELPERS ================= */
 
-function Section({ title }: { title: string }) {
-  return (
-    <View className="px-4 pt-6 pb-3">
-      <Text className="text-[22px] font-bold text-light-text dark:text-dark-text">
-        {title}
-      </Text>
-    </View>
-  );
+function toggle<T>(arr: T[], setArr: (v: T[]) => void, item: T) {
+  setArr(arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item]);
 }
 
-function HorizontalList({
-  data,
-  onPress,
-}: {
-  data: any[];
-  onPress: (id: string) => void;
-}) {
+/* ================= UI COMPONENTS ================= */
+
+function ActionChip({ label, icon, onPress }: any) {
+  const isDark = useColorScheme() === "dark";
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      className="pl-4"
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex-row items-center gap-2 h-10 px-4 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
     >
-      {data.map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          onPress={() => onPress(item.id)}
-          className="mr-4 w-60"
-        >
-          <Image
-            source={{ uri: item.image }}
-            className="w-full h-36 rounded-xl"
-          />
-          <Text className="mt-2 text-sm font-medium text-primary">
-            {item.sport}
-          </Text>
-          <Text className="text-base font-semibold text-light-text dark:text-dark-text">
-            {item.title}
-          </Text>
-          <Text className="text-sm text-light-muted dark:text-dark-muted">
-            {item.date}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+      <MaterialIcons name={icon} size={18} color={iconColor} />
+      <Text className="text-sm font-medium text-light-text dark:text-dark-text">
+        {label}
+      </Text>
+    </TouchableOpacity>
   );
 }
 
-function HorizontalSkeleton() {
+function Checkbox({ label, checked, onPress }: any) {
   return (
-    <ScrollView horizontal className="pl-4">
-      {[1, 2, 3].map((i) => (
-        <View
-          key={i}
-          className="mr-4 w-60 h-40 rounded-xl bg-slate-200 dark:bg-slate-700"
-        />
-      ))}
-    </ScrollView>
+    <TouchableOpacity onPress={onPress} className="flex-row items-center py-3">
+      <Ionicons
+        name={checked ? "checkbox" : "square-outline"}
+        size={22}
+        color={checked ? "#8AFF1A" : "#6B7280"}
+      />
+      <Text className="ml-3 text-base text-light-text dark:text-dark-text">
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function BottomSheet({ visible, children, onClose }: any) {
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <TouchableOpacity
+        onPress={onClose}
+        className="flex-1 bg-black/40 justify-end"
+      >
+        <View className="bg-light-bg dark:bg-dark-bg rounded-t-2xl p-4">
+          {children}
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
+
+function SheetOption({ label, onPress }: any) {
+  return (
+    <TouchableOpacity onPress={onPress} className="py-4">
+      <Text className="text-base font-medium text-light-text dark:text-dark-text">
+        {label}
+      </Text>
+    </TouchableOpacity>
   );
 }

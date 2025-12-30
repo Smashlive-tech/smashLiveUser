@@ -156,7 +156,7 @@ export default function TournamentDetailsScreen() {
 
           <TouchableOpacity
             className="h-14 rounded-xl bg-primary items-center justify-center mb-3"
-            onPress={() => router.push("/play/tournaments/register")}
+            onPress={() => router.push("/play/tournaments/events")}
           >
             <Text className="text-black text-base font-bold">Register Now</Text>
           </TouchableOpacity>

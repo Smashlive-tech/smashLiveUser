@@ -7,10 +7,6 @@ export default function RootLayout() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="search"
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
         name="register"
         options={{ headerShown: false }}
       ></Stack.Screen>
@@ -24,6 +20,10 @@ export default function RootLayout() {
       ></Stack.Screen>
       <Stack.Screen
         name="matches"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="events"
         options={{ headerShown: false }}
       ></Stack.Screen>
     </Stack>
