@@ -169,11 +169,19 @@ export default function CreateTeamScreen() {
                 },
               })
             }
-            className={`h-14 rounded-xl items-center justify-center ${
-              canContinue ? "bg-primary" : "bg-slate-400"
+            className={`h-14 rounded-xl items-center justify-center border ${
+              canContinue
+                ? "bg-primary border-primary"
+                : "bg-light-card dark:bg-dark-card border-light-border dark:border-dark-border"
             }`}
           >
-            <Text className="text-black text-base font-bold">
+            <Text
+              className={`text-base font-bold ${
+                canContinue
+                  ? "text-black"
+                  : "text-light-muted dark:text-dark-muted"
+              }`}
+            >
               Create Team & Continue
             </Text>
           </TouchableOpacity>

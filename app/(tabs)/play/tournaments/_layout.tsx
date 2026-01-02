@@ -26,6 +26,18 @@ export default function RootLayout() {
         name="events"
         options={{ headerShown: false }}
       ></Stack.Screen>
+      <Stack.Screen
+        name="eventDetails"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="[eventId]"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="eventsFolder"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
     </Stack>
   );
 }

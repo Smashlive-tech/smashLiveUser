@@ -135,21 +135,23 @@ export default function TournamentRegisterScreen() {
         <View className="px-4">
           <TouchableOpacity
             disabled={!selectedEvent}
-            className={`h-14 rounded-xl items-center justify-center ${
-              selectedEvent
-                ? "bg-primary"
-                : "bg-light-border dark:bg-dark-border"
-            }`}
             onPress={() =>
               router.push({
                 pathname: "/play/tournaments/register",
                 params: { eventId: selectedEvent },
               })
             }
+            className={`h-14 rounded-xl items-center justify-center border ${
+              selectedEvent
+                ? "bg-primary border-primary"
+                : "bg-light-card dark:bg-dark-card border-light-border dark:border-dark-border"
+            }`}
           >
             <Text
               className={`text-base font-bold ${
-                selectedEvent ? "text-black" : "text-light-muted"
+                selectedEvent
+                  ? "text-black"
+                  : "text-light-muted dark:text-dark-muted"
               }`}
             >
               Continue
