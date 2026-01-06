@@ -1,5 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,12 +12,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 type FormData = {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
+};
+type ErrorData = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  toast: string;
 };
 
 export default function SignUpScreen() {
@@ -29,11 +36,12 @@ export default function SignUpScreen() {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState<FormData>({
+  const [errors, setErrors] = useState<ErrorData>({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    toast: "",
   });
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -48,13 +56,14 @@ export default function SignUpScreen() {
     setErrors({ ...errors, [name]: "" });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let valid = true;
-    let temp: FormData = {
+    let temp: ErrorData = {
       fullName: "",
       email: "",
       password: "",
       confirmPassword: "",
+      toast: "",
     };
 
     setAgreeError("");
@@ -95,8 +104,26 @@ export default function SignUpScreen() {
 
     setErrors(temp);
     if (!valid) return;
-
-    router.push("/(auth)/login");
+    try {
+      const res = await axios.post(
+        "https://smashlive-omega.vercel.app/api/users",
+        {
+          fullname: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: "player",
+        }
+      );
+      router.replace("/(auth)/login");
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.errors?.[0]?.message ||
+          err.response?.data?.message ||
+          "Something went wrong";
+        temp.toast = message;
+      }
+    }
   };
 
   return (
@@ -269,6 +296,9 @@ export default function SignUpScreen() {
               <Text className="text-red-500 text-sm mt-1">
                 {errors.confirmPassword}
               </Text>
+            ) : null}
+            {errors.toast ? (
+              <Text className="text-red-500 text-sm mt-1">{errors.toast}</Text>
             ) : null}
           </View>
 

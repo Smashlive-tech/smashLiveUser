@@ -1,7 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -13,6 +14,20 @@ import {
 /* ================= TYPES ================= */
 
 type EventTab = "overview" | "matches" | "draw" | "players" | "leaderboard";
+type EventDetails = {
+  id: number;
+  title: string;
+  pairingType: string;
+  numberOfSets: number;
+  startdate: string;
+  enddate: string;
+  registrationDeadline: string;
+  duration: string;
+  intervalBetweenMatches: string;
+  maxScore: number;
+  courts: { CourtIdentifier: string }[];
+  tournamentTitle: string;
+};
 
 /* ================= SCREEN ================= */
 
@@ -23,6 +38,44 @@ export default function EventDetailsScreen() {
 
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const [activeTab, setActiveTab] = useState<EventTab>("overview");
+  const [event, setEvent] = useState<EventDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axios.get(
+          `https://smashlive-omega.vercel.app/api/events/${eventId}`,
+          { params: { depth: 1 } }
+        );
+
+        const d = res.data;
+
+        setEvent({
+          id: d.id,
+          title: d.title,
+          pairingType: d["Pairing Type"],
+          numberOfSets: d.numberOfSets,
+          startdate: d.startdate,
+          enddate: d.enddate,
+          registrationDeadline: d.registrationDeadline,
+          duration: d.duration,
+          intervalBetweenMatches: d.intervalBetweenMatches,
+          maxScore: d.maxScore,
+          courts: d.Courts ?? [],
+          tournamentTitle: d.tournament?.title ?? "—",
+        });
+      } catch (err) {
+        console.log("Failed to fetch event", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (eventId) fetchEvent();
+  }, [eventId]);
 
   return (
     <ScreenWrapper>
@@ -79,7 +132,9 @@ export default function EventDetailsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
       >
-        {activeTab === "overview" && <OverviewTab />}
+        {activeTab === "overview" && (
+          <OverviewTab event={event} loading={loading} />
+        )}
         {activeTab === "matches" && <MatchesTab />}
         {activeTab === "draw" && <DrawTab />}
         {activeTab === "players" && <PlayersTab />}
@@ -90,13 +145,113 @@ export default function EventDetailsScreen() {
 }
 
 /* ================= TAB COMPONENTS ================= */
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+function OverviewTab({
+  event,
+  loading,
+}: {
+  event: EventDetails | null;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <View className="rounded-xl bg-light-card dark:bg-dark-card p-5 border border-light-border dark:border-dark-border">
+        {/* Big unified skeleton */}
+        <View className="h-40 rounded-lg bg-gray-300 dark:bg-dark-card" />
+      </View>
+    );
+  }
 
-function OverviewTab() {
+  if (!event) {
+    return (
+      <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+        <Text className="text-light-muted dark:text-dark-muted">
+          Event not found
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <Card title="Overview">
-      This event follows a knockout format with seeded players and official
-      referees.
-    </Card>
+    <View className="rounded-xl bg-light-card dark:bg-dark-card p-5 border border-light-border dark:border-dark-border gap-4">
+      {/* TITLE */}
+      <View>
+        <Text className="text-xl font-bold text-light-text dark:text-dark-text">
+          {event.title}
+        </Text>
+        <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+          {event.tournamentTitle}
+        </Text>
+      </View>
+
+      {/* KEY HIGHLIGHTS */}
+      <View className="flex-row flex-wrap gap-2">
+        <View className="px-3 py-1 rounded-full bg-primary/10">
+          <Text className="text-sm font-semibold text-primary">
+            {event.pairingType}
+          </Text>
+        </View>
+
+        <View className="px-3 py-1 rounded-full bg-primary/10">
+          <Text className="text-sm font-semibold text-primary">
+            {event.numberOfSets} Sets
+          </Text>
+        </View>
+
+        <View className="px-3 py-1 rounded-full bg-primary/10">
+          <Text className="text-sm font-semibold text-primary">
+            Max {event.maxScore}
+          </Text>
+        </View>
+      </View>
+
+      {/* INFO GRID */}
+      <View className="gap-2">
+        <Row
+          label="Schedule"
+          value={`${formatDate(event.startdate)} → ${formatDate(
+            event.enddate
+          )}`}
+        />
+        <Row
+          label="Registration Deadline"
+          value={formatDate(event.registrationDeadline)}
+        />
+        <Row label="Match Duration" value={`${event.duration} mins`} />
+        <Row
+          label="Interval Between Matches"
+          value={`${event.intervalBetweenMatches} mins`}
+        />
+        <Row
+          label="Courts"
+          value={
+            event.courts.length
+              ? event.courts.map((c) => c.CourtIdentifier).join(", ")
+              : "Not assigned"
+          }
+        />
+      </View>
+    </View>
+  );
+}
+
+/* SMALL INLINE ROW (ONLY USED HERE) */
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-row justify-between">
+      <Text className="text-sm text-light-muted dark:text-dark-muted">
+        {label}
+      </Text>
+      <Text className="text-sm font-medium text-light-text dark:text-dark-text">
+        {value}
+      </Text>
+    </View>
   );
 }
 

@@ -1,7 +1,9 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { getAccessToken } from "@/services/authService";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import axios from "axios";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -10,15 +12,113 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+function TournamentDetailsSkeleton() {
+  return (
+    <ScreenWrapper>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+        {/* Header */}
+        <View className="h-8 w-32 bg-gray-300 dark:bg-gray-700 rounded mb-6" />
+
+        {/* Main Card */}
+        <View className="rounded-3xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 mb-6">
+          {/* Creator row */}
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center gap-3">
+              <View className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700" />
+              <View className="gap-2">
+                <View className="h-3 w-20 bg-gray-300 dark:bg-gray-700 rounded" />
+                <View className="h-3 w-28 bg-gray-200 dark:bg-gray-600 rounded" />
+              </View>
+            </View>
+            <View className="h-6 w-14 rounded-full bg-gray-300 dark:bg-gray-700" />
+          </View>
+
+          {/* Poster */}
+          <View className="w-full h-44 rounded-2xl bg-gray-300 dark:bg-gray-700 mb-4" />
+
+          {/* Title */}
+          <View className="h-5 w-2/3 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
+
+          {/* Subtitle */}
+          <View className="h-4 w-1/2 bg-gray-200 dark:bg-gray-600 rounded mb-3" />
+
+          {/* Meta lines */}
+          <View className="gap-2">
+            <View className="h-3 w-3/4 bg-gray-200 dark:bg-gray-600 rounded" />
+            <View className="h-3 w-1/2 bg-gray-200 dark:bg-gray-600 rounded" />
+          </View>
+
+          {/* Price row */}
+          <View className="flex-row justify-between items-center mt-4">
+            <View className="h-3 w-20 bg-gray-200 dark:bg-gray-600 rounded" />
+            <View className="h-5 w-16 bg-gray-300 dark:bg-gray-700 rounded" />
+          </View>
+        </View>
+
+        {/* Detail Sections */}
+        {[1, 2, 3].map((i) => (
+          <View
+            key={i}
+            className="rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 mb-4"
+          >
+            <View className="h-4 w-32 bg-gray-300 dark:bg-gray-700 rounded mb-3" />
+            <View className="h-3 w-full bg-gray-200 dark:bg-gray-600 rounded mb-2" />
+            <View className="h-3 w-5/6 bg-gray-200 dark:bg-gray-600 rounded" />
+          </View>
+        ))}
+
+        {/* CTA Buttons */}
+        <View className="gap-3 mt-4">
+          <View className="h-14 rounded-xl bg-gray-300 dark:bg-gray-700" />
+          <View className="h-14 rounded-xl bg-gray-400 dark:bg-gray-600" />
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
+  );
+}
 
 export default function TournamentDetailsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { tournamentId } = useLocalSearchParams<{ tournamentId: string }>();
   const [showDescription, setShowDescription] = useState(true);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState("");
+  const [organiserName, setOrganiserName] = useState("");
+  useEffect(() => {
+    const fetchTournament = async () => {
+      try {
+        setLoading(true);
+        const token = await getAccessToken();
+        const res = await axios.get(
+          `https://smashlive-omega.vercel.app/api/tournaments/${tournamentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(res.data);
+        setTitle(res.data.title);
+        setOrganiserName(res.data.organiser?.fullname || "Smash Sports Club");
+      } catch (err) {
+        console.log("Failed to fetch tournament", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (tournamentId) {
+      fetchTournament();
+    }
+  }, [tournamentId]);
+
+  if (loading) {
+    return <TournamentDetailsSkeleton />;
+  }
 
   return (
     <ScreenWrapper>
@@ -53,7 +153,7 @@ export default function TournamentDetailsScreen() {
                     Created by
                   </Text>
                   <Text className="text-sm font-medium text-light-text dark:text-dark-text">
-                    Smash Sports Club
+                    {organiserName}
                   </Text>
                 </View>
               </View>
@@ -77,7 +177,7 @@ export default function TournamentDetailsScreen() {
 
             {/* DETAILS */}
             <Text className="text-xl font-bold text-light-text dark:text-dark-text">
-              Annual City Tennis Open
+              {title}
             </Text>
 
             <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
@@ -169,12 +269,18 @@ export default function TournamentDetailsScreen() {
         </View>
 
         {/* ================= CTA ================= */}
-        {/* ================= CTA ================= */}
         <View className="px-4 pt-8 gap-3">
           {/* VIEW TOURNAMENT */}
           <TouchableOpacity
             className="h-14 rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card items-center justify-center"
-            onPress={() => router.push("/play/tournaments/eventDetails")}
+            onPress={() =>
+              router.push({
+                pathname: "/play/tournaments/eventDetails",
+                params: {
+                  tournamentId: tournamentId,
+                },
+              })
+            }
           >
             <Text className="text-base font-semibold text-light-text dark:text-dark-text">
               View Tournament
@@ -184,7 +290,14 @@ export default function TournamentDetailsScreen() {
           {/* REGISTER */}
           <TouchableOpacity
             className="h-14 rounded-xl bg-primary items-center justify-center"
-            onPress={() => router.push("/play/tournaments/events")}
+            onPress={() =>
+              router.push({
+                pathname: "/play/tournaments/events",
+                params: {
+                  tournamentId: tournamentId, // replace `id` with your variable
+                },
+              })
+            }
           >
             <Text className="text-black text-base font-bold">Register Now</Text>
           </TouchableOpacity>

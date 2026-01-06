@@ -1,7 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import axios from "axios";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -9,45 +10,77 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
+type EventItem = {
+  id: number;
+  title: string;
+  description: string;
+  fee: number;
+};
 /* ================= DATA ================= */
-
-const EVENTS = [
-  {
-    id: "u14",
-    title: "Under 14",
-    description: "For players aged 13 and below",
-    fee: 30,
-  },
-  {
-    id: "u18",
-    title: "Under 18",
-    description: "For players aged 14 to 17",
-    fee: 40,
-  },
-  {
-    id: "open",
-    title: "Open Category",
-    description: "Open to all age groups",
-    fee: 50,
-  },
-  {
-    id: "doubles",
-    title: "Doubles Event",
-    description: "Team-based doubles competition",
-    fee: 60,
-  },
-];
+const DEFAULT_DESCRIPTION =
+  "Participate in this category based on tournament rules.";
 
 /* ================= SCREEN ================= */
+function EventSkeleton() {
+  return (
+    <View className="mb-4 rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card p-4">
+      <View className="flex-row justify-between items-start">
+        <View className="flex-1 pr-4">
+          <View className="h-4 w-2/3 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
+          <View className="h-3 w-full bg-gray-200 dark:bg-gray-600 rounded" />
+        </View>
 
+        <View className="h-6 w-12 bg-gray-300 dark:bg-gray-700 rounded-full" />
+      </View>
+    </View>
+  );
+}
 export default function TournamentRegisterScreen() {
   const router = useRouter();
+  const { tournamentId } = useLocalSearchParams<{ tournamentId: string }>();
+
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axios.get(
+          "https://smashlive-omega.vercel.app/api/events",
+          {
+            params: {
+              "where[tournament.id][equals]": tournamentId,
+            },
+          }
+        );
+
+        console.log(res.data.docs);
+        const data = res.data.docs ?? res.data;
+
+        const mapped: EventItem[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: DEFAULT_DESCRIPTION,
+          fee: item.fee ?? 50,
+        }));
+
+        setEvents(mapped);
+      } catch (err) {
+        console.log("Failed to fetch events", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (tournamentId) {
+      fetchEvents();
+    }
+  }, [tournamentId]);
   return (
     <ScreenWrapper>
       {/* ================= HEADER ================= */}
@@ -81,54 +114,61 @@ export default function TournamentRegisterScreen() {
             Select Event Category
           </Text>
 
-          {EVENTS.map((event) => {
-            const isSelected = selectedEvent === event.id;
+          {loading && [1, 2, 3].map((i) => <EventSkeleton key={i} />)}
+          {!loading && events.length === 0 && (
+            <Text className="text-center text-light-muted dark:text-dark-muted mt-10">
+              No events available for this tournament
+            </Text>
+          )}
+          {!loading &&
+            events.map((event) => {
+              const isSelected = selectedEvent === event.id;
 
-            return (
-              <TouchableOpacity
-                key={event.id}
-                onPress={() => setSelectedEvent(event.id)}
-                className={`mb-4 rounded-xl border overflow-hidden ${
-                  isSelected
-                    ? "border-primary"
-                    : "border-light-border dark:border-dark-border"
-                }`}
-              >
-                <View
-                  className={`flex-row ${
+              return (
+                <TouchableOpacity
+                  key={event.id}
+                  onPress={() => setSelectedEvent(event.id)}
+                  className={`mb-4 rounded-xl border overflow-hidden ${
                     isSelected
-                      ? "bg-primary/10"
-                      : "bg-light-card dark:bg-dark-card"
+                      ? "border-primary"
+                      : "border-light-border dark:border-dark-border"
                   }`}
                 >
-                  {/* LEFT ACCENT */}
-                  {isSelected && <View className="w-1 bg-primary" />}
+                  <View
+                    className={`flex-row ${
+                      isSelected
+                        ? "bg-primary/10"
+                        : "bg-light-card dark:bg-dark-card"
+                    }`}
+                  >
+                    {/* LEFT ACCENT */}
+                    {isSelected && <View className="w-1 bg-primary" />}
 
-                  {/* CONTENT */}
-                  <View className="flex-1 p-4">
-                    <View className="flex-row justify-between items-start">
-                      <View className="flex-1 pr-4">
-                        <Text className="text-base font-semibold text-light-text dark:text-dark-text">
-                          {event.title}
-                        </Text>
+                    {/* CONTENT */}
+                    <View className="flex-1 p-4">
+                      <View className="flex-row justify-between items-start">
+                        <View className="flex-1 pr-4">
+                          <Text className="text-base font-semibold text-light-text dark:text-dark-text">
+                            {event.title}
+                          </Text>
 
-                        <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                          {event.description}
-                        </Text>
-                      </View>
+                          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+                            {event.description}
+                          </Text>
+                        </View>
 
-                      {/* FEE BADGE */}
-                      <View className="px-3 py-1 rounded-full bg-light-border dark:bg-dark-border">
-                        <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
-                          ${event.fee}
-                        </Text>
+                        {/* FEE BADGE */}
+                        <View className="px-3 py-1 rounded-full bg-light-border dark:bg-dark-border">
+                          <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
+                            ${event.fee}
+                          </Text>
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+                </TouchableOpacity>
+              );
+            })}
         </View>
 
         {/* ================= CTA ================= */}

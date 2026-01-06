@@ -1,6 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import axios from "axios";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -10,33 +12,16 @@ import {
 } from "react-native";
 
 /* ================= DATA ================= */
+type EventItem = {
+  id: number;
+  title: string;
+  description: string;
+  format: string;
+};
+const DEFAULT_DESCRIPTION =
+  "Participate in this category based on tournament rules.";
 
-const EVENTS = [
-  {
-    id: "u14",
-    title: "Under 14",
-    description: "For players aged 13 and below",
-    format: "Singles",
-  },
-  {
-    id: "u18",
-    title: "Under 18",
-    description: "For players aged 14 to 17",
-    format: "Singles",
-  },
-  {
-    id: "open",
-    title: "Open Category",
-    description: "Open to all age groups",
-    format: "Singles & Doubles",
-  },
-  {
-    id: "doubles",
-    title: "Doubles Event",
-    description: "Team-based doubles competition",
-    format: "Doubles",
-  },
-];
+const DEFAULT_FORMAT = "Singles";
 
 /* ================= SCREEN ================= */
 
@@ -44,6 +29,45 @@ export default function TournamentEventsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { tournamentId } = useLocalSearchParams<{ tournamentId: string }>();
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axios.get(
+          "https://smashlive-omega.vercel.app/api/events",
+          {
+            params: {
+              depth: 0,
+              "where[tournament.id][equals]": tournamentId,
+            },
+          }
+        );
+
+        const data = res.data.docs ?? res.data;
+
+        const mapped: EventItem[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: DEFAULT_DESCRIPTION, // 🔒 hardcoded
+          format: DEFAULT_FORMAT, // 🔒 hardcoded
+        }));
+
+        setEvents(mapped);
+      } catch (err) {
+        console.log("Failed to fetch events", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (tournamentId) {
+      fetchEvents();
+    }
+  }, [tournamentId]);
 
   return (
     <ScreenWrapper>
@@ -67,43 +91,52 @@ export default function TournamentEventsScreen() {
           <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-4">
             Tournament Events
           </Text>
+          {loading &&
+            [1, 2, 3].map((i) => (
+              <View
+                key={i}
+                className="mb-4 h-24 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
+              />
+            ))}
+          {!loading &&
+            events.map((event) => (
+              <View
+                key={event.id}
+                className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
+              >
+                <View className="flex-row items-center p-4">
+                  {/* LEFT CONTENT */}
+                  <View className="flex-1 pr-3">
+                    <Text className="text-base font-semibold text-light-text dark:text-dark-text">
+                      {event.title}
+                    </Text>
 
-          {EVENTS.map((event) => (
-            <View
-              key={event.id}
-              className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
-            >
-              <View className="flex-row items-center p-4">
-                {/* LEFT CONTENT */}
-                <View className="flex-1 pr-3">
-                  <Text className="text-base font-semibold text-light-text dark:text-dark-text">
-                    {event.title}
-                  </Text>
+                    <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+                      {event.description}
+                    </Text>
 
-                  <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                    {event.description}
-                  </Text>
+                    <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+                      🏸 {event.format}
+                    </Text>
+                  </View>
 
-                  <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                    🏸 {event.format}
-                  </Text>
+                  {/* RIGHT ACTION */}
+                  <TouchableOpacity
+                    className="h-10 px-4 rounded-lg bg-primary items-center justify-center"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/play/tournaments/eventsFolder/[eventId]",
+                        params: { eventId: event.id },
+                      })
+                    }
+                  >
+                    <Text className="text-black text-sm font-bold">
+                      Details
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-
-                {/* RIGHT ACTION */}
-                <TouchableOpacity
-                  className="h-10 px-4 rounded-lg bg-primary items-center justify-center"
-                  onPress={() =>
-                    router.push({
-                      pathname: "/play/tournaments/eventsFolder/[eventId]",
-                      params: { eventId: event.id },
-                    })
-                  }
-                >
-                  <Text className="text-black text-sm font-bold">Details</Text>
-                </TouchableOpacity>
               </View>
-            </View>
-          ))}
+            ))}
         </View>
       </ScrollView>
     </ScreenWrapper>

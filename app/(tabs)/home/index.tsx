@@ -1,4 +1,5 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -15,10 +16,6 @@ import Carousel from "react-native-reanimated-carousel";
 const { width } = Dimensions.get("window");
 
 /* ================= DATA ================= */
-const USER = {
-  name: "Sai",
-  profilePic: "https://i.pravatar.cc/100?img=12",
-};
 
 const FEATURED_TOURNAMENTS = [
   {
@@ -49,7 +46,7 @@ export default function HomeScreen() {
   const isDark = useColorScheme() === "dark";
 
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { user } = useAuth();
   return (
     <ScreenWrapper>
       <ScrollView
@@ -60,7 +57,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-center px-4 py-4">
           <View>
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
-              Hi, Sai 👋
+              Hi, {user?.fullname} 👋
             </Text>
             <Text className="text-sm text-light-muted dark:text-dark-muted">
               Hyderabad, India
@@ -68,10 +65,11 @@ export default function HomeScreen() {
           </View>
 
           <TouchableOpacity onPress={() => router.push("/profile/[userId]")}>
-            <Image
-              source={{ uri: USER.profilePic }}
-              className="h-9 w-9 rounded-full"
-            />
+            <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
+              <Text className="text-black font-bold text-base">
+                {user?.fullname?.charAt(0).toUpperCase() || "U"}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
 

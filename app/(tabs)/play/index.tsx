@@ -1,5 +1,7 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { getAccessToken } from "@/services/authService";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -12,32 +14,27 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
 /* ================= DATA ================= */
 
 const CATEGORIES = ["Tennis", "Badminton", "Running", "Basketball"] as const;
 
 type SortType = "NONE" | "UPCOMING_FIRST" | "LATEST_FIRST";
 type SportFilter = (typeof CATEGORIES)[number];
+type Tournament = {
+  id: number;
+  title: string;
+  sport: string;
+  date: string;
+  image: string;
+};
 
-const TOURNAMENTS = [
-  {
-    id: "1",
-    sport: "Tennis",
-    title: "Summer Slam Tennis Open",
-    date: "August 15 2024",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCiPxfRzuWoS4Zp3lWJQN3yhYV4lcp30q4UQ3hXoYeDX_OSt6iDEc1bjIkJSccS5FgZnSvWXxnXsdUx-TwOfLNi7HNBJPIin_BA1N8nI7xt7PTa2tSMr6XbvyncsZhOlUB1n0uAXP7PP00AjbpjDEiKhQ2FJubCna_NjggosCxdswGP7Axok2OCZA4P-eW5eTmvH4uM1vP3A6Edj0jkwFL0_HMfHT92DXGYht1C65P2ydr5hp_foXrwonbYjTQuPvYt_8Ng3a92Eg",
-  },
-  {
-    id: "2",
-    sport: "Running",
-    title: "City Marathon Challenge",
-    date: "September 5 2024",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDNxy8EJkm54LAylEpi0YeCN7v09W6gy7WSQUtahB42mtqihu5hXTpn7L8p2cy_fnjTLUwVF6OW7IQIIndXT_8FiG8LXTBtspGRTAgju0qb4tlz5Ih3wRT2OINtzbjjCsJ1_1BnFpUoocHHELA3W_ZhH1hyofKIApKsOMpzW087SSrBLdGhCRLe3SQQXLPfVcYts8KW7yNmfRBk6bcB5hl7rX8ZdNYtAr2yeLzISSIpjk3fxVtjIAuqULtSwuoqOsWvYjhHZ_EYqg",
-  },
-];
+/* 🔒 HARDCODED VALUES */
+const HARDCODED_DATA = {
+  sport: "Tennis",
+  date: "August 15 2024",
+  image:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCiPxfRzuWoS4Zp3lWJQN3yhYV4lcp30q4UQ3hXoYeDX_OSt6iDEc1bjIkJSccS5FgZnSvWXxnXsdUx-TwOfLNi7HNBJPIin_BA1N8nI7xt7PTa2tSMr6XbvyncsZhOlUB1n0uAXP7PP00AjbpjDEiKhQ2FJubCna_NjggosCxdswGP7Axok2OCZA4P-eW5eTmvH4uM1vP3A6Edj0jkwFL0_HMfHT92DXGYht1C65P2ydr5hp_foXrwonbYjTQuPvYt_8Ng3a92Eg",
+};
 
 /* ================= SCREEN ================= */
 
@@ -56,16 +53,48 @@ export default function PlayTournamentSearchScreen() {
 
   const [showSort, setShowSort] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(t);
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        const token = await getAccessToken();
+        const res = await axios.get(
+          "https://smashlive-omega.vercel.app/api/tournaments",
+
+          {
+            params: {
+              depth: 0,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(res.data);
+        const data = await res.data.docs;
+        const mapped: Tournament[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          ...HARDCODED_DATA,
+        }));
+
+        setTournaments(mapped);
+      } catch (err) {
+        console.log("Failed to fetch tournaments", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTournaments();
   }, []);
 
   /* ================= FILTERED DATA ================= */
 
   const filtered = useMemo(() => {
-    let data = [...TOURNAMENTS];
+    let data = [...tournaments];
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -92,7 +121,7 @@ export default function PlayTournamentSearchScreen() {
     }
 
     return data;
-  }, [search, sortType, sportFilters]);
+  }, [search, sortType, sportFilters, tournaments]);
 
   return (
     <ScreenWrapper>

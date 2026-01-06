@@ -1,6 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -11,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 export default function LoginScreen() {
   const router = useRouter();
 
@@ -22,11 +23,12 @@ export default function LoginScreen() {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    toast: "",
   });
 
-  const validate = () => {
+  const validate = async () => {
     let valid = true;
-    let temp = { email: "", password: "" };
+    let temp = { email: "", password: "", toast: "" };
 
     if (!email.trim()) {
       temp.email = "Email or phone is required";
@@ -52,10 +54,25 @@ export default function LoginScreen() {
 
     setErrors(temp);
     if (!valid) return;
-
-    router.replace("/(tabs)/home");
+    try {
+      const res = await axios.post(
+        "https://smashlive-omega.vercel.app/api/users/login",
+        { email: email, password: password }
+      );
+      await SecureStore.setItemAsync("access_token", res.data.token, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED,
+      });
+      router.replace("/(tabs)/home");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.errors?.[0]?.message ||
+          err.response?.data?.message ||
+          "Something went wrong";
+        temp.toast = message;
+      }
+    }
   };
-
   return (
     <ScreenWrapper>
       <KeyboardAvoidingView
@@ -112,7 +129,9 @@ export default function LoginScreen() {
             </View>
 
             {errors.email ? (
-              <Text className="text-red-500 text-sm mt-1">{errors.email}</Text>
+              <Text className="text-red-500 text-sm mt-1 ml-1">
+                {errors.email}
+              </Text>
             ) : null}
           </View>
 
@@ -158,8 +177,13 @@ export default function LoginScreen() {
             </View>
 
             {errors.password ? (
-              <Text className="text-red-500 text-sm mt-1">
+              <Text className="text-red-500 text-sm mt-1 ml-1">
                 {errors.password}
+              </Text>
+            ) : null}
+            {errors.toast ? (
+              <Text className="text-red-500 text-sm mt-1 ml-1">
+                {errors.toast}
               </Text>
             ) : null}
           </View>
