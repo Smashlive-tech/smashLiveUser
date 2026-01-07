@@ -4,7 +4,7 @@
     "slug": "smashLiveUser",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/smashlive-user-final-logo.png",
+    "icon": "./assets/images/smashLiveLogo.png",
     "scheme": "smashliveuser",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -33,7 +33,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/smashlive-user-final-logo.png",
+          "image": "./assets/images/smashLiveLogo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
