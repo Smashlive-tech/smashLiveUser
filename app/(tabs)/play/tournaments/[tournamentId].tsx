@@ -88,6 +88,8 @@ export default function TournamentDetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [organiserName, setOrganiserName] = useState("");
+  const [venue, setVenue] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchTournament = async () => {
       try {
@@ -104,6 +106,7 @@ export default function TournamentDetailsScreen() {
         console.log(res.data);
         setTitle(res.data.title);
         setOrganiserName(res.data.organiser?.fullname || "Smash Sports Club");
+        setVenue(res.data.venue || null);
       } catch (err) {
         console.log("Failed to fetch tournament", err);
       } finally {
@@ -153,10 +156,11 @@ export default function TournamentDetailsScreen() {
             {/* CREATOR + STATUS */}
             <View className="flex-row justify-between items-center mb-3">
               <View className="flex-row items-center gap-2">
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/100?img=12" }}
-                  className="w-10 h-10 rounded-full"
-                />
+                <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
+                  <Text className="text-black font-bold text-base">
+                    {organiserName?.charAt(0).toUpperCase() || "T"}
+                  </Text>
+                </View>
                 <View>
                   <Text className="text-xs text-light-muted dark:text-dark-muted">
                     Created by
@@ -195,7 +199,7 @@ export default function TournamentDetailsScreen() {
 
             <View className="mt-2 gap-1">
               <Text className="text-sm text-light-muted dark:text-dark-muted">
-                📍 City Sports Complex, Sportsville
+                📍 {venue || "TBD"}
               </Text>
               <Text className="text-sm text-light-muted dark:text-dark-muted">
                 📅 Aug 5 – Aug 12, 2024

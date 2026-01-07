@@ -293,7 +293,7 @@ function MatchesTab({ eventId }: { eventId: string }) {
           "https://smashlive-omega.vercel.app/api/matches",
           {
             params: {
-              "where[event.id][equals]": 23,
+              "where[event.id][equals]": eventId,
             },
           }
         );
@@ -559,7 +559,7 @@ function PlayersTab({ eventId }: { eventId: string }) {
             params: {
               depth: 1,
               "select[player]": true,
-              "where[event.id]": eventId,
+              "where[event.id][equals]": eventId,
             },
           }
         );
@@ -636,30 +636,6 @@ function PlayersTab({ eventId }: { eventId: string }) {
           </View>
         );
       })}
-    </View>
-  );
-}
-
-/* ================= REUSABLE UI ================= */
-
-function Card({
-  title,
-  children,
-}: {
-  title: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
-      <Text className="font-semibold text-light-text dark:text-dark-text mb-1">
-        {title}
-      </Text>
-
-      {children && (
-        <Text className="text-sm text-light-muted dark:text-dark-muted">
-          {children}
-        </Text>
-      )}
     </View>
   );
 }

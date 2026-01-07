@@ -27,38 +27,6 @@ type Booking = {
   image: string;
 };
 
-/* ================= MOCK DATA ================= */
-
-const BOOKINGS: Booking[] = [
-  {
-    id: "TB-1001",
-    title: "Summer Slam Tennis Open",
-    venue: "Downtown Tennis Center",
-    datetime: "Oct 28 • 4:00 PM - 6:00 PM",
-    sport: "Tennis",
-    status: "upcoming",
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-  },
-  {
-    id: "TB-1002",
-    title: "City Marathon Challenge",
-    venue: "City Sports Club",
-    datetime: "Live Now",
-    sport: "Running",
-    status: "live",
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-  },
-  {
-    id: "TB-0991",
-    title: "Elite Badminton Cup",
-    venue: "National Indoor Stadium",
-    datetime: "Sep 12 • 9:00 AM",
-    sport: "Badminton",
-    status: "past",
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-  },
-];
-
 /* ================= SCREEN ================= */
 
 export default function MyTournamentBookingsScreen() {
