@@ -5,6 +5,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Modal,
   ScrollView,
@@ -179,13 +180,14 @@ export default function PlayTournamentSearchScreen() {
         {/* ================= LIST ================= */}
 
         <View className="px-4 pt-2 pb-8">
-          {loading &&
-            [1, 2].map((i) => (
-              <View
-                key={i}
-                className="mb-4 h-60 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
-              />
-            ))}
+          {loading && (
+            <View className="flex-1 items-center justify-center py-20">
+              <ActivityIndicator size="large" color="#8AFF1A" />
+              <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+                Loading tournaments…
+              </Text>
+            </View>
+          )}
 
           {!loading &&
             filtered.map((item) => (

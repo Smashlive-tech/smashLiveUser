@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -21,20 +22,17 @@ const DEFAULT_DESCRIPTION =
   "Participate in this category based on tournament rules.";
 
 /* ================= SCREEN ================= */
-function EventSkeleton() {
+function LoadingEvents() {
   return (
-    <View className="mb-4 rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card p-4">
-      <View className="flex-row justify-between items-start">
-        <View className="flex-1 pr-4">
-          <View className="h-4 w-2/3 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
-          <View className="h-3 w-full bg-gray-200 dark:bg-gray-600 rounded" />
-        </View>
-
-        <View className="h-6 w-12 bg-gray-300 dark:bg-gray-700 rounded-full" />
-      </View>
+    <View className="items-center justify-center py-20">
+      <ActivityIndicator size="large" color="#8AFF1A" />
+      <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+        Loading events…
+      </Text>
     </View>
   );
 }
+
 export default function TournamentRegisterScreen() {
   const router = useRouter();
   const { tournamentId } = useLocalSearchParams<{ tournamentId: string }>();
@@ -114,7 +112,7 @@ export default function TournamentRegisterScreen() {
             Select Event Category
           </Text>
 
-          {loading && [1, 2, 3].map((i) => <EventSkeleton key={i} />)}
+          {loading && <LoadingEvents />}
           {!loading && events.length === 0 && (
             <Text className="text-center text-light-muted dark:text-dark-muted mt-10">
               No events available for this tournament
@@ -172,32 +170,34 @@ export default function TournamentRegisterScreen() {
         </View>
 
         {/* ================= CTA ================= */}
-        <View className="px-4">
-          <TouchableOpacity
-            disabled={!selectedEvent}
-            onPress={() =>
-              router.push({
-                pathname: "/play/tournaments/register",
-                params: { eventId: selectedEvent },
-              })
-            }
-            className={`h-14 rounded-xl items-center justify-center border ${
-              selectedEvent
-                ? "bg-primary border-primary"
-                : "bg-light-card dark:bg-dark-card border-light-border dark:border-dark-border"
-            }`}
-          >
-            <Text
-              className={`text-base font-bold ${
+        {!loading && (
+          <View className="px-4">
+            <TouchableOpacity
+              disabled={!selectedEvent}
+              onPress={() =>
+                router.push({
+                  pathname: "/play/tournaments/register",
+                  params: { eventId: selectedEvent },
+                })
+              }
+              className={`h-14 rounded-xl items-center justify-center border ${
                 selectedEvent
-                  ? "text-black"
-                  : "text-light-muted dark:text-dark-muted"
+                  ? "bg-primary border-primary"
+                  : "bg-light-card dark:bg-dark-card border-light-border dark:border-dark-border"
               }`}
             >
-              Continue
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                className={`text-base font-bold ${
+                  selectedEvent
+                    ? "text-black"
+                    : "text-light-muted dark:text-dark-muted"
+                }`}
+              >
+                Continue
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </ScreenWrapper>
   );

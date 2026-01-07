@@ -5,6 +5,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   Text,
@@ -15,64 +16,12 @@ import {
 function TournamentDetailsSkeleton() {
   return (
     <ScreenWrapper>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-        {/* Header */}
-        <View className="h-8 w-32 bg-gray-300 dark:bg-gray-700 rounded mb-6" />
-
-        {/* Main Card */}
-        <View className="rounded-3xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 mb-6">
-          {/* Creator row */}
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center gap-3">
-              <View className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700" />
-              <View className="gap-2">
-                <View className="h-3 w-20 bg-gray-300 dark:bg-gray-700 rounded" />
-                <View className="h-3 w-28 bg-gray-200 dark:bg-gray-600 rounded" />
-              </View>
-            </View>
-            <View className="h-6 w-14 rounded-full bg-gray-300 dark:bg-gray-700" />
-          </View>
-
-          {/* Poster */}
-          <View className="w-full h-44 rounded-2xl bg-gray-300 dark:bg-gray-700 mb-4" />
-
-          {/* Title */}
-          <View className="h-5 w-2/3 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
-
-          {/* Subtitle */}
-          <View className="h-4 w-1/2 bg-gray-200 dark:bg-gray-600 rounded mb-3" />
-
-          {/* Meta lines */}
-          <View className="gap-2">
-            <View className="h-3 w-3/4 bg-gray-200 dark:bg-gray-600 rounded" />
-            <View className="h-3 w-1/2 bg-gray-200 dark:bg-gray-600 rounded" />
-          </View>
-
-          {/* Price row */}
-          <View className="flex-row justify-between items-center mt-4">
-            <View className="h-3 w-20 bg-gray-200 dark:bg-gray-600 rounded" />
-            <View className="h-5 w-16 bg-gray-300 dark:bg-gray-700 rounded" />
-          </View>
-        </View>
-
-        {/* Detail Sections */}
-        {[1, 2, 3].map((i) => (
-          <View
-            key={i}
-            className="rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 mb-4"
-          >
-            <View className="h-4 w-32 bg-gray-300 dark:bg-gray-700 rounded mb-3" />
-            <View className="h-3 w-full bg-gray-200 dark:bg-gray-600 rounded mb-2" />
-            <View className="h-3 w-5/6 bg-gray-200 dark:bg-gray-600 rounded" />
-          </View>
-        ))}
-
-        {/* CTA Buttons */}
-        <View className="gap-3 mt-4">
-          <View className="h-14 rounded-xl bg-gray-300 dark:bg-gray-700" />
-          <View className="h-14 rounded-xl bg-gray-400 dark:bg-gray-600" />
-        </View>
-      </ScrollView>
+      <View className="flex-1 items-center justify-center px-6">
+        <ActivityIndicator size="large" color="#8AFF1A" />
+        <Text className="mt-4 text-sm text-light-muted dark:text-dark-muted text-center">
+          Loading tournament details…
+        </Text>
+      </View>
     </ScreenWrapper>
   );
 }

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   RefreshControl,
   ScrollView,
   Text,
@@ -180,7 +181,12 @@ export default function LiveMatchScreen() {
           </Text>
 
           {loading ? (
-            <SetScoresSkeleton />
+            <View className="items-center justify-center py-12">
+              <ActivityIndicator size="large" color="#8AFF1A" />
+              <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+                Loading match scores…
+              </Text>
+            </View>
           ) : (
             sets.map((set) => {
               const isLive = set.inProgress;
@@ -192,12 +198,14 @@ export default function LiveMatchScreen() {
                     isLive ? "bg-primary/10 border-primary" : ""
                   }`}
                 >
+                  {/* LEFT */}
                   <View className="w-16">
                     <Text className="text-sm text-light-muted dark:text-dark-muted">
                       Set {set.set}
                     </Text>
                   </View>
 
+                  {/* CENTER */}
                   <View className="flex-1 flex-row items-center justify-center gap-6">
                     <Text className="text-sm font-bold text-light-text dark:text-dark-text">
                       {set.player1Score}
@@ -210,6 +218,7 @@ export default function LiveMatchScreen() {
                     </Text>
                   </View>
 
+                  {/* RIGHT */}
                   <View className="w-20 items-end">
                     {isLive ? (
                       <Text className="text-xs font-bold text-primary">

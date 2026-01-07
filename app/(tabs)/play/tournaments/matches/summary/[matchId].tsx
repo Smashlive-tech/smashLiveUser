@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -136,7 +137,14 @@ export default function MatchSummaryScreen() {
         )}
 
         {/* ===== SCORE CARD ===== */}
-        {loading && <ScoreCardSkeleton />}
+        {loading && (
+          <View className="items-center justify-center py-12">
+            <ActivityIndicator size="large" color="#8AFF1A" />
+            <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+              Loading match scores…
+            </Text>
+          </View>
+        )}
 
         {!loading && player1 && player2 && (
           <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
@@ -170,7 +178,14 @@ export default function MatchSummaryScreen() {
             Set Summary
           </Text>
 
-          {loading && [1, 2, 3].map((i) => <SetRowSkeleton key={i} />)}
+          {loading && (
+            <View className="items-center justify-center py-12">
+              <ActivityIndicator size="large" color="#8AFF1A" />
+              <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+                Loading match summary…
+              </Text>
+            </View>
+          )}
 
           {!loading &&
             sets.map((set) => {
@@ -329,38 +344,4 @@ function InfoRow({
 
 function Divider() {
   return <View className="h-px bg-light-border dark:bg-dark-border my-1" />;
-}
-
-/* ================= SKELETONS ================= */
-
-function SkeletonBox({ className }: { className: string }) {
-  return (
-    <View
-      className={`bg-light-border dark:bg-dark-border rounded-md ${className}`}
-    />
-  );
-}
-
-function ScoreCardSkeleton() {
-  return (
-    <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
-      <SkeletonBox className="h-4 w-44 self-center mb-4" />
-
-      <View className="flex-row items-center justify-between">
-        <SkeletonBox className="h-12 w-12 rounded-full" />
-        <SkeletonBox className="h-8 w-20" />
-        <SkeletonBox className="h-12 w-12 rounded-full" />
-      </View>
-    </View>
-  );
-}
-
-function SetRowSkeleton() {
-  return (
-    <View className="flex-row items-center justify-between py-3">
-      <SkeletonBox className="h-4 w-12" />
-      <SkeletonBox className="h-4 w-24" />
-      <SkeletonBox className="h-4 w-20" />
-    </View>
-  );
 }

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -186,9 +187,11 @@ function OverviewTab({ eventId }: { eventId: string }) {
 
   if (loading) {
     return (
-      <View className="rounded-xl bg-light-card dark:bg-dark-card p-5 border border-light-border dark:border-dark-border">
-        {/* Big unified skeleton */}
-        <View className="h-40 rounded-lg bg-gray-300 dark:bg-dark-card" />
+      <View className="items-center justify-center py-20">
+        <ActivityIndicator size="large" color="#8AFF1A" />
+        <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+          Loading Overview…
+        </Text>
       </View>
     );
   }
@@ -314,12 +317,12 @@ function MatchesTab({ eventId }: { eventId: string }) {
   if (loading) {
     return (
       <View className="gap-3">
-        {[1, 2, 3].map((i) => (
-          <View
-            key={i}
-            className="h-24 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
-          />
-        ))}
+        <View className="items-center justify-center py-20">
+          <ActivityIndicator size="large" color="#8AFF1A" />
+          <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+            Loading Matches…
+          </Text>
+        </View>
       </View>
     );
   }
@@ -578,13 +581,11 @@ function PlayersTab({ eventId }: { eventId: string }) {
   /* ---------- LOADING ---------- */
   if (loading) {
     return (
-      <View className="gap-3">
-        {[1, 2, 3].map((i) => (
-          <View
-            key={i}
-            className="h-16 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
-          />
-        ))}
+      <View className="items-center justify-center py-20">
+        <ActivityIndicator size="large" color="#8AFF1A" />
+        <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+          Loading players…
+        </Text>
       </View>
     );
   }

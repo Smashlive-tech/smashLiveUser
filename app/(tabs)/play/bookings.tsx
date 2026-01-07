@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   Text,
@@ -150,22 +151,11 @@ export default function MyTournamentBookingsScreen() {
       <ScrollView className="flex-1 px-4 pt-4">
         {loading ? (
           // ===== SKELETONS =====
-          <View className="gap-4">
-            {[1, 2, 3].map((i) => (
-              <View
-                key={i}
-                className="h-28 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-3"
-              >
-                <View className="flex-row gap-4">
-                  <View className="w-24 h-24 rounded-lg bg-black/10 dark:bg-white/10" />
-                  <View className="flex-1 justify-center gap-2">
-                    <View className="h-4 w-3/4 rounded bg-black/10 dark:bg-white/10" />
-                    <View className="h-3 w-1/2 rounded bg-black/10 dark:bg-white/10" />
-                    <View className="h-3 w-2/3 rounded bg-black/10 dark:bg-white/10" />
-                  </View>
-                </View>
-              </View>
-            ))}
+          <View className="flex-1 items-center justify-center py-20">
+            <ActivityIndicator size="large" color="#8AFF1A" />
+            <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+              Loading your Events…
+            </Text>
           </View>
         ) : filteredBookings.length > 0 ? (
           filteredBookings.map((booking) => (

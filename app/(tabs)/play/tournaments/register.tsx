@@ -3,7 +3,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   Text,
@@ -19,11 +21,14 @@ export default function RegisterTypeScreen() {
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const { user } = useAuth();
   const eventIdNum = Number(eventId);
+
+  const [loading, setLoading] = useState(false);
+
   return (
     <ScreenWrapper>
       {/* ================= HEADER ================= */}
       <View className="flex-row items-center gap-3 px-4 py-4">
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.back()} disabled={loading}>
           <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableOpacity>
 
@@ -48,66 +53,63 @@ export default function RegisterTypeScreen() {
 
         {/* ================= OPTIONS ================= */}
         <View className="px-4">
-          {/* INDIVIDUAL */}
           <RegisterCard
             icon="person-outline"
             title="Play as Individual"
             subtitle="Register solo. Ideal for singles or solo events."
-            onPress={async () =>
-              // router.push({
-              //   pathname: "/play/tournaments/payment",
-              //   params: { eventId },
-              // })
-              {
-                try {
-                  const res = await axios.post(
-                    "https://smashlive-omega.vercel.app/api/registrations",
-                    {
-                      event: eventIdNum,
-                      player: user?.id,
-                    }
-                  );
-                  Alert.alert("Success", "Registered successfully");
-                } catch (err: any) {
-                  if (axios.isAxiosError(err)) {
-                    if (
-                      err.response?.data.errors[0].data.errors[0].message ==
-                      "Value must be unique"
-                    ) {
-                      Alert.alert(
-                        "Already Registered",
-                        "You are already registered for the tournament"
-                      );
-                    } else {
-                      Alert.alert(
-                        "Error",
-                        "Registration failed. Please try again."
-                      );
-                    }
-                  } else {
-                    Alert.alert("Error", "Something went wrong");
+            onPress={async () => {
+              if (loading) return;
+
+              try {
+                setLoading(true);
+
+                await axios.post(
+                  "https://smashlive-omega.vercel.app/api/registrations",
+                  {
+                    event: eventIdNum,
+                    player: user?.id,
                   }
+                );
 
-                  console.log(err);
+                Alert.alert("Success", "Registered successfully");
+              } catch (err: any) {
+                if (axios.isAxiosError(err)) {
+                  if (
+                    err.response?.data?.errors?.[0]?.data?.errors?.[0]
+                      ?.message === "Value must be unique"
+                  ) {
+                    Alert.alert(
+                      "Already Registered",
+                      "You are already registered for the tournament"
+                    );
+                  } else {
+                    Alert.alert(
+                      "Error",
+                      "Registration failed. Please try again."
+                    );
+                  }
+                } else {
+                  Alert.alert("Error", "Something went wrong");
                 }
+              } finally {
+                setLoading(false);
               }
-            }
+            }}
           />
-
-          {/* CREATE TEAM */}
-          {/* <RegisterCard
-            icon="people-outline"
-            title="Create a Team"
-            subtitle="Create a team and add players before the tournament starts."
-            onPress={() =>
-              router.push({
-                pathname: "/play/tournaments/createTeam",
-                params: { tournamentId },
-              })
-            }
-          /> */}
         </View>
       </ScrollView>
+
+      {/* ================= LOADING OVERLAY ================= */}
+      {loading && (
+        <View className="absolute inset-0 items-center justify-center bg-black/30">
+          <View className="rounded-xl bg-light-card dark:bg-dark-card px-6 py-5 items-center">
+            <ActivityIndicator size="large" color="#8AFF1A" />
+            <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+              Registering for the event…
+            </Text>
+          </View>
+        </View>
+      )}
     </ScreenWrapper>
   );
 }

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -91,13 +92,14 @@ export default function TournamentEventsScreen() {
           <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-4">
             Tournament Events
           </Text>
-          {loading &&
-            [1, 2, 3].map((i) => (
-              <View
-                key={i}
-                className="mb-4 h-24 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
-              />
-            ))}
+          {loading && (
+            <View className="items-center justify-center py-20">
+              <ActivityIndicator size="large" color="#8AFF1A" />
+              <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
+                Loading events…
+              </Text>
+            </View>
+          )}
           {!loading &&
             events.map((event) => (
               <View
