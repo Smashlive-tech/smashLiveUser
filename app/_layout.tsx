@@ -10,6 +10,10 @@ export default function RootLayout() {
           options={{ headerShown: false }}
         ></Stack.Screen>
         <Stack.Screen
+          name="welcome"
+          options={{ headerShown: false }}
+        ></Stack.Screen>
+        <Stack.Screen
           name="(auth)"
           options={{ headerShown: false }}
         ></Stack.Screen>
