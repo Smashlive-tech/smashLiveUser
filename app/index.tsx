@@ -1,36 +1,36 @@
 import { useAuth } from "@/context/AuthContext";
 import { checkAuth } from "@/services/authService";
 import { Redirect } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function Index() {
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const { setUser } = useAuth();
 
   useEffect(() => {
     const init = async () => {
-      const result = await checkAuth();
-      console.log(result.authenticated);
-      if (result.authenticated) {
-        setUser(result.user);
-        setAuthenticated(true);
+      try {
+        const result = await checkAuth();
+        if (result.authenticated) {
+          setUser(result.user);
+          setAuthenticated(true);
+        } else {
+          setAuthenticated(false);
+        }
+      } catch (e) {
+        setAuthenticated(false);
+      } finally {
+        await SplashScreen.hideAsync();
       }
-
-      setLoading(false);
     };
 
     init();
   }, []);
 
-  if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  if (authenticated === null) return null;
 
   return authenticated ? (
     <Redirect href="/(tabs)/home" />

@@ -1,8 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -14,9 +14,9 @@ export default function PaymentSummaryScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { eventId } = useLocalSearchParams();
   const TOTAL = 52.25;
-
+  const { user } = useAuth();
   return (
     <ScreenWrapper>
       {/* ================= HEADER ================= */}
@@ -86,7 +86,7 @@ export default function PaymentSummaryScreen() {
       {/* ================= STICKY CTA ================= */}
       <View className="absolute bottom-0 left-0 right-0 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border px-4 py-4">
         <TouchableOpacity
-          onPress={() => Alert.alert("Payment Success")}
+          onPress={() => {}}
           className="h-14 rounded-xl bg-primary items-center justify-center"
         >
           <Text className="text-black text-base font-bold">

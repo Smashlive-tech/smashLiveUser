@@ -1,6 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { getAccessToken } from "@/services/authService";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -131,6 +131,15 @@ export default function TournamentDetailsScreen() {
         <Text className="flex-1 ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
           Play
         </Text>
+
+        <View className="flex-row gap-4">
+          <TouchableOpacity onPress={() => router.push("/notifications")}>
+            <MaterialIcons name="notifications" size={24} color={iconColor} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/play/bookings")}>
+            <MaterialIcons name="calendar-month" size={24} color={iconColor} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* ================= CONTENT ================= */}

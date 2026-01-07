@@ -4,7 +4,9 @@ import * as SecureStore from "expo-secure-store";
 export const getAccessToken = async () => {
   return await SecureStore.getItemAsync("access_token");
 };
-
+export const removeAccessToken = async () => {
+  await SecureStore.deleteItemAsync("access_token");
+};
 export const checkAuth = async () => {
   try {
     const token = await getAccessToken();

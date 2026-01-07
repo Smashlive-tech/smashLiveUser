@@ -1,30 +1,94 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { Image, ScrollView, Text, View, useColorScheme } from "react-native";
+import axios from "axios";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from "react-native";
 
-/**
- * MATCH SUMMARY SCREEN
- * - Used for completed matches
- * - matchId comes from route params
- * - Data fetched once from API
- */
+/* ================= TYPES ================= */
+
+type ApiSet = {
+  id: number;
+  set: number;
+  player1Score: number;
+  player2Score: number;
+  winner: { id: number; fullname: string } | null;
+  match: {
+    player1: { id: number; fullname: string };
+    player2: { id: number; fullname: string };
+    winner: { id: number; fullname: string } | null;
+    event: { title: string };
+  };
+};
+
+/* ================= SCREEN ================= */
 
 export default function MatchSummaryScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
-  /**
-   * 🔹 API TODO
-   * 1. Get matchId from route params
-   * 2. Fetch match summary (GET /matches/:matchId)
-   * 3. Get final score, winner, stats
-   */
+  const { matchId } = useLocalSearchParams<{ matchId: string }>();
+
+  const [sets, setSets] = useState<ApiSet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  /* ================= API ================= */
+
+  const fetchSets = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await axios.get(
+        "https://smashlive-omega.vercel.app/api/sets",
+        {
+          params: {
+            "where[match.id][equals]": Number(matchId),
+            depth: 2,
+          },
+        }
+      );
+
+      setSets(res.data.docs ?? []);
+    } catch {
+      setError("Unable to load match summary. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSets();
+  }, [matchId]);
+
+  /* ================= DERIVED DATA ================= */
+
+  const player1 = sets[0]?.match.player1;
+  const player2 = sets[0]?.match.player2;
+  const matchWinner = sets[0]?.match.winner;
+  const eventTitle = sets[0]?.match.event?.title;
+
+  const player1SetWins = sets.filter(
+    (s) => s.winner?.id === player1?.id
+  ).length;
+
+  const player2SetWins = sets.filter(
+    (s) => s.winner?.id === player2?.id
+  ).length;
+
+  /* ================= UI ================= */
 
   return (
     <ScreenWrapper>
-      {/* ================= HEADER ================= */}
+      {/* ===== HEADER ===== */}
       <View className="flex-row items-center gap-3 px-4 py-4">
         <Ionicons
           name="arrow-back"
@@ -33,99 +97,190 @@ export default function MatchSummaryScreen() {
           onPress={() => router.back()}
         />
 
-        <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
-          Play
-        </Text>
+        <View>
+          <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
+            Match Summary
+          </Text>
+          <Text className="text-sm text-light-muted dark:text-dark-muted">
+            Match ID: {matchId}
+          </Text>
+        </View>
       </View>
 
       <ScrollView
+        className="px-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 32 }}
-        className="px-4"
       >
-        {/* ================= MATCH STATUS ================= */}
+        {/* ===== STATUS ===== */}
         <View className="self-center mt-2 mb-5 px-3 py-1 rounded-full bg-primary/15">
-          <Text className="text-primary text-sm font-semibold">
+          <Text className="text-base text-primary font-semibold">
             Match Completed
           </Text>
         </View>
 
-        {/* ================= SCORE CARD ================= */}
-        <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
-          <Text className="text-sm text-light-muted dark:text-dark-muted mb-4 text-center">
-            City Tennis Championship • Semi Final
-          </Text>
-
-          <View className="flex-row items-center justify-between">
-            <TeamBlock
-              name="Team Alpha"
-              image="https://images.unsplash.com/photo-1517649763962-0c623066013b"
-              winner
-            />
-
-            <Text className="text-4xl font-bold text-light-text dark:text-dark-text">
-              3 : 1
+        {/* ===== ERROR ===== */}
+        {error && (
+          <View className="mb-4 rounded-xl bg-red-100 dark:bg-red-900/30 p-4">
+            <Text className="text-base font-semibold text-red-600 dark:text-red-400">
+              {error}
             </Text>
 
-            <TeamBlock
-              name="Team Bravo"
-              image="https://images.unsplash.com/photo-1517649763962-0c623066013b"
-            />
+            <TouchableOpacity
+              onPress={fetchSets}
+              className="mt-3 self-start px-4 py-2 rounded-lg bg-red-600"
+            >
+              <Text className="text-base font-semibold text-white">Retry</Text>
+            </TouchableOpacity>
           </View>
+        )}
+
+        {/* ===== SCORE CARD ===== */}
+        {loading && <ScoreCardSkeleton />}
+
+        {!loading && player1 && player2 && (
+          <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+            {eventTitle && (
+              <Text className="text-base font-semibold text-light-text dark:text-dark-text text-center mb-3">
+                {eventTitle}
+              </Text>
+            )}
+
+            <View className="flex-row items-center justify-between">
+              <PlayerCircle
+                name={player1.fullname}
+                winner={matchWinner?.id === player1.id}
+              />
+
+              <Text className="text-4xl font-bold text-light-text dark:text-dark-text">
+                {player1SetWins} : {player2SetWins}
+              </Text>
+
+              <PlayerCircle
+                name={player2.fullname}
+                winner={matchWinner?.id === player2.id}
+              />
+            </View>
+          </View>
+        )}
+
+        {/* ===== SET SUMMARY ===== */}
+        <View className="mt-5 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+          <Text className="text-base font-semibold text-light-text dark:text-dark-text mb-3">
+            Set Summary
+          </Text>
+
+          {loading && [1, 2, 3].map((i) => <SetRowSkeleton key={i} />)}
+
+          {!loading &&
+            sets.map((set) => {
+              const p1Won = set.winner?.id === player1?.id;
+              const p2Won = set.winner?.id === player2?.id;
+
+              return (
+                <View
+                  key={set.id}
+                  className="flex-row items-center justify-between py-3"
+                >
+                  <Text className="text-base text-light-muted dark:text-dark-muted w-12">
+                    Set {set.set}
+                  </Text>
+
+                  <View className="flex-row items-center gap-4">
+                    <Text
+                      className={`text-base font-bold ${
+                        p1Won
+                          ? "text-emerald-600 dark:text-primary"
+                          : "text-light-text dark:text-dark-text"
+                      }`}
+                    >
+                      {set.player1Score}
+                    </Text>
+
+                    <Text className="text-sm text-light-muted dark:text-dark-muted">
+                      -
+                    </Text>
+
+                    <Text
+                      className={`text-base font-bold ${
+                        p2Won
+                          ? "text-emerald-600 dark:text-primary"
+                          : "text-light-text dark:text-dark-text"
+                      }`}
+                    >
+                      {set.player2Score}
+                    </Text>
+                  </View>
+
+                  <View className="w-24 items-end">
+                    <Text
+                      numberOfLines={1}
+                      className="text-sm font-semibold text-emerald-600 dark:text-primary"
+                    >
+                      {set.winner?.fullname ?? "—"}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
         </View>
 
-        {/* ================= MATCH DETAILS ================= */}
+        {/* ===== MATCH DETAILS ===== */}
         <View className="mt-5 rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
           <InfoRow
             icon="trophy-outline"
             label="Winner"
-            value="Team Alpha"
+            value={matchWinner?.fullname ?? "TBD"}
             highlight
           />
           <Divider />
           <InfoRow
-            icon="time-outline"
-            label="Match Duration"
-            value="1 hr 12 mins"
+            icon="layers-outline"
+            label="Total Sets"
+            value={sets.length.toString()}
           />
-          <Divider />
-          <InfoRow icon="layers-outline" label="Final Set" value="4" />
         </View>
       </ScrollView>
     </ScreenWrapper>
   );
 }
 
-/* ================= TEAM BLOCK ================= */
+/* ================= PLAYER CIRCLE ================= */
 
-function TeamBlock({
-  name,
-  image,
-  winner,
-}: {
-  name: string;
-  image: string;
-  winner?: boolean;
-}) {
+function PlayerCircle({ name, winner }: { name: string; winner?: boolean }) {
   return (
-    <View className="items-center w-24">
-      <Image
-        source={{ uri: image }}
-        className={`w-16 h-16 rounded-full mb-2 ${
-          winner ? "border-2 border-primary" : ""
+    <View className="items-center">
+      <View
+        className={`h-12 w-12 rounded-full items-center justify-center border-2 ${
+          winner ? "border-primary" : "border-gray-300 dark:border-gray-600"
         }`}
-      />
+      >
+        <Text
+          className={`text-lg font-bold ${
+            winner
+              ? "text-emerald-600 dark:text-primary"
+              : "text-light-text dark:text-dark-text"
+          }`}
+        >
+          {name.charAt(0).toUpperCase()}
+        </Text>
+      </View>
+
       <Text
         numberOfLines={1}
-        className={`text-sm font-semibold ${
-          winner ? "text-primary" : "text-light-text dark:text-dark-text"
+        className={`mt-2 text-base font-semibold ${
+          winner
+            ? "text-emerald-600 dark:text-primary"
+            : "text-light-text dark:text-dark-text"
         }`}
       >
         {name}
       </Text>
 
       {winner && (
-        <Text className="text-xs text-primary font-medium mt-0.5">Winner</Text>
+        <Text className="text-xs font-semibold text-emerald-600 dark:text-primary">
+          Winner
+        </Text>
       )}
     </View>
   );
@@ -154,13 +309,13 @@ function InfoRow({
           size={18}
           color={highlight ? "#8AFF1A" : isDark ? "#9CA3AF" : "#6B7280"}
         />
-        <Text className="text-sm text-light-muted dark:text-dark-muted">
+        <Text className="text-base text-light-muted dark:text-dark-muted">
           {label}
         </Text>
       </View>
 
       <Text
-        className={`text-sm font-semibold ${
+        className={`text-base font-semibold ${
           highlight ? "text-primary" : "text-light-text dark:text-dark-text"
         }`}
       >
@@ -174,4 +329,38 @@ function InfoRow({
 
 function Divider() {
   return <View className="h-px bg-light-border dark:bg-dark-border my-1" />;
+}
+
+/* ================= SKELETONS ================= */
+
+function SkeletonBox({ className }: { className: string }) {
+  return (
+    <View
+      className={`bg-light-border dark:bg-dark-border rounded-md ${className}`}
+    />
+  );
+}
+
+function ScoreCardSkeleton() {
+  return (
+    <View className="rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+      <SkeletonBox className="h-4 w-44 self-center mb-4" />
+
+      <View className="flex-row items-center justify-between">
+        <SkeletonBox className="h-12 w-12 rounded-full" />
+        <SkeletonBox className="h-8 w-20" />
+        <SkeletonBox className="h-12 w-12 rounded-full" />
+      </View>
+    </View>
+  );
+}
+
+function SetRowSkeleton() {
+  return (
+    <View className="flex-row items-center justify-between py-3">
+      <SkeletonBox className="h-4 w-12" />
+      <SkeletonBox className="h-4 w-24" />
+      <SkeletonBox className="h-4 w-20" />
+    </View>
+  );
 }

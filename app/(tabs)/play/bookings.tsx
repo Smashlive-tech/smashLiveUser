@@ -1,12 +1,13 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Image,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -64,12 +65,71 @@ export default function MyTournamentBookingsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
   const [search, setSearch] = useState("");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchMyBookings = async () => {
+      try {
+        setLoading(true);
+
+        const res = await axios.get(
+          "https://smashlive-omega.vercel.app/api/registrations",
+          {
+            params: {
+              depth: 1,
+              "where[player.id][equals]": user.id,
+            },
+          }
+        );
+        console.log(res.data);
+        const mappedBookings: Booking[] = (res.data.docs ?? []).map(
+          (r: any) => {
+            const event = r.event;
+
+            // derive status from dates
+            const now = new Date();
+            const start = new Date(event.startdate);
+            const end = new Date(event.enddate);
+
+            let status: BookingStatus = "upcoming";
+            if (now >= start && now <= end) status = "live";
+            if (now > end) status = "past";
+
+            return {
+              id: String(event.id),
+              title: event.title,
+              venue: event.venue ?? "TBD",
+              datetime: start.toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              sport: "Tournament",
+              status,
+              image:
+                "https://images.unsplash.com/photo-1517649763962-0c623066013b",
+            };
+          }
+        );
+
+        setBookings(mappedBookings);
+      } catch (err) {
+        console.log("Failed to fetch bookings", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyBookings();
+  }, [user?.id]);
 
   const filteredBookings = useMemo(() => {
-    return BOOKINGS.filter((b) => {
+    return bookings.filter((b) => {
       const matchesTab = b.status === activeTab;
       const matchesSearch =
         b.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -78,7 +138,7 @@ export default function MyTournamentBookingsScreen() {
 
       return matchesTab && matchesSearch;
     });
-  }, [activeTab, search]);
+  }, [bookings, activeTab, search]);
 
   return (
     <ScreenWrapper>
@@ -93,20 +153,6 @@ export default function MyTournamentBookingsScreen() {
         </Text>
       </View>
 
-      {/* ================= SEARCH ================= */}
-      <View className="px-4 pb-3">
-        <View className="flex-row items-center h-12 rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border px-4">
-          <Ionicons name="search" size={20} color={iconColor} />
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search tournaments"
-            placeholderTextColor={iconColor}
-            className="flex-1 ml-2 text-base text-light-text dark:text-dark-text"
-          />
-        </View>
-      </View>
-
       {/* ================= TABS ================= */}
       <View className="px-4">
         <View className="flex-row border-b border-light-border dark:border-dark-border">
@@ -119,7 +165,7 @@ export default function MyTournamentBookingsScreen() {
               }`}
             >
               <Text
-                className={`font-bold text-sm capitalize ${
+                className={`font-bold text-m capitalize ${
                   activeTab === tab
                     ? "text-primary"
                     : "text-light-muted dark:text-dark-muted"
@@ -134,7 +180,26 @@ export default function MyTournamentBookingsScreen() {
 
       {/* ================= LIST ================= */}
       <ScrollView className="flex-1 px-4 pt-4">
-        {filteredBookings.length > 0 ? (
+        {loading ? (
+          // ===== SKELETONS =====
+          <View className="gap-4">
+            {[1, 2, 3].map((i) => (
+              <View
+                key={i}
+                className="h-28 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-3"
+              >
+                <View className="flex-row gap-4">
+                  <View className="w-24 h-24 rounded-lg bg-black/10 dark:bg-white/10" />
+                  <View className="flex-1 justify-center gap-2">
+                    <View className="h-4 w-3/4 rounded bg-black/10 dark:bg-white/10" />
+                    <View className="h-3 w-1/2 rounded bg-black/10 dark:bg-white/10" />
+                    <View className="h-3 w-2/3 rounded bg-black/10 dark:bg-white/10" />
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : filteredBookings.length > 0 ? (
           filteredBookings.map((booking) => (
             <BookingCard key={booking.id} booking={booking} />
           ))
@@ -152,82 +217,63 @@ function BookingCard({ booking }: { booking: Booking }) {
   const router = useRouter();
 
   return (
-    <View className="mb-4 rounded-xl bg-light-card dark:bg-dark-card p-3 border border-light-border dark:border-dark-border">
-      <View className="flex-row gap-4">
+    <View className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden">
+      {/* CONTENT */}
+      <View className="flex-row gap-4 p-4">
+        {/* IMAGE */}
         <Image
           source={{ uri: booking.image }}
-          className="w-24 h-24 rounded-lg"
+          className="w-24 h-24 rounded-xl bg-gray-200 dark:bg-gray-700"
         />
 
-        <View className="flex-1 justify-center">
-          <Text className="text-base font-bold text-light-text dark:text-dark-text">
-            {booking.title}
-          </Text>
-          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-            {booking.venue}
-          </Text>
-          <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-            {booking.datetime}
-          </Text>
-          <Text className="text-xs font-medium text-primary mt-1">
-            {booking.sport}
-          </Text>
+        {/* INFO */}
+        <View className="flex-1 justify-between">
+          <View>
+            <Text
+              className="text-base font-bold text-light-text dark:text-dark-text"
+              numberOfLines={2}
+            >
+              {booking.title}
+            </Text>
+
+            <Text
+              className="text-sm text-light-muted dark:text-dark-muted mt-1"
+              numberOfLines={1}
+            >
+              {booking.venue}
+            </Text>
+
+            <Text className="text-xs text-light-muted dark:text-dark-muted mt-1">
+              {booking.datetime}
+            </Text>
+          </View>
+
+          {/* SPORT TAG */}
+          <View className="self-start mt-2 px-2 py-0.5 rounded-full bg-primary/15">
+            <Text className="text-xs font-semibold text-primary">
+              {booking.sport}
+            </Text>
+          </View>
         </View>
       </View>
 
-      {/* ================= ACTIONS ================= */}
-      <View className="mt-4">
-        {booking.status === "upcoming" && (
-          <TouchableOpacity
-            onPress={() =>
-              router.push(`/play/tournaments/matches/details/${booking.id}`)
-            }
-            className="h-10 rounded-lg bg-primary items-center justify-center"
-          >
-            <Text className="text-black font-semibold text-sm">
-              View Details
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {booking.status === "live" && (
-          <View className="flex-row gap-3">
-            <TouchableOpacity
-              onPress={() =>
-                router.push(`/play/tournaments/matches/live/${booking.id}`)
-              }
-              className="flex-1 h-10 rounded-lg bg-primary items-center justify-center"
-            >
-              <Text className="text-black  font-semibold text-sm">
-                View Score
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() =>
-                router.push(`/play/tournaments/matches/details/${booking.id}`)
-              }
-              className="flex-1 h-10 rounded-lg border border-light-border dark:border-dark-border items-center justify-center"
-            >
-              <Text className="text-light-text dark:text-dark-text font-semibold text-sm">
-                View Details
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {booking.status === "past" && (
-          <TouchableOpacity
-            onPress={() =>
-              router.push(`/play/tournaments/matches/summary/${booking.id}`)
-            }
-            className="h-10 rounded-lg bg-primary items-center justify-center"
-          >
-            <Text className="text-black  font-semibold text-sm">
-              View Summary
-            </Text>
-          </TouchableOpacity>
-        )}
+      {/* ACTION */}
+      <View className="px-4 pb-4">
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/play/tournaments/eventsFolder/[eventId]",
+              params: {
+                eventId: booking.id,
+                tab: "matches",
+              },
+            })
+          }
+          className="h-10 rounded-xl bg-primary items-center justify-center"
+          activeOpacity={0.85}
+        >
+          <Text className="text-black font-semibold text-sm">View Details</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -257,7 +303,7 @@ function EmptyState({ activeTab }: { activeTab: BookingStatus }) {
           onPress={() => router.push("/play")}
           className="mt-6 h-12 px-6 rounded-lg bg-primary items-center justify-center"
         >
-          <Text className="text-white font-bold text-base">
+          <Text className="dark:text-black text-white font-bold text-base">
             Explore Tournaments
           </Text>
         </TouchableOpacity>

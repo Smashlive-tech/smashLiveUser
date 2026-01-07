@@ -1,4 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
+import { checkAuth } from "@/services/authService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useRouter } from "expo-router";
@@ -15,11 +17,10 @@ import {
 } from "react-native";
 export default function LoginScreen() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+  const { setUser } = useAuth();
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -62,6 +63,8 @@ export default function LoginScreen() {
       await SecureStore.setItemAsync("access_token", res.data.token, {
         keychainAccessible: SecureStore.WHEN_UNLOCKED,
       });
+      const data = await checkAuth();
+      setUser(data.user);
       router.replace("/(tabs)/home");
     } catch (err) {
       if (axios.isAxiosError(err)) {

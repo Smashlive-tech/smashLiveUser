@@ -1,7 +1,10 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -11,10 +14,11 @@ import {
 
 export default function RegisterTypeScreen() {
   const router = useRouter();
-  const { tournamentId } = useLocalSearchParams();
+  const { eventId } = useLocalSearchParams();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { user } = useAuth();
+  const eventIdNum = Number(eventId);
   return (
     <ScreenWrapper>
       {/* ================= HEADER ================= */}
@@ -49,16 +53,49 @@ export default function RegisterTypeScreen() {
             icon="person-outline"
             title="Play as Individual"
             subtitle="Register solo. Ideal for singles or solo events."
-            onPress={() =>
-              router.push({
-                pathname: "/play/tournaments/payment",
-                params: { tournamentId },
-              })
+            onPress={async () =>
+              // router.push({
+              //   pathname: "/play/tournaments/payment",
+              //   params: { eventId },
+              // })
+              {
+                try {
+                  const res = await axios.post(
+                    "https://smashlive-omega.vercel.app/api/registrations",
+                    {
+                      event: eventIdNum,
+                      player: user?.id,
+                    }
+                  );
+                  Alert.alert("Success", "Registered successfully");
+                } catch (err: any) {
+                  if (axios.isAxiosError(err)) {
+                    if (
+                      err.response?.data.errors[0].data.errors[0].message ==
+                      "Value must be unique"
+                    ) {
+                      Alert.alert(
+                        "Already Registered",
+                        "You are already registered for the tournament"
+                      );
+                    } else {
+                      Alert.alert(
+                        "Error",
+                        "Registration failed. Please try again."
+                      );
+                    }
+                  } else {
+                    Alert.alert("Error", "Something went wrong");
+                  }
+
+                  console.log(err);
+                }
+              }
             }
           />
 
           {/* CREATE TEAM */}
-          <RegisterCard
+          {/* <RegisterCard
             icon="people-outline"
             title="Create a Team"
             subtitle="Create a team and add players before the tournament starts."
@@ -68,7 +105,7 @@ export default function RegisterTypeScreen() {
                 params: { tournamentId },
               })
             }
-          />
+          /> */}
         </View>
       </ScrollView>
     </ScreenWrapper>

@@ -1,4 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
+import { removeAccessToken } from "@/services/authService";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -16,7 +18,7 @@ import {
 export default function SettingsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-
+  const { setUser } = useAuth();
   const [profilePic, setProfilePic] = useState(
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBALEbqIVOyBbj_MSp30VwoHAO85ei29lp8jLEqOdwgkwZ1fal1v1DLwrhHg_q6-bJwNfitfgguH3Ijoz6XPevVYgqr5Bgd0DPvXitiqP1CGHeVS7i_eLYVZQQwDlIj8nioZd4u25mK8V58LTWb-R-F8Fh7XtK6yUM6_uRR255hnwZux-4wBbYu8N8brI93hpEZZHs-MANGSzFK8QHquRSx0y8MEMbMrs9zdZ6lEFlYHLrzygn9QBY2s9xjgLL_a-_eEd8kDhZaA6Zl"
   );
@@ -122,6 +124,25 @@ export default function SettingsScreen() {
           <TouchableOpacity
             activeOpacity={0.85}
             className="flex-row items-center px-4 py-4"
+            onPress={() => {
+              Alert.alert(
+                "Logout",
+                "Are you sure you want to logout?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                      await removeAccessToken();
+                      setUser(null);
+                      router.replace("/(auth)/login");
+                    },
+                  },
+                ],
+                { cancelable: true }
+              );
+            }}
           >
             <View className="h-10 w-10 rounded-lg bg-red-500/20 items-center justify-center mr-4">
               <MaterialIcons name="logout" size={22} color="#EF4444" />
