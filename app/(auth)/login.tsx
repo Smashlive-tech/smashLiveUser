@@ -6,6 +6,8 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
+import { ActivityIndicator } from "react-native";
+
 import {
   KeyboardAvoidingView,
   Platform,
@@ -20,6 +22,8 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const { setUser } = useAuth();
   const [errors, setErrors] = useState({
     email: "",
@@ -56,6 +60,7 @@ export default function LoginScreen() {
     setErrors(temp);
     if (!valid) return;
     try {
+      setLoading(true);
       const res = await axios.post(
         "https://smashlive-omega.vercel.app/api/users/login",
         { email: email, password: password }
@@ -74,6 +79,8 @@ export default function LoginScreen() {
           "Something went wrong";
         temp.toast = message;
       }
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -205,9 +212,16 @@ export default function LoginScreen() {
           {/* Primary Button */}
           <TouchableOpacity
             onPress={validate}
-            className="h-14 w-full items-center justify-center rounded-2xl bg-primary mb-3"
+            disabled={loading}
+            className={`h-14 w-full items-center justify-center rounded-2xl mb-3 ${
+              loading ? "bg-primary/70" : "bg-primary"
+            }`}
           >
-            <Text className="text-black font-bold text-base">Sign In</Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text className="text-black font-bold text-base">Sign In</Text>
+            )}
           </TouchableOpacity>
 
           {/* Secondary */}

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -28,7 +29,7 @@ type ErrorData = {
 
 export default function SignUpScreen() {
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -105,6 +106,7 @@ export default function SignUpScreen() {
     setErrors(temp);
     if (!valid) return;
     try {
+      setLoading(true);
       const res = await axios.post(
         "https://smashlive-omega.vercel.app/api/users",
         {
@@ -123,6 +125,8 @@ export default function SignUpScreen() {
           "Something went wrong";
         temp.toast = message;
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -335,9 +339,16 @@ export default function SignUpScreen() {
           {/* Submit */}
           <TouchableOpacity
             onPress={handleSubmit}
-            className="h-14 w-full items-center justify-center rounded-2xl bg-primary mb-5"
+            disabled={loading}
+            className={`h-14 w-full items-center justify-center rounded-2xl mb-3 ${
+              loading ? "bg-primary/70" : "bg-primary"
+            }`}
           >
-            <Text className="text-black font-bold text-base">Sign Up</Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text className="text-black font-bold text-base">Sign Up</Text>
+            )}
           </TouchableOpacity>
 
           {/* Bottom */}
