@@ -89,9 +89,11 @@ export default function TournamentEventsScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="px-4 pt-2">
-          <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-4">
-            Tournament Events
-          </Text>
+          {events.length > 0 && (
+            <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-4">
+              Tournament Events
+            </Text>
+          )}
           {loading && (
             <View className="items-center justify-center py-20">
               <ActivityIndicator size="large" color="#8AFF1A" />
@@ -100,6 +102,14 @@ export default function TournamentEventsScreen() {
               </Text>
             </View>
           )}
+          {!loading && events.length === 0 && (
+            <View className="items-center justify-center py-20">
+              <Text className="text-sm text-light-muted dark:text-dark-muted">
+                No events available for this tournament.
+              </Text>
+            </View>
+          )}
+
           {!loading &&
             events.map((event) => (
               <View
