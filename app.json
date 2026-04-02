@@ -45,8 +45,15 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow SmashLive to use your location."
+        }
+      ]
     ],
+    
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

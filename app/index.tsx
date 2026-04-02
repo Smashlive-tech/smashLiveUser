@@ -33,8 +33,8 @@ export default function Index() {
   if (authenticated === null) return null;
 
   return authenticated ? (
-    <Redirect href="/(tabs)/home"/>
+    <Redirect href="/(tabs)/home" />
   ) : (
-    <Redirect href="/welcome"/>
+    <Redirect href="/(auth)/login" />
   );
 }
