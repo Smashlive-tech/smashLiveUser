@@ -61,12 +61,16 @@ export default function PlayTournamentSearchScreen() {
       try {
         setLoading(true);
         const token = await getAccessToken();
+        let today = new Date().toISOString().split("T")[0];
+        today = "2025-08-14";
         const res = await axios.get(
           "https://smashlive-omega.vercel.app/api/tournaments",
-
           {
             params: {
               depth: 0,
+              //"where[startDate][greater_than_equal]": today,
+              //"where[status][equals]": "active",
+              sort: "startDate",
             },
             headers: {
               Authorization: `Bearer ${token}`,
