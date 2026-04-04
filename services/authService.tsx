@@ -23,6 +23,7 @@ export const checkAuth = async () => {
         },
       }
     );
+    console.log(res.data);
     if (!res.data.user) {
       return { authenticated: false };
     }

@@ -22,6 +22,14 @@ export default function RootLayout() {
         name="paymentSuccess"
         options={{ headerShown: false }}
       ></Stack.Screen>
+      <Stack.Screen
+        name="bookingType"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="corporateDate"
+        options={{ headerShown: false }}
+      ></Stack.Screen>
     </Stack>
   );
 }

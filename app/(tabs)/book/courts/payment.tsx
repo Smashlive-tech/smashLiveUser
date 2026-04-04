@@ -1,6 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ScrollView,
@@ -40,7 +40,7 @@ export default function PaymentScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
+  const { courtId, type, date } = useLocalSearchParams();
   const [selectedMethod, setSelectedMethod] = useState("scash");
 
   const total = BOOKING_DATA.subtotal + BOOKING_DATA.fees;

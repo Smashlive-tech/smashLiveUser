@@ -43,7 +43,7 @@ export default function BookingSuccessScreen() {
       {/* ================= CONTENT ================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 160 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
         className="px-4"
       >
         {/* ================= SUCCESS ICON ================= */}
@@ -67,8 +67,6 @@ export default function BookingSuccessScreen() {
           <Text className="text-sm font-medium text-light-muted dark:text-dark-muted">
             Booking ID: {SUCCESS_DATA.bookingId}
           </Text>
-
-          <Ionicons name="copy-outline" size={18} color={iconColor} />
         </View>
 
         {/* ================= SUMMARY CARD ================= */}
@@ -115,30 +113,31 @@ export default function BookingSuccessScreen() {
             value={SUCCESS_DATA.paymentMethod}
           />
         </View>
+        {/* ================= ACTION BUTTONS ================= */}
+        <View className="mt-4 mb-4">
+          {/* Primary Button */}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => router.replace("/book/bookings")}
+            className="h-12 rounded-2xl bg-primary items-center justify-center mb-3 shadow-lg"
+          >
+            <Text className="text-black font-medium text-base">
+              View My Bookings
+            </Text>
+          </TouchableOpacity>
+
+          {/* Secondary Button */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => router.replace("/book")}
+            className="h-12 rounded-2xl items-center justify-center"
+          >
+            <Text className="text-primary font-medium text-base">
+              Return to Book
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-
-      {/* ================= FOOTER ACTIONS ================= */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => router.replace("/book/bookings")}
-          className="h-12 rounded-xl bg-primary items-center justify-center mb-3"
-        >
-          <Text className="text-black font-medium text-base">
-            View My Bookings
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => router.replace("/book")}
-          className="h-12 rounded-xl items-center justify-center"
-        >
-          <Text className="text-primary font-medium text-base">
-            Return to Book
-          </Text>
-        </TouchableOpacity>
-      </View>
     </ScreenWrapper>
   );
 }

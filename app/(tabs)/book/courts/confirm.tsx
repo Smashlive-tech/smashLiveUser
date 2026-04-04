@@ -16,10 +16,21 @@ export default function BookingReviewScreen() {
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
 
-  const { date, time } = useLocalSearchParams<{
+  const { date, time, type } = useLocalSearchParams<{
     date: string;
-    time: string;
+    time?: string;
+    type?: string;
   }>();
+
+  const formattedDate = new Date(date).toDateString();
+
+  const displayDateTime =
+    type === "corporate"
+      ? `${formattedDate} • Full Day (06:00 AM - 10:00 PM)`
+      : `${formattedDate} • ${time}`;
+
+  const bookingTypeLabel =
+    type === "corporate" ? "Corporate Pass" : "Slot Booking";
 
   return (
     <ScreenWrapper>
@@ -37,7 +48,7 @@ export default function BookingReviewScreen() {
       {/* ================= CONTENT ================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 140 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
         className="px-4"
       >
         {/* ================= VENUE CARD ================= */}
@@ -56,26 +67,20 @@ export default function BookingReviewScreen() {
 
         {/* ================= BOOKING DETAILS ================= */}
         <View className="mt-6 rounded-2xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
+          {/* 🔥 Booking Type instead of Court Type */}
           <DetailRow
-            icon="tennisball-outline"
-            title="Court Type"
-            value="Indoor Hard Court"
+            icon="pricetag-outline"
+            title="Booking Type"
+            value={bookingTypeLabel}
           />
 
           <Divider />
 
+          {/* 🔥 Dynamic Date Time */}
           <DetailRow
             icon="calendar-outline"
             title="Date & Time"
-            value={`${new Date(date).toDateString()} • ${time}`}
-          />
-
-          <Divider />
-
-          <DetailRow
-            icon="people-outline"
-            title="Players"
-            value="Alex Williams (Host), Jane Doe"
+            value={displayDateTime}
           />
         </View>
 
@@ -85,6 +90,7 @@ export default function BookingReviewScreen() {
             Price Summary
           </Text>
 
+          {/* 🔥 Static now → API later */}
           <PriceRow label="Court Rental Fee" value="$45.00" />
           <PriceRow label="Service Fee & Taxes" value="$5.85" />
 
@@ -92,20 +98,22 @@ export default function BookingReviewScreen() {
 
           <PriceRow label="Total Amount" value="$50.85" bold />
         </View>
+        {/* ================= PAY BUTTON ================= */}
+        <View className="mt-6 mb-5">
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => {
+              // 👉 later replace with Razorpay
+              router.push("/book/courts/paymentSuccess");
+            }}
+            className="h-14 rounded-2xl bg-primary items-center justify-center shadow-lg"
+          >
+            <Text className="text-black text-base font-semibold">
+              Pay $50.85
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-
-      {/* ================= FOOTER ================= */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => router.push("/book/courts/payment")}
-          className="h-14 rounded-xl bg-primary items-center justify-center"
-        >
-          <Text className="text-black text-base font-medium">
-            Confirm Booking
-          </Text>
-        </TouchableOpacity>
-      </View>
     </ScreenWrapper>
   );
 }

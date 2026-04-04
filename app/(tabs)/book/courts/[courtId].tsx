@@ -88,7 +88,7 @@ export default function CourtDetailScreen() {
       {/* ================= CONTENT ================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 140 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
       >
         {/* IMAGE CAROUSEL */}
         <View className="py-3">
@@ -152,67 +152,21 @@ export default function CourtDetailScreen() {
             {COURT_DATA.description}
           </Text>
         </View>
-
-        {/* COURT TYPE */}
-        <View className="px-4 py-4">
-          <Text className="text-xl font-bold text-light-text dark:text-dark-text mb-4">
-            Select Court Type
-          </Text>
-
-          <View className="flex-row gap-4">
-            {COURT_DATA.courts.map((court) => {
-              const active = selectedCourt === court.id;
-
-              return (
-                <TouchableOpacity
-                  key={court.id}
-                  onPress={() => setSelectedCourt(court.id)}
-                  className={`flex-1 p-4 rounded-xl border ${
-                    active
-                      ? "border-primary bg-primary/10"
-                      : "border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
-                  }`}
-                >
-                  <Ionicons
-                    name={court.icon as any}
-                    size={28}
-                    color={active ? "#8AFF1A" : iconColor}
-                  />
-
-                  <Text
-                    className={`mt-2 font-semibold ${
-                      active
-                        ? "text-primary"
-                        : "text-light-text dark:text-dark-text"
-                    }`}
-                  >
-                    {court.name}
-                  </Text>
-
-                  <Text className="text-sm text-light-muted dark:text-dark-muted">
-                    {court.available} available
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+        <View className="px-4 pt-4 pb-4">
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/book/courts/bookingType",
+                params: { courtId },
+              })
+            }
+            activeOpacity={0.85}
+            className="h-14 rounded-2xl bg-primary items-center justify-center shadow-lg"
+          >
+            <Text className="text-black text-lg font-semibold">Book Now</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* ================= FOOTER ================= */}
-      <View className="absolute bottom-0 left-0 right-0 px-4 py-4 bg-light-bg dark:bg-dark-bg border-t border-light-border dark:border-dark-border">
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "/book/courts/bookSlot",
-              params: { courtId, courtType: selectedCourt },
-            })
-          }
-          className="h-14 rounded-xl bg-primary items-center justify-center"
-        >
-          <Text className="text-black text-lg font-medium">Book a Court</Text>
-        </TouchableOpacity>
-      </View>
     </ScreenWrapper>
   );
 }
