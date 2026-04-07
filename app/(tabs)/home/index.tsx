@@ -1,9 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useAuth } from "@/context/AuthContext";
-import { getUserLocation } from "@/services/getLocation";
+import { useLocation } from "@/context/LocationContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -46,15 +45,9 @@ const STORE_ITEMS = [
 export default function HomeScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const [location, setLocation] = useState("Detecting location...");
+  const { location } = useLocation();
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const { user } = useAuth();
-  useEffect(() => {
-    (async () => {
-      const loc = await getUserLocation();
-      setLocation(loc);
-    })();
-  }, []);
   return (
     <ScreenWrapper>
       <ScrollView
@@ -67,9 +60,15 @@ export default function HomeScreen() {
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
               Hi, {user?.fullname} 👋
             </Text>
-            <Text className="text-sm text-light-muted dark:text-dark-muted">
-              {location}
-            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/location")}
+              className="flex-row items-center gap-1"
+            >
+              <Text className="text-sm text-light-muted dark:text-dark-muted">
+                {location}
+              </Text>
+              <Ionicons name="chevron-down" size={16} color="#6B7280" />
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity onPress={() => router.push("/profile/[userId]")}>
