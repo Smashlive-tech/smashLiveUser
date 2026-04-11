@@ -65,7 +65,7 @@ export default function LoginScreen() {
         "https://smashlive-omega.vercel.app/api/users/login",
         { email: email, password: password }
       );
-      await SecureStore.setItemAsync("access_token", res.data.token, {
+      await SecureStore.setItemAsync("token", res.data.token, {
         keychainAccessible: SecureStore.WHEN_UNLOCKED,
       });
       const data = await checkAuth();
@@ -209,31 +209,55 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Primary Button */}
-          <TouchableOpacity
-            onPress={validate}
-            disabled={loading}
-            className={`h-14 w-full items-center justify-center rounded-2xl mb-3 ${
-              loading ? "bg-primary/70" : "bg-primary"
-            }`}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#000" />
-            ) : (
-              <Text className="text-black font-bold text-base">Sign In</Text>
-            )}
-          </TouchableOpacity>
+          {/* Buttons Section */}
+          <View className="mt-4 gap-3">
+            {/* Primary - Sign In */}
+            <TouchableOpacity
+              onPress={validate}
+              disabled={loading}
+              className={`h-14 w-full items-center justify-center rounded-2xl ${
+                loading ? "bg-primary/70" : "bg-primary"
+              }`}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <Text className="text-black font-bold text-base">Sign In</Text>
+              )}
+            </TouchableOpacity>
 
-          {/* Secondary */}
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/otp_login/mobile")}
-            className="h-14 w-full items-center justify-center rounded-2xl border border-light-border dark:border-dark-border mb-5"
-          >
-            <Text className="text-light-text dark:text-dark-text font-bold text-base">
-              Login with OTP
-            </Text>
-          </TouchableOpacity>
+            {/* Secondary - OTP */}
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/otp_login/mobile")}
+              className="h-14 w-full items-center justify-center rounded-2xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
+            >
+              <Text className="text-light-text dark:text-dark-text font-semibold text-base">
+                Login with OTP
+              </Text>
+            </TouchableOpacity>
 
+            {/* Divider */}
+            <View className="flex-row items-center my-1">
+              <View className="flex-1 h-[1px] bg-light-border dark:bg-dark-border" />
+              <Text className="mx-3 text-xs text-light-muted dark:text-dark-muted">
+                OR
+              </Text>
+              <View className="flex-1 h-[1px] bg-light-border dark:bg-dark-border" />
+            </View>
+
+            {/* Guest Button */}
+            <TouchableOpacity
+              onPress={() => {
+                setUser(null);
+                router.replace("/(tabs)/home");
+              }}
+              className="h-10 w-full items-center justify-center rounded-xl"
+            >
+              <Text className="text-primary font-semibold text-sm">
+                Continue as Guest
+              </Text>
+            </TouchableOpacity>
+          </View>
           {/* Bottom */}
           <Text className="text-center text-sm text-light-muted dark:text-dark-muted">
             New here?{" "}

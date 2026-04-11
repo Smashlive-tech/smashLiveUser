@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import { checkAuth } from "@/services/authService";
+import * as SplashScreen from "expo-splash-screen";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type User = {
   id: string;
@@ -10,21 +12,45 @@ export type User = {
 
 type AuthContextType = {
   user: User | null;
-  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
+  loading: boolean;
+  setUser: (user: User | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+SplashScreen.preventAutoHideAsync();
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const res = await checkAuth();
+
+        if (res.authenticated) {
+          setUser(res.user);
+        } else {
+          setUser(null);
+        }
+      } catch (e) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+        await SplashScreen.hideAsync();
+      }
+    };
+
+    initAuth();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        setUser,
         isAuthenticated: !!user,
+        loading,
+        setUser,
       }}
     >
       {children}
@@ -34,8 +60,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 };

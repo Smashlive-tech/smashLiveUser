@@ -1,7 +1,7 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Image,
   ScrollView,
@@ -11,73 +11,27 @@ import {
   useColorScheme,
 } from "react-native";
 
-const LOGGED_IN_USER_ID = "u123";
-
-/* ================= MOCK API ================= */
-
-const MOCK_POSTS = [
-  {
-    id: "p1",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuABckBSoluEy9Y0Dj_1cMqgDeUiXJqCDKN0XUV2Krvj46Jf2KLNK8nWZSX2c_3OvQnpTyXZniLbiaynVeFdCyrQr821qD0LmCpHVV-Gz-MmUMyGQ358XLWxR98WGDp9-HZZTHt2plsDo_C_QTPHMCm113p-CFtuALAWBen1Pakfh9ySA2Yg1v8x7gzP581JSOwvlUJp2BRFx6AzvpRtuw6hvWmnGpT4rjskVeZ2IFowu0eJLHmfb7gv5kwFUwuHFXQ809cyOWNVLg",
-  },
-  {
-    id: "p2",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDy2DNJ44OeHXEb33B7mZRdJijFDREREwfNbsH1wmYR7R_HQkMDtxQBYyclNXB96YPWWm3ywJltMiECONYFiB8d0CBWII67_GtShoQSpUalEwXXc0BE4wBeFV4JgX95K5cQwU5dWKbjxjOxqsz71iTlzh999kyj3_2Ql-u8OIWCjw31m0LulVcxyVdk3VFlCYD4sBjDaji3-Z56UPMPJME4UunFS8I0akyPJ8Pu5Ld5cz8IxTZ1hAtyoOnfza7ZyAJKdveLvSMiEQ",
-  },
-];
-
-const MOCK_STATS = [
-  {
-    id: "s1",
-    title: "Achievements",
-    description: "🏆 Tournament Winner · 🥈 Runner-up · 🔥 20 Match Win Streak",
-  },
-  {
-    id: "s2",
-    title: "Activity Stats",
-    description: "Matches Played: 124 · Win Rate: 68%",
-  },
-];
-
-/* ================= SCREEN ================= */
-
 export default function ProfileScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const { userId } = useLocalSearchParams();
 
-  const profileUserId = LOGGED_IN_USER_ID;
-  const isMyProfile = profileUserId === LOGGED_IN_USER_ID;
+  const isMyProfile = true; // change later with auth
 
   const [activeTab, setActiveTab] = useState<"POSTS" | "STATS">("POSTS");
-  const [isLoading, setIsLoading] = useState(true);
-  const [posts, setPosts] = useState<typeof MOCK_POSTS>([]);
-  const [stats, setStats] = useState<typeof MOCK_STATS>([]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setPosts(MOCK_POSTS);
-      setStats(MOCK_STATS);
-      setIsLoading(false);
-    }, 1200);
-  }, []);
+  const posts = [
+    { id: "1", image: "https://picsum.photos/200" },
+    { id: "2", image: "https://picsum.photos/201" },
+    { id: "3", image: "https://picsum.photos/202" },
+    { id: "4", image: "https://picsum.photos/203" },
+    { id: "5", image: "https://picsum.photos/204" },
+    { id: "6", image: "https://picsum.photos/205" },
+  ];
 
   return (
     <ScreenWrapper>
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <View className="flex-row items-center px-4 py-4">
-        {!isMyProfile && (
-          <TouchableOpacity onPress={() => router.back()} className="mr-3">
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={isDark ? "#9CA3AF" : "#6B7280"}
-            />
-          </TouchableOpacity>
-        )}
-
         <Text className="flex-1 text-2xl font-bold text-light-text dark:text-dark-text">
           Profile
         </Text>
@@ -97,9 +51,7 @@ export default function ProfileScreen() {
         {/* ================= TOP ================= */}
         <View className="flex-row px-4 pt-6 items-center">
           <Image
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9qKDD0FCVRNkkJwFVCsvbD0nZGzHj7Au-2cl8sRnaaajgAPpYGXses26HOjJ-YWfrgZNydPnEPl3R4g0bCJJGipFWwAWYZUpfACzZT_EdGLldwgaVjRueJUpnVSAlNgtWt9IDf86gS5dlJ6lo5pgGbP7psvmT2xz-CN4vrmrmE9cqxFHo5x3tFe277Cq6UKJs9azkI2raGexDw0xACNosyhBR9qYPT1ldIq_v0o1M1ADg0O7plsxDFBFvIRUAkuKNFi-0bcXRwQ",
-            }}
+            source={{ uri: "https://picsum.photos/300" }}
             className="h-24 w-24 rounded-full"
           />
 
@@ -124,10 +76,10 @@ export default function ProfileScreen() {
         {/* ================= BIO ================= */}
         <View className="px-4 mt-4">
           <Text className="text-base font-bold text-light-text dark:text-dark-text">
-            Alex Taylor
+            Sai Nath
           </Text>
           <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-            Tennis enthusiast · Weekend warrior · Looking for a hitting partner
+            Tennis enthusiast · Looking for partners 🎾
           </Text>
         </View>
 
@@ -159,25 +111,22 @@ export default function ProfileScreen() {
         {/* ================= TABS ================= */}
         <View className="mt-8 border-b border-light-border dark:border-dark-border px-4">
           <View className="flex-row gap-8">
-            {[
-              { key: "POSTS", label: "Posts" },
-              { key: "STATS", label: "Stats & Achievements" },
-            ].map((tab) => (
+            {["POSTS", "STATS"].map((tab) => (
               <TouchableOpacity
-                key={tab.key}
-                onPress={() => setActiveTab(tab.key as any)}
+                key={tab}
+                onPress={() => setActiveTab(tab as any)}
                 className={`pb-3 ${
-                  activeTab === tab.key ? "border-b-[3px] border-primary" : ""
+                  activeTab === tab ? "border-b-[3px] border-primary" : ""
                 }`}
               >
                 <Text
                   className={`text-sm font-semibold ${
-                    activeTab === tab.key
+                    activeTab === tab
                       ? "text-primary"
                       : "text-light-muted dark:text-dark-muted"
                   }`}
                 >
-                  {tab.label}
+                  {tab}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -186,57 +135,38 @@ export default function ProfileScreen() {
 
         {/* ================= POSTS ================= */}
         {activeTab === "POSTS" && (
-          <View className="px-4 mt-5 flex-row flex-wrap">
-            {isLoading &&
-              Array.from({ length: 6 }).map((_, i) => (
-                <View key={i} className="w-1/3 aspect-square p-1">
-                  <View className="w-full h-full rounded-lg bg-slate-200 dark:bg-slate-700" />
-                </View>
-              ))}
-
-            {!isLoading &&
-              posts.map((post) => (
-                <TouchableOpacity
-                  key={post.id}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/posts",
-                      params: {
-                        postId: post.id,
-                        userId: profileUserId,
-                      },
-                    })
-                  }
-                  className="w-1/3 aspect-square p-1"
-                >
-                  <Image
-                    source={{ uri: post.image }}
-                    className="w-full h-full rounded-lg"
-                  />
-                </TouchableOpacity>
-              ))}
+          <View className="px-2 mt-4 flex-row flex-wrap">
+            {posts.map((post) => (
+              <View key={post.id} className="w-1/3 aspect-square p-1">
+                <Image
+                  source={{ uri: post.image }}
+                  className="w-full h-full rounded-lg"
+                />
+              </View>
+            ))}
           </View>
         )}
 
         {/* ================= STATS ================= */}
         {activeTab === "STATS" && (
           <View className="px-4 mt-6">
-            {!isLoading &&
-              stats.map((item) => (
-                <View
-                  key={item.id}
-                  className="rounded-xl bg-light-card dark:bg-dark-card
-                             border border-light-border dark:border-dark-border
-                             p-4 mb-4"
-                >
-                  <Text className="font-semibold text-light-text dark:text-dark-text">
-                    {item.title}
-                  </Text>
-                  <Text className="text-sm text-light-muted dark:text-dark-muted mt-2">
-                    {item.description}
-                  </Text>
-                </View>
-              ))}
+            <View className="p-4 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border mb-4">
+              <Text className="font-semibold text-light-text dark:text-dark-text">
+                Achievements
+              </Text>
+              <Text className="text-sm text-light-muted mt-2">
+                🏆 Tournament Winner · 🥈 Runner-up
+              </Text>
+            </View>
+
+            <View className="p-4 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
+              <Text className="font-semibold text-light-text dark:text-dark-text">
+                Stats
+              </Text>
+              <Text className="text-sm text-light-muted mt-2">
+                Matches: 120 · Win Rate: 65%
+              </Text>
+            </View>
           </View>
         )}
       </ScrollView>

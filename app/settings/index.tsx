@@ -1,9 +1,13 @@
+import GuestView from "@/components/GuestView";
+import FullScreenLoader from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useAuth } from "@/context/AuthContext";
 import { removeAccessToken } from "@/services/authService";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
 import {
   Alert,
@@ -14,15 +18,23 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
 export default function SettingsScreen() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <GuestView title="Settings" />;
+  }
+
+  return <SettingsScreenAuthenticated />;
+}
+function SettingsScreenAuthenticated() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-  const { setUser } = useAuth();
   const [profilePic, setProfilePic] = useState(
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBALEbqIVOyBbj_MSp30VwoHAO85ei29lp8jLEqOdwgkwZ1fal1v1DLwrhHg_q6-bJwNfitfgguH3Ijoz6XPevVYgqr5Bgd0DPvXitiqP1CGHeVS7i_eLYVZQQwDlIj8nioZd4u25mK8V58LTWb-R-F8Fh7XtK6yUM6_uRR255hnwZux-4wBbYu8N8brI93hpEZZHs-MANGSzFK8QHquRSx0y8MEMbMrs9zdZ6lEFlYHLrzygn9QBY2s9xjgLL_a-_eEd8kDhZaA6Zl"
   );
-
+  const { user, setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
   /* ================= IMAGE PICKER ================= */
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -42,7 +54,6 @@ export default function SettingsScreen() {
       setProfilePic(result.assets[0].uri);
     }
   };
-
   return (
     <ScreenWrapper>
       {/* ================= HEADER ================= */}
@@ -77,10 +88,10 @@ export default function SettingsScreen() {
           </TouchableOpacity>
 
           <Text className="mt-4 text-[22px] font-bold text-light-text dark:text-dark-text">
-            Alex Martinez
+            {user?.fullname}
           </Text>
           <Text className="text-base text-light-muted dark:text-dark-muted">
-            alex.martinez@smashlive.com
+            {user?.email}
           </Text>
         </View>
 
@@ -134,9 +145,28 @@ export default function SettingsScreen() {
                     text: "Logout",
                     style: "destructive",
                     onPress: async () => {
-                      await removeAccessToken();
-                      setUser(null);
-                      router.replace("/(auth)/login");
+                      try {
+                        setLoading(true);
+                        const token = await SecureStore.getItemAsync("token");
+
+                        // 🔥 Call backend logout
+                        await axios.post(
+                          "https://smashlive-omega.vercel.app/api/users/logout",
+                          {},
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+                      } catch (err) {
+                        console.log("Logout API failed", err);
+                      } finally {
+                        await removeAccessToken();
+                        setLoading(false);
+                        setUser(null);
+                        router.replace("/(auth)/login");
+                      }
                     },
                   },
                 ],
@@ -147,10 +177,12 @@ export default function SettingsScreen() {
             <View className="h-10 w-10 rounded-lg bg-red-500/20 items-center justify-center mr-4">
               <MaterialIcons name="logout" size={22} color="#EF4444" />
             </View>
+
             <Text className="text-base font-medium text-red-500">Logout</Text>
           </TouchableOpacity>
         </SettingsCard>
       </ScrollView>
+      {loading && <FullScreenLoader />}
     </ScreenWrapper>
   );
 }

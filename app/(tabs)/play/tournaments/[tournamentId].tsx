@@ -1,4 +1,5 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/AuthContext";
 import { getAccessToken } from "@/services/authService";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
@@ -38,7 +39,7 @@ export default function TournamentDetailsScreen() {
   const [title, setTitle] = useState("");
   const [organiserName, setOrganiserName] = useState("");
   const [venue, setVenue] = useState<string | null>(null);
-
+  const { isAuthenticated } = useAuth();
   useEffect(() => {
     const fetchTournament = async () => {
       try {
@@ -252,16 +253,23 @@ export default function TournamentDetailsScreen() {
           {/* REGISTER */}
           <TouchableOpacity
             className="h-14 rounded-xl bg-primary items-center justify-center"
-            onPress={() =>
+            onPress={() => {
+              if (!isAuthenticated) {
+                router.push("/(auth)/login");
+                return;
+              }
+
               router.push({
                 pathname: "/play/tournaments/events",
                 params: {
-                  tournamentId: tournamentId, // replace `id` with your variable
+                  tournamentId: tournamentId,
                 },
-              })
-            }
+              });
+            }}
           >
-            <Text className="text-black text-base font-bold">Register Now</Text>
+            <Text className="text-black text-base font-bold">
+              {isAuthenticated ? "Register Now" : "Login to Register"}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

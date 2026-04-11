@@ -2,19 +2,18 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 export const getAccessToken = async () => {
-  return await SecureStore.getItemAsync("access_token");
+  return await SecureStore.getItemAsync("token");
 };
 export const removeAccessToken = async () => {
-  await SecureStore.deleteItemAsync("access_token");
+  await SecureStore.deleteItemAsync("token");
 };
 export const checkAuth = async () => {
   try {
     const token = await getAccessToken();
-    console.log(token);
     if (!token) {
       return { authenticated: false };
     }
-
+    console.log(token);
     const res = await axios.get(
       "https://smashlive-omega.vercel.app/api/users/me",
       {
@@ -23,8 +22,8 @@ export const checkAuth = async () => {
         },
       }
     );
-    console.log(res.data);
     if (!res.data.user) {
+      await removeAccessToken();
       return { authenticated: false };
     }
     return {
@@ -33,7 +32,7 @@ export const checkAuth = async () => {
     };
   } catch (err: any) {
     if (axios.isAxiosError(err) && err.response?.status === 401) {
-      await SecureStore.deleteItemAsync("token");
+      await removeAccessToken();
     }
 
     return { authenticated: false };

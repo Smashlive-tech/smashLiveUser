@@ -58,7 +58,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-center px-4 py-4">
           <View>
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
-              Hi, {user?.fullname} 👋
+              Hi, {user?.fullname || "Guest"} 👋
             </Text>
             <TouchableOpacity
               onPress={() => router.push("/location")}
@@ -71,10 +71,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => router.push("/profile/[userId]")}>
+          <TouchableOpacity onPress={() => router.push("/settings")}>
             <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
               <Text className="text-black font-bold text-base">
-                {user?.fullname?.charAt(0).toUpperCase() || "U"}
+                {user?.fullname?.charAt(0).toUpperCase() || "G"}
               </Text>
             </View>
           </TouchableOpacity>

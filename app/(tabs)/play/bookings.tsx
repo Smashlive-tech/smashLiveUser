@@ -1,3 +1,4 @@
+import GuestView from "@/components/GuestView";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,8 +30,13 @@ type Booking = {
 };
 
 /* ================= SCREEN ================= */
-
 export default function MyTournamentBookingsScreen() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) return <GuestView title="Play" />;
+  return <MyTournamentBookingsScreenAuthenticated />;
+}
+function MyTournamentBookingsScreenAuthenticated() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
@@ -41,7 +47,6 @@ export default function MyTournamentBookingsScreen() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (!user?.id) return;
-
     const fetchMyBookings = async () => {
       try {
         setLoading(true);
