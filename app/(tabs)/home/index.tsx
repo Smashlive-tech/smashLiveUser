@@ -47,7 +47,7 @@ export default function HomeScreen() {
   const isDark = useColorScheme() === "dark";
   const { location } = useLocation();
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   return (
     <ScreenWrapper>
       <ScrollView
@@ -58,7 +58,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-center px-4 py-4">
           <View>
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
-              Hi, {user?.fullname || "Guest"} 👋
+              Hi, {isAuthenticated ? user?.fullname : ""} 👋
             </Text>
             <TouchableOpacity
               onPress={() => router.push("/location")}
@@ -71,13 +71,22 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => router.push("/settings")}>
-            <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
-              <Text className="text-black font-bold text-base">
-                {user?.fullname?.charAt(0).toUpperCase() || "G"}
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {isAuthenticated ? (
+            <TouchableOpacity onPress={() => router.push("/settings")}>
+              <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
+                <Text className="text-black font-bold text-base">
+                  {user?.fullname?.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/login")}
+              className="h-9 px-4 rounded-xl items-center justify-center bg-primary"
+            >
+              <Text className="text-black font-semibold text-sm">Login</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ================= TOURNAMENT STATUS ================= */}

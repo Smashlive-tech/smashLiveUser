@@ -245,15 +245,11 @@ export default function LoginScreen() {
               <View className="flex-1 h-[1px] bg-light-border dark:bg-dark-border" />
             </View>
 
-            {/* Guest Button */}
             <TouchableOpacity
-              onPress={() => {
-                setUser(null);
-                router.replace("/(tabs)/home");
-              }}
-              className="h-10 w-full items-center justify-center rounded-xl"
+              onPress={() => router.push("/(tabs)/home")}
+              className="h-14 w-full mb-3 items-center justify-center rounded-2xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
             >
-              <Text className="text-primary font-semibold text-sm">
+              <Text className="text-light-text dark:text-dark-text font-semibold text-base">
                 Continue as Guest
               </Text>
             </TouchableOpacity>
