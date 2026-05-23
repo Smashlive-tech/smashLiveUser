@@ -108,7 +108,7 @@ export default function LoginScreen() {
           {/* Email */}
           <View className="mb-3">
             <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
-              Email or Phone
+              Email
             </Text>
 
             <View

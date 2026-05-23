@@ -43,16 +43,12 @@ export default function NotificationScreen() {
 function NotificationsAuthenticated() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
-
+  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   return (
     <ScreenWrapper>
       <View className="flex-row items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons
-            name="arrow-back"
-            size={22}
-            color={isDark ? "#9CA3AF" : "#6B7280"}
-          />
+          <Ionicons name="arrow-back" size={22} color={iconColor} />
         </TouchableOpacity>
         <Text className="text-2xl font-bold text-light-text dark:text-dark-text">
           Notifications
@@ -71,7 +67,7 @@ function NotificationsAuthenticated() {
                 <Ionicons
                   name="notifications-outline"
                   size={18}
-                  color="#8AFF1A"
+                  color="#22C55E"
                 />
               </View>
 

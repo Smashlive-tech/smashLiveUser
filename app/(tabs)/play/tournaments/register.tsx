@@ -1,7 +1,8 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useAuth } from "@/context/AuthContext";
+import { getAccessToken } from "@/services/authService";
+import { payForEvent } from "@/services/payForEvent"; // adjust path
 import { Ionicons } from "@expo/vector-icons";
-import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -13,7 +14,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
 export default function RegisterTypeScreen() {
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
@@ -59,37 +59,16 @@ export default function RegisterTypeScreen() {
             subtitle="Register solo. Ideal for singles or solo events."
             onPress={async () => {
               if (loading) return;
-
               try {
                 setLoading(true);
-
-                await axios.post(
-                  "https://smashlive-omega.vercel.app/api/registrations",
-                  {
-                    event: eventIdNum,
-                    player: user?.id,
-                  }
-                );
+                const token = await getAccessToken();
+                const result = await payForEvent(eventIdNum, String(token));
+                console.log("Payment success:", result);
 
                 Alert.alert("Success", "Registered successfully");
               } catch (err: any) {
-                if (axios.isAxiosError(err)) {
-                  if (
-                    err.response?.data?.errors?.[0]?.data?.errors?.[0]
-                      ?.message === "Value must be unique"
-                  ) {
-                    Alert.alert(
-                      "Already Registered",
-                      "You are already registered for the tournament"
-                    );
-                  } else {
-                    Alert.alert(
-                      "Error",
-                      "Registration failed. Please try again."
-                    );
-                  }
-                } else {
-                  Alert.alert("Error", "Something went wrong");
+                if (err instanceof Error) {
+                  Alert.alert("Error", err.message);
                 }
               } finally {
                 setLoading(false);

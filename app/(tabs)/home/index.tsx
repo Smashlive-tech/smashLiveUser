@@ -65,7 +65,7 @@ export default function HomeScreen() {
               className="flex-row items-center gap-1"
             >
               <Text className="text-sm text-light-muted dark:text-dark-muted">
-                {location}
+                {location.displayName}
               </Text>
               <Ionicons name="chevron-down" size={16} color="#6B7280" />
             </TouchableOpacity>
@@ -115,7 +115,7 @@ export default function HomeScreen() {
                             : "calendar-outline"
                       }
                       size={22}
-                      color="#8AFF1A"
+                      color="#22C55E"
                     />
                   </View>
                   <Text className="text-sm font-medium text-light-text dark:text-dark-text">

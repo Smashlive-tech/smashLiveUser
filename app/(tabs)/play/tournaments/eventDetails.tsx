@@ -14,6 +14,8 @@ import {
 
 /* ================= DATA ================= */
 type EventItem = {
+  duration: number;
+  price: number;
   id: number;
   title: string;
   description: string;
@@ -53,8 +55,9 @@ export default function TournamentEventsScreen() {
         const mapped: EventItem[] = data.map((item: any) => ({
           id: item.id,
           title: item.title,
-          description: DEFAULT_DESCRIPTION, // 🔒 hardcoded
-          format: DEFAULT_FORMAT, // 🔒 hardcoded
+          description: DEFAULT_DESCRIPTION,
+          format: item["Pairing Type"],
+          price: item.pricePerRegistration,
         }));
 
         setEvents(mapped);
@@ -96,7 +99,7 @@ export default function TournamentEventsScreen() {
           )}
           {loading && (
             <View className="items-center justify-center py-20">
-              <ActivityIndicator size="large" color="#8AFF1A" />
+              <ActivityIndicator size="large" color="#22C55E" />
               <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
                 Loading events…
               </Text>
@@ -114,7 +117,7 @@ export default function TournamentEventsScreen() {
             events.map((event) => (
               <View
                 key={event.id}
-                className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border"
+                className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden"
               >
                 <View className="flex-row items-center p-4">
                   {/* LEFT CONTENT */}
@@ -123,13 +126,28 @@ export default function TournamentEventsScreen() {
                       {event.title}
                     </Text>
 
-                    <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                      {event.description}
-                    </Text>
+                    {!!event.description && (
+                      <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
+                        {event.description}
+                      </Text>
+                    )}
+                    <View className="mt-2 flex-row items-center gap-3">
+                      <View className="flex-row items-center gap-2">
+                        <Ionicons
+                          name="trophy-outline"
+                          size={16}
+                          color={iconColor}
+                        />
 
-                    <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-                      🏸 {event.format}
-                    </Text>
+                        <Text className="text-sm text-light-muted dark:text-dark-muted">
+                          {event.format}
+                        </Text>
+                      </View>
+
+                      <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
+                        ₹ {event.price}
+                      </Text>
+                    </View>
                   </View>
 
                   {/* RIGHT ACTION */}

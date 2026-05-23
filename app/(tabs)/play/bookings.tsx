@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -14,12 +15,14 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
 /* ================= TYPES ================= */
 
 type BookingStatus = "upcoming" | "live" | "past";
 
 type Booking = {
+  time: any;
+  format: any;
+  courts: any;
   id: string;
   title: string;
   venue: string;
@@ -45,6 +48,13 @@ function MyTournamentBookingsScreenAuthenticated() {
   const [search, setSearch] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
   useEffect(() => {
     if (!user?.id) return;
     const fetchMyBookings = async () => {
@@ -60,12 +70,11 @@ function MyTournamentBookingsScreenAuthenticated() {
             },
           }
         );
-        console.log(res.data);
+        console.log(user.id);
         const mappedBookings: Booking[] = (res.data.docs ?? []).map(
           (r: any) => {
             const event = r.event;
 
-            // derive status from dates
             const now = new Date();
             const start = new Date(event.startdate);
             const end = new Date(event.enddate);
@@ -76,15 +85,29 @@ function MyTournamentBookingsScreenAuthenticated() {
 
             return {
               id: String(event.id),
+
               title: event.title,
+
               venue: event.venue ?? "TBD",
+
               datetime: start.toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               }),
+
+              time: `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`,
+
+              format: event["Pairing Type"],
+
+              courts: event.Courts?.length ?? 0,
+
+              sets: event.numberOfSets,
+
               sport: "Tournament",
+
               status,
+
               image:
                 "https://images.unsplash.com/photo-1517649763962-0c623066013b",
             };
@@ -94,6 +117,7 @@ function MyTournamentBookingsScreenAuthenticated() {
         setBookings(mappedBookings);
       } catch (err) {
         console.log("Failed to fetch bookings", err);
+        Alert.alert("Failed to fetch bookings");
       } finally {
         setLoading(false);
       }
@@ -157,7 +181,7 @@ function MyTournamentBookingsScreenAuthenticated() {
         {loading ? (
           // ===== SKELETONS =====
           <View className="flex-1 items-center justify-center py-20">
-            <ActivityIndicator size="large" color="#8AFF1A" />
+            <ActivityIndicator size="large" color="#22C55E" />
             <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
               Loading your Events…
             </Text>
@@ -178,27 +202,31 @@ function MyTournamentBookingsScreenAuthenticated() {
 
 function BookingCard({ booking }: { booking: Booking }) {
   const router = useRouter();
-
+  const iconColor = useColorScheme() === "dark" ? "#9CA3AF" : "#475569";
   return (
-    <View className="mb-4 rounded-2xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden">
+    <View className="mb-4 rounded-3xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden">
       {/* CONTENT */}
       <View className="flex-row gap-4 p-4">
         {/* IMAGE */}
         <Image
           source={{ uri: booking.image }}
-          className="w-24 h-24 rounded-xl bg-gray-200 dark:bg-gray-700"
+          className="w-24 h-24 rounded-2xl bg-gray-200 dark:bg-gray-700"
         />
 
         {/* INFO */}
         <View className="flex-1 justify-between">
           <View>
-            <Text
-              className="text-base font-bold text-light-text dark:text-dark-text"
-              numberOfLines={2}
-            >
-              {booking.title}
-            </Text>
+            {/* TITLE + STATUS */}
+            <View className="flex-row items-start justify-between gap-2">
+              <Text
+                className="flex-1 text-base font-bold text-light-text dark:text-dark-text"
+                numberOfLines={2}
+              >
+                {booking.title}
+              </Text>
+            </View>
 
+            {/* VENUE */}
             <Text
               className="text-sm text-light-muted dark:text-dark-muted mt-1"
               numberOfLines={1}
@@ -206,16 +234,30 @@ function BookingCard({ booking }: { booking: Booking }) {
               {booking.venue}
             </Text>
 
+            {/* DATE + TIME */}
             <Text className="text-xs text-light-muted dark:text-dark-muted mt-1">
               {booking.datetime}
+              {booking.time ? ` • ${booking.time}` : ""}
             </Text>
           </View>
 
-          {/* SPORT TAG */}
-          <View className="self-start mt-2 px-2 py-0.5 rounded-full bg-primary/15">
-            <Text className="text-xs font-semibold text-primary">
-              {booking.sport}
-            </Text>
+          {/* TAGS */}
+          <View className="flex-row flex-wrap items-center gap-2 mt-1">
+            {booking.format && (
+              <View className="flex-row items-center gap-1">
+                <Ionicons name="trophy-outline" size={14} color={iconColor} />
+
+                <Text className="text-sm text-light-muted dark:text-dark-muted">
+                  {booking.format}
+                </Text>
+              </View>
+            )}
+
+            {booking.courts && (
+              <Text className="text-sm text-light-muted dark:text-dark-muted">
+                {booking.courts} Court(s)
+              </Text>
+            )}
           </View>
         </View>
       </View>
@@ -232,10 +274,10 @@ function BookingCard({ booking }: { booking: Booking }) {
               },
             })
           }
-          className="h-10 rounded-xl bg-primary items-center justify-center"
+          className="h-11 rounded-2xl bg-primary items-center justify-center"
           activeOpacity={0.85}
         >
-          <Text className="text-black font-semibold text-sm">View Details</Text>
+          <Text className="text-black font-bold text-sm">View Details</Text>
         </TouchableOpacity>
       </View>
     </View>

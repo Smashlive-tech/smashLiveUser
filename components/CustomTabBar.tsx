@@ -41,14 +41,13 @@ export default function CustomTabBar({
           >
             <View
               style={{
-                // 👇 SLIGHTLY BIGGER CIRCLE (OPTIONAL BUT FEELS BETTER)
-                width: 48, // was 46
+                width: 48,
                 height: 48,
                 borderRadius: 24,
                 overflow: "hidden",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: focused ? "#8AFF1A" : "transparent",
+                backgroundColor: focused ? "#22C55E" : "transparent",
               }}
             >
               {options.tabBarIcon?.({

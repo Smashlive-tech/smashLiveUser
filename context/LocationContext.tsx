@@ -1,18 +1,31 @@
 import { getUserLocation } from "@/services/getLocation";
 import { createContext, useContext, useEffect, useState } from "react";
 
-type LocationContextType = {
-  location: string;
-  setLocation: (loc: string) => void;
+type SelectedLocation = {
+  latitude: number;
+  longitude: number;
+  displayName: string;
+  displayAddress?: string;
 };
 
+type LocationContextType = {
+  location: SelectedLocation;
+
+  setLocation: (loc: SelectedLocation) => void;
+};
+
+const defaultLocation: SelectedLocation = {
+  latitude: 0,
+  longitude: 0,
+  displayName: "Detecting location...",
+};
 const LocationContext = createContext<LocationContextType>({
-  location: "Detecting location...",
+  location: defaultLocation,
   setLocation: () => {},
 });
 
 export const LocationProvider = ({ children }: any) => {
-  const [location, setLocation] = useState("Detecting location...");
+  const [location, setLocation] = useState<SelectedLocation>(defaultLocation);
 
   useEffect(() => {
     (async () => {

@@ -1,10 +1,12 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,28 +15,39 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 type FormData = {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
+  dob: string;
+  gender: string;
 };
+
 type ErrorData = {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
+  dob: string;
+  gender: string;
   toast: string;
 };
 
 export default function SignUpScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const genderOptions = ["Male", "Female", "Other"];
+
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    dob: "",
+    gender: "",
   });
 
   const [errors, setErrors] = useState<ErrorData>({
@@ -42,13 +55,14 @@ export default function SignUpScreen() {
     email: "",
     password: "",
     confirmPassword: "",
+    dob: "",
+    gender: "",
     toast: "",
   });
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
-
   const [agreed, setAgreed] = useState(false);
   const [agreeError, setAgreeError] = useState("");
 
@@ -64,6 +78,8 @@ export default function SignUpScreen() {
       email: "",
       password: "",
       confirmPassword: "",
+      dob: "",
+      gender: "",
       toast: "",
     };
 
@@ -98,6 +114,16 @@ export default function SignUpScreen() {
       valid = false;
     }
 
+    if (!formData.dob) {
+      temp.dob = "Date of birth is required";
+      valid = false;
+    }
+
+    if (!formData.gender) {
+      temp.gender = "Gender is required";
+      valid = false;
+    }
+
     if (!agreed) {
       setAgreeError("You must agree to the Terms & Conditions");
       valid = false;
@@ -105,17 +131,18 @@ export default function SignUpScreen() {
 
     setErrors(temp);
     if (!valid) return;
+
     try {
       setLoading(true);
-      const res = await axios.post(
-        "https://smashlive-omega.vercel.app/api/users",
-        {
-          fullname: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          role: "player",
-        }
-      );
+      await axios.post("https://smashlive-omega.vercel.app/api/users", {
+        fullname: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: "player",
+        dob: formData.dob,
+        gender: formData.gender,
+      });
+      Alert.alert("Account created Successfully");
       router.replace("/(auth)/login");
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
@@ -123,7 +150,7 @@ export default function SignUpScreen() {
           err.response?.data?.errors?.[0]?.message ||
           err.response?.data?.message ||
           "Something went wrong";
-        temp.toast = message;
+        setErrors((e) => ({ ...e, toast: message }));
       }
     } finally {
       setLoading(false);
@@ -260,7 +287,7 @@ export default function SignUpScreen() {
           </View>
 
           {/* Confirm Password */}
-          <View className="mb-6">
+          <View className="mb-3">
             <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
               Confirm Password
             </Text>
@@ -301,10 +328,95 @@ export default function SignUpScreen() {
                 {errors.confirmPassword}
               </Text>
             ) : null}
-            {errors.toast ? (
-              <Text className="text-red-500 text-sm mt-1">{errors.toast}</Text>
+          </View>
+
+          {/* Date of Birth */}
+          <View className="mb-3">
+            <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
+              Date of Birth
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              className={`flex-row items-center h-14 rounded-2xl border ${
+                errors.dob
+                  ? "border-red-500"
+                  : "border-light-border dark:border-dark-border"
+              } bg-light-card dark:bg-dark-card px-4`}
+            >
+              <MaterialCommunityIcons
+                name="calendar-outline"
+                size={22}
+                color="#9CA3AF"
+              />
+              <Text
+                className={`flex-1 pl-3 text-base ${
+                  formData.dob
+                    ? "text-light-text dark:text-dark-text"
+                    : "text-[#9CA3AF]"
+                }`}
+              >
+                {formData.dob || "Select your date of birth"}
+              </Text>
+            </TouchableOpacity>
+            {errors.dob ? (
+              <Text className="text-red-500 text-sm mt-1">{errors.dob}</Text>
+            ) : null}
+            {showDatePicker && (
+              <DateTimePicker
+                value={formData.dob ? new Date(formData.dob) : new Date()}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                maximumDate={new Date()}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(Platform.OS === "ios");
+                  if (selectedDate) {
+                    const formatted = selectedDate.toISOString().split("T")[0];
+                    handleInputChange("dob", formatted);
+                  }
+                }}
+              />
+            )}
+          </View>
+
+          {/* Gender */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium text-light-text dark:text-dark-text mb-2 ml-1">
+              Gender
+            </Text>
+            <View className="flex-row gap-3">
+              {genderOptions.map((g) => (
+                <TouchableOpacity
+                  key={g}
+                  onPress={() => handleInputChange("gender", g)}
+                  className={`flex-1 h-12 rounded-2xl border items-center justify-center ${
+                    formData.gender === g
+                      ? "border-primary bg-primary/10"
+                      : "border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card"
+                  }`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      formData.gender === g
+                        ? "text-primary"
+                        : "text-light-muted dark:text-dark-muted"
+                    }`}
+                  >
+                    {g}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {errors.gender ? (
+              <Text className="text-red-500 text-sm mt-1">{errors.gender}</Text>
             ) : null}
           </View>
+
+          {/* Toast error */}
+          {errors.toast ? (
+            <Text className="text-red-500 text-sm mb-4 ml-1">
+              {errors.toast}
+            </Text>
+          ) : null}
 
           {/* Terms */}
           <View className="flex-row items-center mb-4 ml-1">
@@ -320,7 +432,6 @@ export default function SignUpScreen() {
                 <MaterialCommunityIcons name="check" size={16} color="#000" />
               )}
             </TouchableOpacity>
-
             <Text className="text-light-muted dark:text-dark-muted text-sm flex-1">
               I agree to the{" "}
               <Text

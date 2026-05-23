@@ -14,11 +14,13 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+
 function TournamentDetailsSkeleton() {
   return (
     <ScreenWrapper>
       <View className="flex-1 items-center justify-center px-6">
-        <ActivityIndicator size="large" color="#8AFF1A" />
+        <ActivityIndicator size="large" color="#22C55E" />
+
         <Text className="mt-4 text-sm text-light-muted dark:text-dark-muted text-center">
           Loading tournament details…
         </Text>
@@ -31,20 +33,26 @@ export default function TournamentDetailsScreen() {
   const router = useRouter();
   const isDark = useColorScheme() === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-  const { tournamentId } = useLocalSearchParams<{ tournamentId: string }>();
-  const [showDescription, setShowDescription] = useState(true);
-  const [showSchedule, setShowSchedule] = useState(false);
-  const [showLocation, setShowLocation] = useState(false);
+
+  const { tournamentId } = useLocalSearchParams<{
+    tournamentId: string;
+  }>();
+
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
   const [organiserName, setOrganiserName] = useState("");
   const [venue, setVenue] = useState<string | null>(null);
+
   const { isAuthenticated } = useAuth();
+
   useEffect(() => {
     const fetchTournament = async () => {
       try {
         setLoading(true);
+
         const token = await getAccessToken();
+
         const res = await axios.get(
           `https://smashlive-omega.vercel.app/api/tournaments/${tournamentId}`,
           {
@@ -53,10 +61,14 @@ export default function TournamentDetailsScreen() {
             },
           }
         );
-        console.log(res.data);
+
         setTitle(res.data.title);
+
         setOrganiserName(res.data.organiser?.fullname || "Smash Sports Club");
+
         setVenue(res.data.venue || null);
+
+        setCreatedAt(res.data.createdAt || "");
       } catch (err) {
         console.log("Failed to fetch tournament", err);
       } finally {
@@ -72,6 +84,30 @@ export default function TournamentDetailsScreen() {
   if (loading) {
     return <TournamentDetailsSkeleton />;
   }
+  const timeline = [
+    {
+      title: "Entries Open",
+      date: createdAt
+        ? new Date(createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "02 May 2026",
+    },
+    {
+      title: "Entries Close",
+      date: "30 Jul 2026",
+    },
+    {
+      title: "Tournament Starts",
+      date: "05 Aug 2026",
+    },
+    {
+      title: "Tournament Ends",
+      date: "12 Aug 2026",
+    },
+  ];
 
   return (
     <ScreenWrapper>
@@ -82,160 +118,104 @@ export default function TournamentDetailsScreen() {
         </TouchableOpacity>
 
         <Text className="flex-1 ml-3 text-2xl font-bold text-light-text dark:text-dark-text">
-          Play
+          Tournament Details
         </Text>
 
         <View className="flex-row gap-4">
           <TouchableOpacity onPress={() => router.push("/notifications")}>
             <MaterialIcons name="notifications" size={24} color={iconColor} />
           </TouchableOpacity>
+
           <TouchableOpacity onPress={() => router.push("/play/bookings")}>
             <MaterialIcons name="calendar-month" size={24} color={iconColor} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* ================= CONTENT ================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{
+          paddingBottom: 40,
+        }}
       >
-        {/* ================= TOURNAMENT IDENTITY CARD ================= */}
+        {/* ================= HERO IMAGE ================= */}
         <View className="px-4 pt-2">
-          <View className="rounded-3xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4">
-            {/* CREATOR + STATUS */}
-            <View className="flex-row justify-between items-center mb-3">
-              <View className="flex-row items-center gap-2">
-                <View className="h-9 w-9 rounded-full bg-primary items-center justify-center">
-                  <Text className="text-black font-bold text-base">
-                    {organiserName?.charAt(0).toUpperCase() || "T"}
-                  </Text>
-                </View>
-                <View>
-                  <Text className="text-xs text-light-muted dark:text-dark-muted">
-                    Created by
-                  </Text>
-                  <Text className="text-sm font-medium text-light-text dark:text-dark-text">
-                    {organiserName}
-                  </Text>
-                </View>
-              </View>
+          <Image
+            source={{
+              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDI1JNcsG-W_WgHuV-tS1TpKFaKQdajuyfvoFAOjG4zD8rpuyBc9BkmiP_J9m62MXoHVB0T1xS6rpqfz5-M13DkFU8vz9DDCba1VOCYTcaFGV8DexIAFVysNh4LPuy2NNc06NBYzxo9rAib-HbZ28cwEJzuggcbaAOk-Mc270Kt45HG7xRQyCOGcXcVwx1E1umlpJlRjWzRnwEhGhWVrlulgkF2ut0y6O1AAglDMnGp6FGAqoLW59aJoYGwgFQylz1ZCXjaqqtvw",
+            }}
+            className="w-full h-56 rounded-3xl"
+            resizeMode="cover"
+          />
+        </View>
 
-              {/* STATUS */}
-              <View className="px-3 py-1 rounded-full bg-green-500/20">
-                <Text className="text-xs font-semibold text-green-600">
-                  Open
-                </Text>
-              </View>
-            </View>
+        {/* ================= TOURNAMENT INFO ================= */}
+        <View className="px-4 pt-5">
+          <Text className="text-3xl font-bold text-light-text dark:text-dark-text">
+            {title}
+          </Text>
 
-            {/* POSTER */}
-            <Image
-              source={{
-                uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDI1JNcsG-W_WgHuV-tS1TpKFaKQdajuyfvoFAOjG4zD8rpuyBc9BkmiP_J9m62MXoHVB0T1xS6rpqfz5-M13DkFU8vz9DDCba1VOCYTcaFGV8DexIAFVysNh4LPuy2NNc06NBYzxo9rAib-HbZ28cwEJzuggcbaAOk-Mc270Kt45HG7xRQyCOGcXcVwx1E1umlpJlRjWzRnwEhGhWVrlulgkF2ut0y6O1AAglDMnGp6FGAqoLW59aJoYGwgFQylz1ZCXjaqqtvw",
-              }}
-              className="w-full h-44 rounded-2xl my-3"
-              resizeMode="cover"
-            />
+          <Text className="mt-2 text-base font-bold text-light-text dark:text-dark-text">
+            {organiserName}
+          </Text>
 
-            {/* DETAILS */}
-            <Text className="text-xl font-bold text-light-text dark:text-dark-text">
-              {title}
+          <View className="mt-4 flex-row items-center gap-2">
+            <Ionicons name="location-outline" size={18} color={iconColor} />
+
+            <Text className="flex-1 text-sm text-light-muted dark:text-dark-muted">
+              {venue || "Venue will be announced soon"}
             </Text>
-
-            <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
-              🎾 Badminton • Doubles • Open
-            </Text>
-
-            <View className="mt-2 gap-1">
-              <Text className="text-sm text-light-muted dark:text-dark-muted">
-                📍 {venue || "TBD"}
-              </Text>
-              <Text className="text-sm text-light-muted dark:text-dark-muted">
-                📅 Aug 5 – Aug 12, 2024
-              </Text>
-            </View>
-
-            {/* PRICE */}
-            <View className="mt-3 flex-row justify-between items-center">
-              <Text className="text-sm text-light-muted dark:text-dark-muted">
-                Entry Fee
-              </Text>
-              <Text className="text-lg font-bold text-light-text dark:text-dark-text">
-                $50
-              </Text>
-            </View>
           </View>
         </View>
 
-        {/* ================= DETAILS SECTIONS ================= */}
-        <View className="px-4 pt-6 gap-4">
-          {/* DESCRIPTION */}
-          <DetailCard
-            title="Description"
-            open={showDescription}
-            onToggle={() => setShowDescription(!showDescription)}
-          >
-            <Text className="pt-3 text-sm leading-6 text-light-muted dark:text-dark-muted">
-              A detailed overview explaining the tournament format, rules,
-              prizes, and participation details.
-            </Text>
-          </DetailCard>
+        {/* ================= TIMELINE ================= */}
+        <View className="px-4 pt-8">
+          <Text className="text-xl font-bold text-light-text dark:text-dark-text mb-6">
+            Tournament Schedule
+          </Text>
 
-          {/* SCHEDULE */}
-          <DetailCard
-            title="Schedule"
-            open={showSchedule}
-            onToggle={() => setShowSchedule(!showSchedule)}
-          >
-            <View className="pt-3 gap-2">
-              {[
-                ["Registration Deadline", "July 30, 2024"],
-                ["Tournament Start", "August 5, 2024"],
-                ["Finals", "August 12, 2024"],
-              ].map(([label, value]) => (
-                <View key={label} className="flex-row justify-between">
-                  <Text className="text-sm text-light-muted dark:text-dark-muted">
-                    {label}
+          <View className="">
+            {timeline.map((item, index) => (
+              <View key={item.title} className="flex-row">
+                {/* LEFT TIMELINE */}
+                <View className="items-center mr-4 mt-1">
+                  <Ionicons
+                    name={
+                      item.title === "Entries Open"
+                        ? "calendar-outline"
+                        : item.title === "Entries Close"
+                          ? "close-circle-outline"
+                          : item.title === "Tournament Starts"
+                            ? "play-outline"
+                            : "trophy-outline"
+                    }
+                    size={18}
+                    color="#22C55E"
+                  />
+
+                  {index !== timeline.length - 1 && (
+                    <View className="w-[2px] flex-1 bg-primary/30 " />
+                  )}
+                </View>
+
+                {/* CONTENT */}
+                <View className="flex-1 pb-8">
+                  <Text className="text-base font-bold text-light-text dark:text-dark-text">
+                    {item.title}
                   </Text>
-                  <Text className="text-sm font-medium text-light-text dark:text-dark-text">
-                    {value}
+
+                  <Text className="mt-1 text-sm text-light-muted dark:text-dark-muted">
+                    {item.date}
                   </Text>
                 </View>
-              ))}
-            </View>
-          </DetailCard>
-
-          {/* LOCATION (MAP CARD) */}
-          <DetailCard
-            title="Location"
-            open={showLocation}
-            onToggle={() => setShowLocation(!showLocation)}
-          >
-            <View className="pt-3 gap-3">
-              <Text className="text-sm font-medium text-light-text dark:text-dark-text">
-                City Sports Complex{"\n"}
-                <Text className="font-normal text-light-muted dark:text-dark-muted">
-                  123 Athletic Ave, Sportsville
-                </Text>
-              </Text>
-
-              <Image
-                source={{
-                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHmVCV_qxxzsrky6r9ZFPsMTq0oIUrKd-exTy1CiAUM8oqv87wdc7viKJECUMi8GKh9AAB_dj2qz8ONF__AUEVQIR2P9YoE6OGr2PRiYxHFpp4ShriNdhx2N_T4iaRgDzJuz3q_vscZ9OBjffhT98xjGKMnyskQWv4Lmmt5SFhgyniUti7plxkwe60hEx1YuM8yPPIQL8dIuNH0WPmQUSfttiq2U4S0UvnpxR9MvQ5LfmdL8mbVUb7hSwvnBQql7Xv9h4QjHi6dA",
-                }}
-                className="w-full h-40 rounded-lg"
-                resizeMode="cover"
-              />
-            </View>
-          </DetailCard>
+              </View>
+            ))}
+          </View>
         </View>
-
         {/* ================= CTA ================= */}
-        <View className="px-4 pt-8 gap-3">
-          {/* VIEW TOURNAMENT */}
+        <View className="px-4 pt-10 gap-3">
           <TouchableOpacity
-            className="h-14 rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card items-center justify-center"
+            className="h-14 rounded-2xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card items-center justify-center"
             onPress={() =>
               router.push({
                 pathname: "/play/tournaments/eventDetails",
@@ -250,9 +230,8 @@ export default function TournamentDetailsScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* REGISTER */}
           <TouchableOpacity
-            className="h-14 rounded-xl bg-primary items-center justify-center"
+            className="h-14 rounded-2xl bg-primary items-center justify-center"
             onPress={() => {
               if (!isAuthenticated) {
                 router.push("/(auth)/login");
@@ -274,32 +253,5 @@ export default function TournamentDetailsScreen() {
         </View>
       </ScrollView>
     </ScreenWrapper>
-  );
-}
-
-/* ================= REUSABLE CARD ================= */
-
-function DetailCard({ title, open, onToggle, children }: any) {
-  const isDark = useColorScheme() === "dark";
-  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
-
-  return (
-    <View className="rounded-xl bg-light-card dark:bg-dark-card p-4 border border-light-border dark:border-dark-border">
-      <TouchableOpacity
-        onPress={onToggle}
-        className="flex-row justify-between items-center"
-      >
-        <Text className="text-base font-semibold text-light-text dark:text-dark-text">
-          {title}
-        </Text>
-        <Ionicons
-          name={open ? "chevron-up" : "chevron-down"}
-          size={20}
-          color={iconColor}
-        />
-      </TouchableOpacity>
-
-      {open && children}
-    </View>
   );
 }

@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Modal,
   ScrollView,
@@ -29,7 +30,6 @@ type Tournament = {
   image: string;
 };
 
-/* 🔒 HARDCODED VALUES */
 const HARDCODED_DATA = {
   sport: "Tennis",
   date: "August 15 2024",
@@ -38,7 +38,6 @@ const HARDCODED_DATA = {
 };
 
 /* ================= SCREEN ================= */
-
 export default function PlayTournamentSearchScreen() {
   const router = useRouter();
   const { query } = useLocalSearchParams<{ query?: string }>();
@@ -55,22 +54,21 @@ export default function PlayTournamentSearchScreen() {
   const [showSort, setShowSort] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
-
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
         setLoading(true);
         const token = await getAccessToken();
         let today = new Date().toISOString().split("T")[0];
-        today = "2025-08-14";
+        console.log(today);
         const res = await axios.get(
           "https://smashlive-omega.vercel.app/api/tournaments",
           {
             params: {
               depth: 0,
-              //"where[startDate][greater_than_equal]": today,
-              //"where[status][equals]": "active",
-              sort: "startDate",
+              // "where[startDate][greater_than_equal]": today,
+              // "where[status][equals]": "active",
+              // sort: "startDate",
             },
             headers: {
               Authorization: `Bearer ${token}`,
@@ -88,6 +86,9 @@ export default function PlayTournamentSearchScreen() {
         setTournaments(mapped);
       } catch (err) {
         console.log("Failed to fetch tournaments", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Something went wrong";
+        Alert.alert("Error", errorMessage);
       } finally {
         setLoading(false);
       }
@@ -186,7 +187,7 @@ export default function PlayTournamentSearchScreen() {
         <View className="px-4 pt-2 pb-8">
           {loading && (
             <View className="flex-1 items-center justify-center py-20">
-              <ActivityIndicator size="large" color="#8AFF1A" />
+              <ActivityIndicator size="large" color="#22C55E" />
               <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
                 Loading tournaments…
               </Text>

@@ -1,7 +1,6 @@
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useLocation } from "@/context/LocationContext";
 import { getUserLocation } from "@/services/getLocation";
-import { LOCATIONIQ_API_KEY } from "@env";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useRouter } from "expo-router";
@@ -15,7 +14,7 @@ import {
   useColorScheme,
 } from "react-native";
 
-const API_KEY = LOCATIONIQ_API_KEY;
+const API_KEY = process.env.EXPO_PUBLIC_LOCATIONIQ_API_KEY;
 
 export default function LocationScreen() {
   const router = useRouter();
@@ -65,10 +64,17 @@ export default function LocationScreen() {
 
   /* ================= SELECT ================= */
   const handleSelect = (item: any) => {
-    setLocation(item.display_name);
+    setLocation({
+      latitude: Number(item.lat),
+      longitude: Number(item.lon),
+
+      displayName: item.display_place || item.display_name,
+
+      displayAddress: item.display_name,
+    });
+
     router.back();
   };
-
   /* ================= CURRENT LOCATION ================= */
   const handleUseCurrent = async () => {
     const loc = await getUserLocation();

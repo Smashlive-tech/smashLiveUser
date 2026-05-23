@@ -1,24 +1,42 @@
 import * as Location from "expo-location";
 
+type SelectedLocation = {
+  latitude: number;
+  longitude: number;
+  displayName: string;
+  displayAddress?: string;
+};
+
 /**
- * Get formatted location (city, country)
+ * Get formatted location
  */
-export const getUserLocation = async (): Promise<string> => {
+export const getUserLocation = async (): Promise<SelectedLocation> => {
   try {
     /* ================= PERMISSION ================= */
+
     const { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== "granted") {
-      return "Permission denied";
+      return {
+        latitude: 0,
+        longitude: 0,
+        displayName: "Permission denied",
+      };
     }
 
     /* ================= GET LOCATION ================= */
+
     const loc = await Location.getCurrentPositionAsync({});
 
+    const latitude = loc.coords.latitude;
+
+    const longitude = loc.coords.longitude;
+
     /* ================= REVERSE GEOCODE ================= */
+
     const reverse = await Location.reverseGeocodeAsync({
-      latitude: loc.coords.latitude,
-      longitude: loc.coords.longitude,
+      latitude,
+      longitude,
     });
 
     if (reverse.length > 0) {
@@ -28,12 +46,26 @@ export const getUserLocation = async (): Promise<string> => {
 
       const country = place.country || "";
 
-      return `${city}, ${country}`;
+      return {
+        latitude,
+        longitude,
+        displayName: `${city}, ${country}`,
+        displayAddress: `${city}, ${country}`,
+      };
     }
 
-    return "Location not found";
+    return {
+      latitude,
+      longitude,
+      displayName: "Location not found",
+    };
   } catch (err) {
     console.log(err);
-    return "Error fetching location";
+
+    return {
+      latitude: 0,
+      longitude: 0,
+      displayName: "Error fetching location",
+    };
   }
 };

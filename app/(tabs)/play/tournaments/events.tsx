@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -16,6 +17,7 @@ type EventItem = {
   title: string;
   description: string;
   fee: number;
+  format: string;
 };
 /* ================= DATA ================= */
 const DEFAULT_DESCRIPTION =
@@ -25,7 +27,7 @@ const DEFAULT_DESCRIPTION =
 function LoadingEvents() {
   return (
     <View className="items-center justify-center py-20">
-      <ActivityIndicator size="large" color="#8AFF1A" />
+      <ActivityIndicator size="large" color="#22C55E" />
       <Text className="mt-3 text-sm text-light-muted dark:text-dark-muted">
         Loading events…
       </Text>
@@ -58,19 +60,20 @@ export default function TournamentRegisterScreen() {
           }
         );
 
-        console.log(res.data.docs);
         const data = res.data.docs ?? res.data;
 
         const mapped: EventItem[] = data.map((item: any) => ({
           id: item.id,
           title: item.title,
           description: DEFAULT_DESCRIPTION,
-          fee: item.fee ?? 50,
+          fee: item.pricePerRegistration,
+          format: item["Pairing Type"],
         }));
 
         setEvents(mapped);
       } catch (err) {
         console.log("Failed to fetch events", err);
+        Alert.alert("Failed to fetch events");
       } finally {
         setLoading(false);
       }
@@ -153,12 +156,23 @@ export default function TournamentRegisterScreen() {
                           <Text className="text-sm text-light-muted dark:text-dark-muted mt-1">
                             {event.description}
                           </Text>
+                          <View className="flex-row mt-2 items-center gap-1">
+                            <Ionicons
+                              name="trophy-outline"
+                              size={16}
+                              color={iconColor}
+                            />
+
+                            <Text className="text-sm text-light-muted dark:text-dark-muted">
+                              {event.format}
+                            </Text>
+                          </View>
                         </View>
 
                         {/* FEE BADGE */}
                         <View className="px-3 py-1 rounded-full bg-light-border dark:bg-dark-border">
                           <Text className="text-sm font-semibold text-light-text dark:text-dark-text">
-                            ${event.fee}
+                            ₹{event.fee}
                           </Text>
                         </View>
                       </View>
